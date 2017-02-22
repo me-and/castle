@@ -121,3 +121,6 @@ if command -v ssh-agent &>/dev/null; then
 
     ensure_ssh_agent_running
 fi
+
+# Import the local bashrc, if it exists.
+[[ -r ~/.bashrc_local ]] && . ~/.bashrc_local
