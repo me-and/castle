@@ -47,6 +47,13 @@ else
     echo 'lesspipe unavailable' >&2
 fi
 
+# Set up Homeshick.
+if [[ -r ~/.homesick/repos/homeshick/homeshick.sh ]]; then
+    . ~/.homesick/repos/homeshick/homeshick.sh
+else
+    echo 'homeshick unavailable' >&2
+fi
+
 # Set up PS1.
 if [[ -f ~/.homesick/repos/bash-git-prompt/gitprompt.sh ]]; then
     . ~/.homesick/repos/bash-git-prompt/gitprompt.sh
