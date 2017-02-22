@@ -23,7 +23,8 @@ shopt -s checkjobs
 
 # Enable bash completion, but only if it hasn't been enabled already -- it's
 # done automatically in Cygwin and is slow, so we don't want it twice!
-if [[ -z "$BASH_COMPLETION" ]] && ! shopt -oq posix; then
+if [[ -z "$BASH_COMPLETION" && -z "$BASH_COMPLETION_COMPAT_DIR" ]] &&
+        ! shopt -oq posix; then
     if [[ -r /etc/bash_completion ]]; then
         . /etc/bash_completion
     elif [[ -r /usr/local/etc/bash_completion ]]; then
