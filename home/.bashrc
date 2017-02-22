@@ -40,8 +40,9 @@ fi
 # Make less more friendly.
 if command -v lesspipe >/dev/null; then  # Debian
     eval "$(lesspipe)"
-elif command -v lesspipe.sh >/dev/null; then  # Cygwin
-    eval "$(lesspipe.sh)"
+elif [[ "$(uname -o)" == 'Cygwin' ]]; then
+    # We know it doesn't exist on Cygwin, so don't bother erroring.
+    :
 else
     echo 'lesspipe unavailable' >&2
 fi
