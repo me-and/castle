@@ -46,8 +46,8 @@ else
 fi
 
 # Set up PS1.
-if [[ -f ~/.homeshick/repos/bash-git-prompt/gitprompt.sh ]]; then
-    . ~/.homeshick/repos/bash-git-prompt/gitprompt.sh
+if [[ -f ~/.homesick/repos/bash-git-prompt/gitprompt.sh ]]; then
+    . ~/.homesick/repos/bash-git-prompt/gitprompt.sh
 elif [[ -f /usr/local/opt/bash-git-prompt/share/gitprompt.sh ]]; then
     . /usr/local/opt/bash-git-prompt/share/gitprompt.sh
 else
