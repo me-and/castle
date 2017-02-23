@@ -38,8 +38,12 @@ fi
 [[ -r ~/.fzf.bash ]] && . ~/.fzf.bash
 
 # Make less more friendly.
-if command -v lesspipe >/dev/null; then  # Debian
+if command -v lesspipe >/dev/null; then
+    # Seen on Debian.
     eval "$(lesspipe)"
+elif command -v lesspipe.sh >/dev/null; then
+    # Seen on CentOS.
+    export LESSOPEN="| $(command -v lesspipe.sh) %s"
 elif [[ "$(uname -o)" == 'Cygwin' ]]; then
     # We know it doesn't exist on Cygwin, so don't bother erroring.
     :
