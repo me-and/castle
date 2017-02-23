@@ -138,7 +138,9 @@ if command -v ssh-agent &>/dev/null; then
     function ensure_ssh_agent_running {
         if [[ -r ~/.ssh/ssh-agent ]]; then
             . ~/.ssh/ssh-agent
-            if [[ $(pgrep ssh-agent) != "$SSH_AGENT_PID" ]]; then
+            running_ssh_pid="$(pgrep ssh-agent)"
+            if [[ -z "$running_ssh_pid" ||
+                  $(pgrep ssh-agent) != "$SSH_AGENT_PID" ]]; then
                 start_ssh_agent
             fi
         else
