@@ -155,6 +155,9 @@ if command -v ssh-agent &>/dev/null; then
     }
 
     ensure_ssh_agent_running
+else
+    echo 'ssh-agent unavailable' >&2
+    (( rc |= 0x10 ))
 fi
 
 # Import the local bashrc, if it exists.
