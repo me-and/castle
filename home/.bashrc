@@ -112,10 +112,18 @@ alias fucking=sudo
 # Fast downloads.
 alias snarf='aria2c -x16 -s16'
 
+set_terminal_title () {
+    echo -ne '\e]0;'"$@"'\a'
+}
+
 # Set up ssh-agent.  Based on
 # https://www.cygwin.com/ml/cygwin/2001-06/msg00537.html
 if command -v ssh-agent &>/dev/null; then
     function start_ssh_agent {
+        # Set up the terminal title so KeePass can recognise the window and
+        # thus the correct password to use when prompted by ssh-add.
+        set_terminal_title "$(hostname):"
+
         (
             umask 0177
             ssh-agent | sed 's/^echo/#echo/' >~/.ssh/ssh-agent
