@@ -38,7 +38,12 @@ if [[ -z "$BASH_COMPLETION" && -z "$BASH_COMPLETION_COMPAT_DIR" ]] &&
 fi
 
 # Enable fzf.
-[[ -r ~/.fzf.bash ]] && . ~/.fzf.bash
+if [[ -r ~/.fzf.bash ]]; then
+    . ~/.fzf.bash
+else
+    echo 'fzf unavailable' >&2
+    (( rc |= 0x20 ))
+fi
 
 # Make less more friendly.
 if command -v lesspipe >/dev/null; then
