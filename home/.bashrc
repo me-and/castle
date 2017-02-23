@@ -106,6 +106,9 @@ alias such=git
 alias very=git
 alias wow='git status'
 
+# Important
+alias fucking=sudo
+
 # Fast downloads.
 alias snarf='aria2c -x16 -s16'
 
