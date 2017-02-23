@@ -124,10 +124,13 @@ if command -v ssh-agent &>/dev/null; then
         # thus the correct password to use when prompted by ssh-add.
         set_terminal_title "$(hostname):"
 
-        (
-            umask 0177
-            ssh-agent | sed 's/^echo/#echo/' >~/.ssh/ssh-agent
-        )
+        rm -f ~/.ssh/ssh-agent || return 1
+
+        # Create the file with a umask to ensure only the current user can
+        # read/write to it.  The ssh-agent call must be outside the umask as
+        # otherwise (at least on CentOS) it won't work.
+        ssh-agent | ( umask 0177 && sed 's/^echo/#echo/' >~/.ssh/ssh-agent )
+
         . ~/.ssh/ssh-agent
         ssh-add
     }
