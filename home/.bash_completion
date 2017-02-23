@@ -1,0 +1,13 @@
+# This file is sourced by /etc/bash_completion; no need to source it directly
+# ourselves.  It's also based broadly on the code in that file.
+if [[ -d ~/.bash_completion.d &&
+      -r ~/.bash_completion.d &&
+      -x ~/.bash_completion.d ]]; then
+    for file in $(LC_ALL=C command ls ~/.bash_completion.d); do
+        file=~/.bash_completion.d/$file
+        [[ ${file##*/} != @(*~|*.bak|*.swp|\#*\#|*.dpkg*|*.rpm@(orig|new|save)|Makefile*) &&
+            -f $file && -r $file ]] &&
+                . "$file"
+    done
+fi
+unset file
