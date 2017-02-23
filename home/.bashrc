@@ -1,5 +1,7 @@
 # This script based in part on the one that was distributed with Debian
 
+rc=0
+
 # Bail out if we're not running interactively.
 if [[ $- != *i* ]]; then
     return
@@ -31,6 +33,7 @@ if [[ -z "$BASH_COMPLETION" && -z "$BASH_COMPLETION_COMPAT_DIR" ]] &&
         . /usr/local/etc/bash_completion
     else
         echo 'bash_completion unavailable' >&2
+        (( rc |= 0x1 ))
     fi
 fi
 
@@ -49,6 +52,7 @@ elif [[ "$(uname -o)" == 'Cygwin' ]]; then
     :
 else
     echo 'lesspipe unavailable' >&2
+    (( rc |= 0x2 ))
 fi
 
 # Set up Homeshick.
@@ -56,6 +60,7 @@ if [[ -r ~/.homesick/repos/homeshick/homeshick.sh ]]; then
     . ~/.homesick/repos/homeshick/homeshick.sh
 else
     echo 'homeshick unavailable' >&2
+    (( rc |= 0x4 ))
 fi
 
 # Set up PS1.
@@ -66,6 +71,7 @@ elif [[ -f /usr/local/opt/bash-git-prompt/share/gitprompt.sh ]]; then
 else
     echo 'bash-git-prompt unavailable' >&2
     PS1='\[\e]0;\h:\w\a\]\n\u@\h \w\n\$ '
+    (( rc |= 0x8 ))
 fi
 
 # Colours for ls
@@ -153,3 +159,5 @@ fi
 
 # Import the local bashrc, if it exists.
 [[ -r ~/.bashrc_local ]] && . ~/.bashrc_local
+
+return "$rc"
