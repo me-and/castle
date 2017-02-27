@@ -30,7 +30,7 @@ override_git_prompt_colors() {
 
 
     # The Git prompt on Cygwin is painfully slow, so disable it.
-    if [[ "$(uname -o)" == "Cygwin" ]]; then
+    if [[ "$(uname -s)" == CYGWIN* ]]; then
         GIT_PROMPT_DISABLE=1
     fi
 }
