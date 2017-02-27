@@ -89,9 +89,17 @@ if command -v dircolors >/dev/null; then
 fi
 
 # Set up aliases to use colours.
-alias ls='ls --color=auto'
-alias dir='dir --color=auto'
-alias vdir='vdir --color=auto'
+if command -v gls >/dev/null; then
+    # On macOS with coreutils installed with "g" prefix (as is the default for
+    # Brew's coreutils package), default to using that.
+    alias ls='gls --color=auto'
+    alias dir='gdir --color=auto'
+    alias vdir='gvdir --color=auto'
+else
+    alias ls='ls --color=auto'
+    alias dir='dir --color=auto'
+    alias vdir='vdir --color=auto'
+fi
 alias grep='grep --color=auto'
 alias egrep='egrep --color=auto'
 alias fgrep='fgrep --color=auto'
