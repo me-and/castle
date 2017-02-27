@@ -100,6 +100,22 @@ alias fgrep='fgrep --color=auto'
 export EDITOR=vim
 export VISUAL=vim
 
+# Compile .ssh/config.  I want to be able to have local .ssh/config files as
+# well as shared global ones, but I also want to be able to use openssh 5.3p1,
+# and the ssh_config "Include" keyword isn't added until 7.3p1.
+if [[ -d ~/.ssh/config.d ]]; then
+    rm -f ~/.ssh/config.tmp.*
+    tmpfile="$(mktemp ~/.ssh/config.tmp.XXXXX)"
+    for file in ~/.ssh/config.d/*; do
+        printf "# $file\n\n" >>"$tmpfile"
+        cat "$file" >>"$tmpfile"
+    done
+    if ! diff -q ~/.ssh/config "$tmpfile" &>/dev/null; then
+        echo 'New ~/.ssh/config available.'
+        echo 'Install it with `mv '"'$tmpfile'"' ~/.ssh/config`'
+    fi
+fi
+
 # When calling cscope, I generally want some useful default arguments: -k
 # ignores the standard include directories (I'm rarely interested in those
 # anyway), -R recurses into directories, -q builds a reverse-lookup indices for
