@@ -105,8 +105,13 @@ alias egrep='egrep --color=auto'
 alias fgrep='fgrep --color=auto'
 
 # Editors.
-export EDITOR=vim
-export VISUAL=vim
+if command -v vim >/dev/null; then
+    export EDITOR=vim
+    export VISUAL=vim
+else
+    export EDITOR=vi
+    export VISUAL=vi
+fi
 
 # Compile .ssh/config.  I want to be able to have local .ssh/config files as
 # well as shared global ones, but I also want to be able to use openssh 5.3p1,
