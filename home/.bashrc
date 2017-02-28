@@ -127,6 +127,8 @@ if [[ -d ~/.ssh/config.d ]]; then
         echo 'New ~/.ssh/config available.'
         echo 'See the changes with `git diff --no-index ~/.ssh/config '"'$tmpfile'"'`'
         echo 'Install it with `mv '"'$tmpfile'"' ~/.ssh/config`'
+    else
+        rm "$tmpfile"
     fi
 fi
 
