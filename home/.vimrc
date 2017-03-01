@@ -96,6 +96,15 @@ Plugin 'me-and/rainbow'
 let g:rainbow_active = 1
 let g:sh_no_error = 1
 
+" Python syntax checker, linter, &c.
+Bundle 'klen/python-mode'
+let g:pymode_python = 'python'  " Set to 'python3' for Python3
+let g:pymode_folding = 0
+let g:pymode_lint_unmodified = 1
+" Pymode rope causes hangs if this isn't set:
+" https://github.com/python-mode/python-mode/issues/525
+let g:pymode_rope = 0
+
 " Finished adding Vundle plugins
 call vundle#end()
 
