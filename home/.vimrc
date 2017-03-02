@@ -87,6 +87,15 @@ call vundle#begin()
 " Let Vundle manage itself.
 Plugin 'VundleVim/Vundle.vim'
 
+" Rainbow parentheses.  Using this version not least because it does
+" "parentheses" higlighting for shell if/then loops and the like.
+"
+" This also requires g:sh_no_error, as without that some things get
+" inexplicably highlighted as errors even though they're blatantly not.
+Plugin 'me-and/rainbow'
+let g:rainbow_active = 1
+let g:sh_no_error = 1
+
 " Finished adding Vundle plugins
 call vundle#end()
 
