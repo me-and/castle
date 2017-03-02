@@ -1,10 +1,6 @@
 " Stop using vi-compatible settings!
 set nocompatible
 
-" Enable filetype detection, including loading filetype-specific plugins and
-" indentation.
-filetype plugin indent on
-
 " Keep using the current indent level when starting a new line.
 set autoindent
 
@@ -81,3 +77,20 @@ vnoremap <silent> # :<C-U>
   \gvy?<C-R><C-R>=substitute(
   \escape(@", '?\.*$^~['), '\_s\+', '\\_s\\+', 'g')<CR><CR>
   \gV:call setreg('"', old_reg, old_regtype)<CR>
+
+" Configuration required before setting up Vundle packages, per Vundle's
+" README.md.
+filetype off
+set rtp+=~/.vim/bundle/Vundle.vim
+call vundle#begin()
+
+" Let Vundle manage itself.
+Plugin 'VundleVim/Vundle.vim'
+
+" Finished adding Vundle plugins
+call vundle#end()
+
+" Enable filetype detection, including loading filetype-specific plugins and
+" indentation.  Must come after adding Vundle plugins, per the Vundle
+" README.md.
+filetype plugin indent on
