@@ -1,0 +1,73 @@
+[diff]
+	algorithm = patience
+[difftool]
+	prompt = false
+[grep]
+	lineNumber = true
+[log]
+	decorate = short
+[mergetool]
+	prompt = false
+[push]
+	default = simple
+[rebase]
+	autoSquash = true
+[rerere]
+	enabled = true
+[svn]
+	pushmergeinfo = true
+[url "git@github.com:"]
+	pushInsteadOf = https://github.com/
+	pushInsteadOf = git://github.com/
+[url "git://github.com/"]
+	insteadOf = https://github.com/
+[url "git@gist.github.com:"]
+	pushInsteadOf = https://gist.github.com/
+	pushInsteadOf = git://gist.github.com/
+[url "git://gist.github.com/"]
+	insteadOf = https://gist.github.com/
+[user]
+	name = Adam Dinwoodie
+[alias]
+	# When using bashisms below (notably [[ ... ]]), make sure to invoke
+	# bash explicitly -- on Debian, Git aliases beginning with "!" are
+	# invoked in dash by default.
+
+	# Simple short forms
+	st = status
+	co = checkout
+	ci = commit
+	h = help
+
+	# More complicated shortcuts
+	about = describe --all --always
+	raw = show --format=raw
+	full = show --format=full
+	fuller = show --format=fuller
+	amend = commit --amend -C HEAD
+	ita = add --intent-to-add
+	rm-cur-br = "!bash -c 'br=$(git symbolic-ref HEAD | cut -b 12-); git detach; if [[ $1 == -D ]]; then git branch -D $br; else git branch -d $br; fi' --"
+	sth = status -- .
+	detach = checkout --detach
+
+	# Logs
+	lug = log -u
+
+	# Graphical logs
+	lol = log --graph --decorate --pretty=oneline --abbrev-commit --date-order
+	lola = log --graph --decorate --pretty=oneline --abbrev-commit --all --date-order
+	lolas = "!f() { git log --graph --decorate --pretty=oneline --abbrev-commit --all --date-order $(git stash list | sed -r 's/(stash@\\{[0-9]+\\}):.*$/\\1/');}; f"
+
+	# Repository information
+	list-all-objs = "!f() { { git rev-list --objects --all; git rev-list --objects -g --no-walk --all; git rev-list --objects --no-walk $(git fsck --unreachable | grep '^unreachable commit' | cut -d' ' -f3);} | cut -d' ' -f1 | sort -u;}; f"
+	roots = "!f() { git rev-list --parents \"$@\" | grep -E \"^[a-f0-9]{40}$\";}; f"
+
+	# Subversion shortcuts
+	rev-to-hash = "!bash -c 'while getopts b: opt; do case $opt in b) branch=$OPTARG;; esac; done; shift $((OPTIND - 1)); while (( $# > 0 )); do count=0; for r in $(git svn find-rev r$1 $branch | sed -nr '/^[0-9a-f]{40}$/p'); do (( count++ )); echo $r; done; if (( count != 1 )); then echo \"Caution: found $count commits for r$1\" >&2; fi; shift; done' --"
+
+	# Conflict handling
+	conflicting = !bash -c '[[ -n $(git ls-files --unmerged) ]]'
+	conflicts = "!cd ${GIT_PREFIX:-.}; git ls-files --unmerged | cut -f2 | sort -u"
+[include]
+	# Put this at the bottom, so local values will override remote ones.
+	path = .gitlocalconfig
