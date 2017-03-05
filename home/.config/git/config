@@ -70,4 +70,4 @@
 	conflicts = "!cd ${GIT_PREFIX:-.}; git ls-files --unmerged | cut -f2 | sort -u"
 [include]
 	# Put this at the bottom, so local values will override remote ones.
-	path = .gitlocalconfig
+	path = ~/.config/git/localconfig
