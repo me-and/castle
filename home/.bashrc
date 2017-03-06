@@ -197,7 +197,13 @@ else
     (( rc |= 0x10 ))
 fi
 
-# Import the local bashrc, if it exists.
-[[ -r ~/.bashrc_local ]] && . ~/.bashrc_local
+# Import local .bashrc files if they exist.
+if [[ -d ~/.bashrc.d && -r ~/.bashrc.d && -x ~/.bashrc.d ]]; then
+    for file in ~/.bashrc.d/*; do
+        if [[ -f "$file" && -r "$file" ]]; then
+            . "$file"
+        fi
+    done
+fi
 
 return "$rc"
