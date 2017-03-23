@@ -60,7 +60,7 @@
 
 	# Repository information
 	list-all-objs = "!f() { { git rev-list --objects --all; git rev-list --objects -g --no-walk --all; git rev-list --objects --no-walk $(git fsck --unreachable | grep '^unreachable commit' | cut -d' ' -f3);} | cut -d' ' -f1 | sort -u;}; f"
-	roots = "!f() { git rev-list --parents \"$@\" | grep -E \"^[a-f0-9]{40}$\";}; f"
+	roots = log --max-parents=0 --pretty=format:%H
 
 	# Subversion shortcuts
 	rev-to-hash = "!bash -c 'while getopts b: opt; do case $opt in b) branch=$OPTARG;; esac; done; shift $((OPTIND - 1)); while (( $# > 0 )); do count=0; for r in $(git svn find-rev r$1 $branch | sed -nr '/^[0-9a-f]{40}$/p'); do (( count++ )); echo $r; done; if (( count != 1 )); then echo \"Caution: found $count commits for r$1\" >&2; fi; shift; done' --"
