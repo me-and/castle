@@ -16,3 +16,8 @@ fi
 
 LANG=en_GB.UTF-8
 LANGUAGE=en_GB:en
+
+case "$(hostname)" in
+    *.tastycake.net)
+        exec screen -xRR ;;
+esac
