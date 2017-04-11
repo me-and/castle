@@ -10,5 +10,9 @@ if [ -d "$HOME/info" ]; then
     INFOPATH="$HOME/info:$INFOPATH"
 fi
 
+if [ -d "$HOME/lib/python3" ]; then
+    PYTHONPATH="$HOME/lib/python3/dist-packages:$PYTHONPATH"
+fi
+
 LANG=en_GB.UTF-8
 LANGUAGE=en_GB:en
