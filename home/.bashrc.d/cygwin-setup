@@ -1,0 +1,54 @@
+CYGWIN_BASE_DOWNLOAD_URL='https://cygwin.com/'
+
+cygwin_setup_executable=
+case "$HOSTTYPE" in
+    x86_64) cygwin_setup_executable=setup-x86_64.exe ;;
+    i686) cygwin_setup_executable=setup-x86.exe ;;
+esac
+
+if [[ -n "$cygwin_setup_executable" ]]; then
+    if command -v wget >/dev/null; then
+        function cygwin_setup_update {
+            wget -O "$cygwin_setup_path" \
+                "${CYGWIN_BASE_DOWNLOAD_URL}${cygwin_setup_executable}" &&
+            chmod +x "$cygwin_setup_path"
+        }
+    elif command -v curl >/dev/null; then
+        function cygwin_setup_update {
+            curl -o "$cygwin_setup_path" \
+                "${CYGWIN_BASE_DOWNLOAD_URL}${cygwin_setup_executable}" &&
+            chmod +x "$cygwin_setup_path"
+        }
+    else
+        function cygwin_setup_update {
+            echo 'Can find neither wget nor curl!'
+            echo "Need one of these to update Cygwin's setup program"
+        } >&2
+    fi
+
+    cygwin_setup_path=
+    for path in /bin/"$cygwin_setup_executable" \
+        /usr/bin/"$cygwin_setup_executable" \
+        ~/WinHome/Downloads/"$cygwin_setup_executable"
+    do
+        if [[ -f "$path" && -x "$path" ]]; then
+            cygwin_setup_path="$path"
+            break
+        fi
+    done
+    unset path
+
+    if [[ -z "$cygwin_setup_path" ]]; then
+        cygwin_setup_path=/usr/bin/"$cygwin_setup_executable"
+        cygwin_setup_update
+    fi
+
+    function cygwin_setup {
+        "$cygwin_setup_path" -d
+    }
+else
+    {
+        echo 'Unrecognised host architecture!'
+        echo 'Unable to configure Cygwin setup functions'
+    } >&2
+fi
