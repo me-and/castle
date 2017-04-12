@@ -1,4 +1,6 @@
-if [[ -f /usr/sbin/cron && -x /usr/sbin/cron ]] && ! pgrep cron >/dev/null
+if [[ -f /usr/sbin/cron && -x /usr/sbin/cron ]] &&
+    command -v pgrep >/dev/null &&
+    ! pgrep cron >/dev/null
 then
     # Cron is installed and isn't running, so run it.
     /usr/sbin/cron
