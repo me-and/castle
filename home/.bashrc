@@ -181,6 +181,7 @@ if command -v ssh-agent &>/dev/null; then
     function ensure_ssh_agent_running {
         if [[ -r ~/.ssh/ssh-agent ]]; then
             . ~/.ssh/ssh-agent
+            command -v pgrep >/dev/null || return 1  # Can't check w/o pgrep
             running_ssh_pid="$(pgrep ssh-agent)"
             if [[ -z "$running_ssh_pid" ||
                   $(pgrep ssh-agent) != "$SSH_AGENT_PID" ]]; then
