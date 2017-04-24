@@ -45,6 +45,13 @@ else
     (( rc |= 0x20 ))
 fi
 
+# Check for the existance of pgrep, since a bunch of other things rely on it
+# and it's easier to complain once than complain every time.
+if ! command -v pgrep >/dev/null; then
+    echo 'pgrep unavailable' >&2
+    (( rc |= 0x40 ))
+fi
+
 # Make less more friendly.
 if command -v lesspipe >/dev/null; then
     # Seen on Debian.
@@ -181,6 +188,7 @@ if command -v ssh-agent &>/dev/null; then
     function ensure_ssh_agent_running {
         if [[ -r ~/.ssh/ssh-agent ]]; then
             . ~/.ssh/ssh-agent
+            command -v pgrep >/dev/null || return 1  # Can't check w/o pgrep
             running_ssh_pid="$(pgrep ssh-agent)"
             if [[ -z "$running_ssh_pid" ||
                   $(pgrep ssh-agent) != "$SSH_AGENT_PID" ]]; then

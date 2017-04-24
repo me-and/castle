@@ -14,6 +14,12 @@ override_git_prompt_colors() {
             TIME_COLOUR="${Green}"
             ;;
 
+        *.tastycake.net)
+            HOST_COLOUR="${Blue}"
+            PWD_COLOUR="${Green}"
+            TIME_COLOUR="${Cyan}"
+            ;;
+
         *)
             HOST_COLOUR="${White}"
             PWD_COLOUR="${White}"

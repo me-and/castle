@@ -69,7 +69,7 @@
 	conflicting = !bash -c '[[ -n $(git ls-files --unmerged) ]]'
 	conflicts = "!cd ${GIT_PREFIX:-.}; git ls-files --unmerged | cut -f2 | sort -u"
 [include]
-	# Put this at the bottom, so local values will override remote ones.
+	# Put this at the bottom, so local values will override general ones.
 	path = ~/.config/git/localconfig
 [core]
 	pager = less -S
