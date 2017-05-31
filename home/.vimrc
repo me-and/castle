@@ -92,7 +92,7 @@ Plugin 'VundleVim/Vundle.vim'
 "
 " This also requires g:sh_no_error, as without that some things get
 " inexplicably highlighted as errors even though they're blatantly not.
-Plugin 'me-and/rainbow'
+Plugin 'luochen1990/rainbow'
 let g:rainbow_active = 1
 let g:sh_no_error = 1
 
