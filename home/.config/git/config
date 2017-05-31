@@ -49,6 +49,7 @@
 	rm-cur-br = "!bash -c 'br=$(git symbolic-ref HEAD | cut -b 12-); git detach; if [[ $1 == -D ]]; then git branch -D $br; else git branch -d $br; fi' --"
 	sth = status -- .
 	detach = checkout --detach
+	pullout = "!f() { git checkout -B \"$1\" \"$1\"@{u}; }; f"
 
 	# Logs
 	lug = log -u
