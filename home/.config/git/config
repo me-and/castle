@@ -6,6 +6,7 @@
 	lineNumber = true
 [log]
 	decorate = short
+	mailmap = true
 [mergetool]
 	prompt = false
 [push]
