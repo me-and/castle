@@ -61,7 +61,7 @@
 	lolas = "!f() { git log --graph --decorate --pretty=oneline --abbrev-commit --all --date-order $(git stash list | sed -r 's/(stash@\\{[0-9]+\\}):.*$/\\1/');}; f"
 
 	# Repository information
-	list-all-objs = "!f() { { git rev-list --objects --all; git rev-list --objects -g --no-walk --all; git rev-list --objects --no-walk $(git fsck --unreachable | grep '^unreachable commit' | cut -d' ' -f3);} | cut -d' ' -f1 | sort -u;}; f"
+	list-all-objs = "!f() { { git rev-list --objects --all; git rev-list --objects -g --all; git rev-list --objects $(git fsck --unreachable | grep '^unreachable commit' | cut -d' ' -f3);} | cut -d' ' -f1 | sort -u;}; f"
 	roots = log --max-parents=0 --pretty=format:%H
 
 	# Subversion shortcuts
