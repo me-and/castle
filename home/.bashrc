@@ -137,6 +137,7 @@ if [[ -d ~/.ssh/config.d ]]; then
     else
         rm "$tmpfile"
     fi
+    unset tmpfile
 fi
 
 # When calling cscope, I generally want some useful default arguments: -k
@@ -194,6 +195,7 @@ if command -v ssh-agent &>/dev/null; then
                   $(pgrep ssh-agent) != "$SSH_AGENT_PID" ]]; then
                 start_ssh_agent
             fi
+            unset running_ssh_pid
         else
             start_ssh_agent
         fi
