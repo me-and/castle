@@ -25,7 +25,9 @@ shopt -s checkjobs
 
 # Enable bash completion, but only if it hasn't been enabled already -- it's
 # done automatically in Cygwin and is slow, so we don't want it twice!
-if [[ -z "$BASH_COMPLETION" && -z "$BASH_COMPLETION_COMPAT_DIR" ]] &&
+if [[ -z "$BASH_COMPLETION" &&
+            -z "$BASH_COMPLETION_COMPAT_DIR" &&
+            -z "$BASH_COMPLETION_VERSINFO" ]] &&
         ! shopt -oq posix; then
     if [[ -r /etc/bash_completion ]]; then
         . /etc/bash_completion
@@ -137,6 +139,7 @@ if [[ -d ~/.ssh/config.d ]]; then
     else
         rm "$tmpfile"
     fi
+    unset tmpfile
 fi
 
 # When calling cscope, I generally want some useful default arguments: -k
@@ -194,6 +197,7 @@ if command -v ssh-agent &>/dev/null; then
                   $(pgrep ssh-agent) != "$SSH_AGENT_PID" ]]; then
                 start_ssh_agent
             fi
+            unset running_ssh_pid
         else
             start_ssh_agent
         fi

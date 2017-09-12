@@ -56,12 +56,12 @@
 	lug = log -u
 
 	# Graphical logs
-	lol = log --graph --decorate --pretty=oneline --abbrev-commit --date-order
-	lola = log --graph --decorate --pretty=oneline --abbrev-commit --all --date-order
-	lolas = "!f() { git log --graph --decorate --pretty=oneline --abbrev-commit --all --date-order $(git stash list | sed -r 's/(stash@\\{[0-9]+\\}):.*$/\\1/');}; f"
+	lol = log --graph --decorate --pretty=oneline --abbrev-commit
+	lola = log --graph --decorate --pretty=oneline --abbrev-commit --all
+	lolas = "!f() { git log --graph --decorate --pretty=oneline --abbrev-commit --all $(git stash list | sed -r 's/(stash@\\{[0-9]+\\}):.*$/\\1/');}; f"
 
 	# Repository information
-	list-all-objs = "!f() { { git rev-list --objects --all; git rev-list --objects -g --no-walk --all; git rev-list --objects --no-walk $(git fsck --unreachable | grep '^unreachable commit' | cut -d' ' -f3);} | cut -d' ' -f1 | sort -u;}; f"
+	list-all-objs = "!f() { { git rev-list --objects --all; git rev-list --objects -g --all; git rev-list --objects $(git fsck --unreachable | grep '^unreachable commit' | cut -d' ' -f3);} | cut -d' ' -f1 | sort -u;}; f"
 	roots = log --max-parents=0 --pretty=format:%H
 
 	# Subversion shortcuts
@@ -78,6 +78,9 @@
 
 	# Branch description management
 	db = "!f () { if (( $# > 0 )); then branch=\"$1\"; else branch=\"$(git symbolic-ref --short HEAD)\" || exit 2; fi; git config --get branch.\"$branch\".description; }; f"
+
+	bivis = bisect visualize --graph --decorate --pretty=oneline --abbrev-commit
+	git-ml-describe = show -s --date=short --pretty='format:%h (\"%s\", %ad)'
 [include]
 	# Put this at the bottom, so local values will override general ones.
 	path = ~/.config/git/localconfig
