@@ -70,6 +70,11 @@
 	# Conflict handling
 	conflicting = !bash -c '[[ -n $(git ls-files --unmerged) ]]'
 	conflicts = "!cd ${GIT_PREFIX:-.}; git ls-files --unmerged | cut -f2 | sort -u"
+
+	# Use to stash the current changes, perform an operation, then unstash
+	# them.  Specifically, use `git stashed !!` in place of `git stash &&
+	# !! && git stash pop`.
+	stashed = "!f () { git stash save && \"$@\" && git stash pop; }; f"
 [include]
 	# Put this at the bottom, so local values will override general ones.
 	path = ~/.config/git/localconfig
