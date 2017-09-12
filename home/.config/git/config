@@ -75,6 +75,9 @@
 	# them.  Specifically, use `git stashed !!` in place of `git stash &&
 	# !! && git stash pop`.
 	stashed = "!f () { git stash save && \"$@\" && git stash pop; }; f"
+
+	# Branch description management
+	db = "!f () { if (( $# > 0 )); then branch=\"$1\"; else branch=\"$(git symbolic-ref --short HEAD)\" || exit 2; fi; git config --get branch.\"$branch\".description; }; f"
 [include]
 	# Put this at the bottom, so local values will override general ones.
 	path = ~/.config/git/localconfig
