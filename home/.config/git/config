@@ -71,6 +71,7 @@
 	conflicting = !bash -c '[[ -n $(git ls-files --unmerged) ]]'
 	conflicts = "!cd ${GIT_PREFIX:-.}; git ls-files --unmerged | cut -f2 | sort -u"
 	bivis = bisect visualize --graph --decorate --pretty=oneline --abbrev-commit
+	git-ml-describe = show -s --date=short --pretty='format:%h (\"%s\", %ad)'
 [include]
 	# Put this at the bottom, so local values will override general ones.
 	path = ~/.config/git/localconfig
