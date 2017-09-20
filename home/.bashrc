@@ -29,15 +29,25 @@ if [[ -z "$BASH_COMPLETION" &&
             -z "$BASH_COMPLETION_COMPAT_DIR" &&
             -z "$BASH_COMPLETION_VERSINFO" ]] &&
         ! shopt -oq posix; then
-    if [[ -r /etc/bash_completion ]]; then
-        . /etc/bash_completion
-    elif [[ -r /usr/local/etc/bash_completion ]]; then
-        . /usr/local/etc/bash_completion
-    else
+    enabled_bash_completion=
+    for f in /etc/bash_completion \
+        /usr/local/share/bash-completion/bash_completion \
+        /usr/local/etc/bash_completion
+    do
+        if [[ -r "$f" ]]; then
+            . "$f"
+            enabled_bash_completion=yes
+            break
+        fi
+    done
+
+    if [[ -z enabled_bash_completion ]]; then
         echo 'bash_completion unavailable' >&2
         (( rc |= 0x1 ))
     fi
 fi
+unset f
+unset enabled_bash_completion
 
 # Enable fzf.
 if [[ -r ~/.fzf.bash ]]; then
