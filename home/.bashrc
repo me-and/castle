@@ -41,7 +41,7 @@ if [[ -z "$BASH_COMPLETION" &&
         fi
     done
 
-    if [[ -z enabled_bash_completion ]]; then
+    if [[ -z $enabled_bash_completion ]]; then
         echo 'bash_completion unavailable' >&2
         (( rc |= 0x1 ))
     fi
