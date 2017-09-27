@@ -8,7 +8,7 @@ override_git_prompt_colors() {
             TIME_COLOUR="${Blue}"
             ;;
 
-        centosvm)
+        pc5175-dev-env.*)
             HOST_COLOUR="${Yellow}"
             PWD_COLOUR="${Red}"
             TIME_COLOUR="${Green}"
