@@ -32,7 +32,8 @@ if [[ -z "$BASH_COMPLETION" &&
     enabled_bash_completion=
     for f in /etc/bash_completion \
         /usr/local/share/bash-completion/bash_completion \
-        /usr/local/etc/bash_completion
+        /usr/local/etc/bash_completion \
+        /usr/share/bash-completion/bash_completion
     do
         if [[ -r "$f" ]]; then
             . "$f"
