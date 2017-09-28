@@ -20,4 +20,6 @@ LANGUAGE=en_GB:en
 case "$(hostname)" in
     *.tastycake.net)
         exec screen -xRR ;;
+    *-dev-env.ad.datcon.co.uk)
+        exec script -f ~/consolelogs/"$(date +"%Y-%m-%dT%H-%M-%S")"."$USER"."$RANDOM".log
 esac
