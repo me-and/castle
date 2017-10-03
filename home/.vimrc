@@ -99,5 +99,9 @@ let g:pymode_lint_unmodified = 1
 " https://github.com/python-mode/python-mode/issues/525
 let g:pymode_rope = 0
 
+" fzf
+Plug 'junegunn/fzf', {'dir': '~/.fzf', 'do': './install --all'}
+Plug 'junegunn/fzf.vim'
+
 " Finished adding plugins
 call plug#end()
