@@ -11,6 +11,9 @@ set backspace=indent,eol,start
 set laststatus=2
 set ruler
 
+" Always have some context above and below the cursor.
+set scrolloff=3
+
 " Show details of selected text when selecting it.
 set showcmd
 
@@ -99,10 +102,9 @@ let g:pymode_lint_unmodified = 1
 " https://github.com/python-mode/python-mode/issues/525
 let g:pymode_rope = 0
 
+" fzf
+Plug 'junegunn/fzf', {'dir': '~/.fzf', 'do': './install --all'}
+Plug 'junegunn/fzf.vim'
+
 " Finished adding plugins
 call plug#end()
-
-" Enable filetype detection, including loading filetype-specific plugins and
-" indentation.  Must come after adding Vundle plugins, per the Vundle
-" README.md.
-filetype plugin indent on
