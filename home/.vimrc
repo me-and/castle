@@ -11,6 +11,9 @@ set backspace=indent,eol,start
 set laststatus=2
 set ruler
 
+" Always have some context above and below the cursor.
+set scrolloff=3
+
 " Show details of selected text when selecting it.
 set showcmd
 
