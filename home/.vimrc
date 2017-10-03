@@ -101,8 +101,3 @@ let g:pymode_rope = 0
 
 " Finished adding plugins
 call plug#end()
-
-" Enable filetype detection, including loading filetype-specific plugins and
-" indentation.  Must come after adding Vundle plugins, per the Vundle
-" README.md.
-filetype plugin indent on
