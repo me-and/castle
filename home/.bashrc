@@ -49,12 +49,14 @@ fi
 unset f
 unset enabled_bash_completion
 
-# Enable fzf.
-if [[ -r ~/.fzf.bash ]]; then
-    . ~/.fzf.bash
-else
-    echo 'fzf unavailable' >&2
-    (( rc |= 0x20 ))
+# Enable fzf, but only if it hasn't been enabled already.
+if ! type -t fzf-file-widget >/dev/null 2>&1; then
+    if [[ -r ~/.fzf.bash ]]; then
+        . ~/.fzf.bash
+    else
+        echo 'fzf unavailable' >&2
+        (( rc |= 0x20 ))
+    fi
 fi
 
 # Check for the existance of pgrep, since a bunch of other things rely on it
