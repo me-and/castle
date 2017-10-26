@@ -79,6 +79,10 @@
 	# Branch description management
 	db = "!f () { if (( $# > 0 )); then branch=\"$1\"; else branch=\"$(git symbolic-ref --short HEAD)\" || exit 2; fi; git config --get branch.\"$branch\".description; }; f"
 
+	# Repository description management
+	dr = ! description_file=\"$(git rev-parse --git-dir)\"/description && cat \"$description_file\"
+	sdr = ! editor=\"$(git var GIT_EDITOR)\" && description_file=\"$(git rev-parse --git-dir)\"/description && eval \"$editor\" \"$description_file\"
+
 	bivis = bisect visualize --graph --decorate --pretty=oneline --abbrev-commit
 	git-ml-describe = show -s --date=short --pretty='format:%h (\"%s\", %ad)'
 [include]
