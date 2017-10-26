@@ -106,5 +106,9 @@ let g:pymode_rope = 0
 Plug 'junegunn/fzf', {'dir': '~/.fzf', 'do': './install --all'}
 Plug 'junegunn/fzf.vim'
 
+" Ag
+Plug 'mileszs/ack.vim'
+let g:ackprg = 'ag --nogroup --nocolor --column'
+
 " Finished adding plugins
 call plug#end()
