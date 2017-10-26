@@ -207,7 +207,7 @@ if command -v ssh-agent &>/dev/null; then
             command -v pgrep >/dev/null || return 1  # Can't check w/o pgrep
             running_ssh_pid="$(pgrep ssh-agent)"
             if [[ -z "$running_ssh_pid" ||
-                  $(pgrep ssh-agent) != "$SSH_AGENT_PID" ]]; then
+                  "$running_ssh_pid" != "$SSH_AGENT_PID" ]]; then
                 start_ssh_agent
             fi
             unset running_ssh_pid
