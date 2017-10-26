@@ -74,7 +74,7 @@ if command -v lesspipe >/dev/null; then
 elif command -v lesspipe.sh >/dev/null; then
     # Seen on CentOS.
     export LESSOPEN="| $(command -v lesspipe.sh) %s"
-elif [[ "$(uname -s)" == CYGWIN* ]]; then
+elif [[ "$(uname -s)" = CYGWIN* ]]; then
     # We know it doesn't exist on Cygwin, so don't bother erroring.
     :
 else
