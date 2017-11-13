@@ -1,5 +1,6 @@
 [diff]
 	algorithm = patience
+	interHunkContext = 6
 [difftool]
 	prompt = false
 [grep]
