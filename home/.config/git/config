@@ -81,7 +81,7 @@
 
 	# Repository description management
 	dr = ! description_file=\"$(git rev-parse --git-dir)\"/description && cat \"$description_file\"
-	sdr = ! editor=\"$(git var GIT_EDITOR)\" && description_file=\"$(git rev-parse --git-dir)\"/description && eval \"$editor\" \"$description_file\"
+	sdr = ! editor=\"$(git var GIT_EDITOR)\" && description_file=\"$(git rev-parse --git-dir)\"/description && \"$editor\" \"$description_file\"
 
 	# Fix the email address in the last commit
 	fix-email = "!f () { git config user.email \"$1\" && git commit --amend --reset-author -C HEAD; }; f"
