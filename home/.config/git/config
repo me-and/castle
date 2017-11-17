@@ -52,6 +52,7 @@
 	sth = status -- .
 	detach = checkout --detach
 	pullout = "!f() { git checkout -B \"$1\" \"$1\"@{u}; }; f"
+	qmerge = merge --no-edit
 
 	# Logs
 	lug = log -u
