@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+
+set -eu
+
+git -c color.status=always status --short | sed 's/^/  /' | ifne cat <(echo "Working copy details:") - <(echo)
+
+longest_br_name="$(git branch --format="%(refname:short)" | wc -L)"
+git branch --format='%(align:'"$((longest_br_name + 1))"')%(refname:short)%(end)%(upstream:short) %(upstream:track)' | grep -Ev '\(HEAD detached from [0-9a-f]+\)' | sed 's/^/  /' | ifne cat <(echo "Branch details:") - <(echo)
+
+git stash list | sed 's/^/  /' | ifne cat <(echo "Stash details:") - <(echo)
