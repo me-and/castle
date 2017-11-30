@@ -13,6 +13,12 @@ if [[ -r "$description_file" && -f "$description_file" ]]; then
 	fi
 fi
 
+if [[ -e "$GIT_DIR"/BISECT_LOG ]]; then
+	echo "Current state:"
+	echo "  Bisecting"
+	echo
+fi
+
 git -c color.status=always status --short | sed 's/^/  /' | ifne cat <(echo "Working copy details:") - <(echo)
 
 longest_br_name="$(git branch --format="%(refname:short)" | grep -Ev '\(HEAD detached from [0-9a-f]+\)' | wc -L)"
