@@ -86,7 +86,7 @@
 	sdr = ! editor=\"$(git var GIT_EDITOR)\" && description_file=\"$(git rev-parse --git-dir)\"/description && \"$editor\" \"$description_file\"
 
 	# Fix the email address in the last commit
-	fix-email = "!f () { git config user.email \"$1\" && git commit --amend --reset-author -C HEAD; }; f"
+	fix-email = "!f () { git config user.email \"$1\" && git commit --amend --reset-author --no-edit; }; f"
 
 	bivis = bisect visualize --graph --decorate --pretty=oneline --abbrev-commit
 	git-ml-describe = show -s --date=short --pretty='format:%h (\"%s\", %ad)'
