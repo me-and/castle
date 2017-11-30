@@ -95,3 +95,5 @@
 	path = ~/.config/git/localconfig
 [core]
 	pager = less -S
+[sendemail]
+	confirm = always
