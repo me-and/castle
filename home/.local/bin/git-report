@@ -2,6 +2,17 @@
 
 set -eu
 
+GIT_DIR="$(git rev-parse --git-dir)"
+
+description_file="$GIT_DIR"/description
+if [[ -r "$description_file" && -f "$description_file" ]]; then
+	if grep -Evq '^Unnamed repository' "$description_file"; then
+		echo 'Description:'
+		sed 's/^/  /' "$description_file"
+		echo
+	fi
+fi
+
 git -c color.status=always status --short | sed 's/^/  /' | ifne cat <(echo "Working copy details:") - <(echo)
 
 longest_br_name="$(git branch --format="%(refname:short)" | grep -Ev '\(HEAD detached from [0-9a-f]+\)' | wc -L)"
