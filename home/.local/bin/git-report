@@ -2,9 +2,26 @@
 
 set -eu
 
+GIT_DIR="$(git rev-parse --git-dir)"
+
+description_file="$GIT_DIR"/description
+if [[ -r "$description_file" && -f "$description_file" ]]; then
+	if grep -Evq '^Unnamed repository' "$description_file"; then
+		echo 'Description:'
+		sed 's/^/  /' "$description_file"
+		echo
+	fi
+fi
+
+if [[ -e "$GIT_DIR"/BISECT_LOG ]]; then
+	echo "Current state:"
+	echo "  Bisecting"
+	echo
+fi
+
 git -c color.status=always status --short | sed 's/^/  /' | ifne cat <(echo "Working copy details:") - <(echo)
 
 longest_br_name="$(git branch --format="%(refname:short)" | grep -Ev '\(HEAD detached from [0-9a-f]+\)' | wc -L)"
-git branch --format='%(align:'"$((longest_br_name + 1))"')%(refname:short)%(end)%(upstream:short) %(upstream:track)' | grep -Ev '\(HEAD detached from [0-9a-f]+\)' | sed 's/^/  /' | ifne cat <(echo "Branch details:") - <(echo)
+git branch --format='%(align:'"$((longest_br_name + 1))"')%(refname:short)%(end)%(upstream:short) %(upstream:track)' | grep -Eve '\(HEAD detached from [0-9a-f]+\)' -e '\(no branch, bisect started on [0-9a-f]+\)' | sed 's/^/  /' | ifne cat <(echo "Branch details:") - <(echo)
 
 git stash list | sed 's/^/  /' | ifne cat <(echo "Stash details:") - <(echo)
