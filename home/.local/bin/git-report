@@ -2,6 +2,10 @@
 
 set -eu
 
+remove_unwanted_branch_names () {
+	grep -Eve '\(HEAD detached from [0-9a-f]+\)' -e '\(no branch, bisect started on .+\)'
+}
+
 GIT_DIR="$(git rev-parse --git-dir)"
 
 description_file="$GIT_DIR"/description
@@ -21,7 +25,7 @@ fi
 
 git -c color.status=always status --short | sed 's/^/  /' | ifne cat <(echo "Working copy details:") - <(echo)
 
-longest_br_name="$(git branch --format="%(refname:short)" | grep -Ev '\(HEAD detached from [0-9a-f]+\)' | wc -L)"
-git branch --format='%(align:'"$((longest_br_name + 1))"')%(refname:short)%(end)%(upstream:short) %(upstream:track)' | grep -Eve '\(HEAD detached from [0-9a-f]+\)' -e '\(no branch, bisect started on [0-9a-f]+\)' | sed 's/^/  /' | ifne cat <(echo "Branch details:") - <(echo)
+longest_br_name="$(git branch --format="%(refname:short)" | remove_unwanted_branch_names | wc -L)"
+git branch --format='%(align:'"$((longest_br_name + 1))"')%(refname:short)%(end)%(upstream:short) %(upstream:track)' | remove_unwanted_branch_names | sed 's/^/  /' | ifne cat <(echo "Branch details:") - <(echo)
 
 git stash list | sed 's/^/  /' | ifne cat <(echo "Stash details:") - <(echo)
