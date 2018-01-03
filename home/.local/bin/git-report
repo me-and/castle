@@ -3,7 +3,7 @@
 set -eu
 
 remove_unwanted_branch_names () {
-	grep -Eve '\(HEAD detached from [0-9a-f]+\)' -e '\(no branch, bisect started on .+\)'
+	grep -Eve '\(HEAD detached from [0-9a-f]+\)' -e '\(no branch, bisect started on .+\)' -e '\(HEAD detached at .+\)'
 }
 
 GIT_DIR="$(git rev-parse --git-dir)"
