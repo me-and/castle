@@ -2,6 +2,11 @@
 
 set -eu
 
+if ! command -v chronic &>/dev/null; then
+	echo 'git-report requires chronic' >&2
+	exit 1
+fi
+
 remove_unwanted_branch_names () {
 	grep -Eve '\(HEAD detached from [0-9a-f]+\)' -e '\(no branch, bisect started on .+\)' -e '\(HEAD detached at .+\)' -e '\(no branch\)'
 }
