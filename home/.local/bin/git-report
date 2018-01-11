@@ -35,3 +35,5 @@ longest_br_name="$(git branch --format="%(refname:short)" | remove_unwanted_bran
 git branch --format='%(align:'"$((longest_br_name + 1))"')%(refname:short)%(end)%(upstream:short) %(upstream:track)' | remove_unwanted_branch_names | sed 's/^/  /' | ifne cat <(echo "Branch details:") - <(echo)
 
 [[ "$GIT_IN_WORK_TREE" = true ]] && git stash list | sed 's/^/  /' | ifne cat <(echo "Stash details:") - <(echo)
+
+:
