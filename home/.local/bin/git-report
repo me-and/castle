@@ -12,6 +12,7 @@ remove_unwanted_branch_names () {
 }
 
 GIT_DIR="$(git rev-parse --git-dir)"
+GIT_IN_WORK_TREE="$(git rev-parse --is-inside-work-tree)"
 
 description_file="$GIT_DIR"/description
 if [[ -r "$description_file" && -f "$description_file" ]]; then
@@ -28,9 +29,9 @@ if [[ -e "$GIT_DIR"/BISECT_LOG ]]; then
 	echo
 fi
 
-git -c color.status=always status --short | sed 's/^/  /' | ifne cat <(echo "Working copy details:") - <(echo)
+[[ "$GIT_IN_WORK_TREE" = true ]] && git -c color.status=always status --short | sed 's/^/  /' | ifne cat <(echo "Working copy details:") - <(echo)
 
 longest_br_name="$(git branch --format="%(refname:short)" | remove_unwanted_branch_names | wc -L)"
 git branch --format='%(align:'"$((longest_br_name + 1))"')%(refname:short)%(end)%(upstream:short) %(upstream:track)' | remove_unwanted_branch_names | sed 's/^/  /' | ifne cat <(echo "Branch details:") - <(echo)
 
-git stash list | sed 's/^/  /' | ifne cat <(echo "Stash details:") - <(echo)
+[[ "$GIT_IN_WORK_TREE" = true ]] && git stash list | sed 's/^/  /' | ifne cat <(echo "Stash details:") - <(echo)
