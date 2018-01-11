@@ -135,6 +135,9 @@ else
     export VISUAL=vi
 fi
 
+# Set up an alias for viewing diffs with columns at screen width.
+alias coldiff='diff -yW$COLUMNS'
+
 # Compile .ssh/config.  I want to be able to have local .ssh/config files as
 # well as shared global ones, but I also want to be able to use openssh 5.3p1,
 # and the ssh_config "Include" keyword isn't added until 7.3p1.
