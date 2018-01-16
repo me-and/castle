@@ -5,6 +5,9 @@ fi
 if [ -d "$HOME/.local/man" ]; then
     MANPATH="$HOME/.local/man${MANPATH:+:}${MANPATH}"
 fi
+if [ -d "$HOME/.local/share/man" ]; then
+	MANPATH="$HOME/.local/share/man${MANPATH:+:}${MANPATH}"
+fi
 
 LANG=en_GB.UTF-8
 LANGUAGE=en_GB:en
