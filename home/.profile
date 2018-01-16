@@ -1,9 +1,9 @@
 if [ -d "$HOME/.local/bin" ]; then
-    PATH="$HOME/.local/bin:$PATH"
+    PATH="$HOME/.local/bin${PATH:+:}${PATH}"
 fi
 
 if [ -d "$HOME/.local/man" ]; then
-    MANPATH="$HOME/.local/man:$MANPATH"
+    MANPATH="$HOME/.local/man${MANPATH:+:}${MANPATH}"
 fi
 
 LANG=en_GB.UTF-8
