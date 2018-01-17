@@ -2,8 +2,8 @@
 
 set -eu
 
-if ! command -v chronic &>/dev/null; then
-	echo 'git-report requires chronic' >&2
+if ! command -v ifne &>/dev/null; then
+	echo 'git-report requires ifne' >&2
 	exit 1
 fi
 
