@@ -11,29 +11,80 @@ remove_unwanted_branch_names () {
 	grep -Eve '\(HEAD detached from [0-9a-f]+\)' -e '\(no branch, bisect started on .+\)' -e '\(HEAD detached at .+\)' -e '\(no branch\)'
 }
 
-GIT_DIR="$(git rev-parse --git-dir)"
-GIT_IN_WORK_TREE="$(git rev-parse --is-inside-work-tree)"
+indent () {
+	sed 's/^/  /' "$@"
+}
 
-description_file="$GIT_DIR"/description
-if [[ -r "$description_file" && -f "$description_file" ]]; then
-	if grep -Evq '^Unnamed repository' "$description_file"; then
-		echo 'Description:'
-		sed 's/^/  /' "$description_file"
+full_report () {
+	description_report
+	state_report
+	wc_report
+	branch_report
+	stash_report
+}
+
+description_report () {
+	description_file="$git_dir"/description
+	if [[ -r "$description_file" && -f "$description_file" ]]; then
+		if grep -Evq '^Unnamed repository' "$description_file"; then
+			echo 'Description:'
+			indent "$description_file"
+			echo
+		fi
+	fi
+}
+
+state_report () {
+	if [[ -e "$git_dir"/BISECT_LOG ]]; then
+		echo "Current state:"
+		echo "  Bisecting"
 		echo
 	fi
+}
+
+wc_report () {
+	[[ "$git_in_work_tree" = true ]] && git -C "$dir" -c color.status=always status --short | indent | ifne cat <(echo "Working copy details:") - <(echo)
+}
+
+branch_report () {
+	longest_br_name="$(git -C "$dir" branch --format="%(refname:short)" | remove_unwanted_branch_names | wc -L)"
+	git -C "$dir" branch --format='%(align:'"$((longest_br_name + 1))"')%(refname:short)%(end)%(upstream:short) %(upstream:track)' | remove_unwanted_branch_names | indent | ifne cat <(echo "Branch details:") - <(echo)
+}
+
+stash_report () {
+	[[ "$git_in_work_tree" = true ]] && git -C "$dir" stash list | indent | ifne cat <(echo "Stash details:") - <(echo)
+}
+
+# If no directories are specified, default to the current directory.
+# Otherwise, report on all the specified directories.
+if (( $# == 0 )); then
+	dirs=('.')
+	multiple_dirs=
+elif (( $# == 1 )); then
+	dirs=("$1")
+	multiple_dirs=
+else
+	dirs=("$@")
+	multiple_dirs=yes
 fi
 
-if [[ -e "$GIT_DIR"/BISECT_LOG ]]; then
-	echo "Current state:"
-	echo "  Bisecting"
-	echo
-fi
+made_a_report=
 
-[[ "$GIT_IN_WORK_TREE" = true ]] && git -c color.status=always status --short | sed 's/^/  /' | ifne cat <(echo "Working copy details:") - <(echo)
+for dir in "${dirs[@]}"; do
+	if ! git_dir="$(git -C "$dir" rev-parse --git-dir 2>/dev/null)"; then
+		# This isn't a valid Git directory.
+		continue
+	fi
+	git_in_work_tree="$(git -C "$dir" rev-parse --is-inside-work-tree)"
 
-longest_br_name="$(git branch --format="%(refname:short)" | remove_unwanted_branch_names | wc -L)"
-git branch --format='%(align:'"$((longest_br_name + 1))"')%(refname:short)%(end)%(upstream:short) %(upstream:track)' | remove_unwanted_branch_names | sed 's/^/  /' | ifne cat <(echo "Branch details:") - <(echo)
+	if [[ "$multiple_dirs" ]]; then
+		echo "${dir}:"
+		full_report | indent
+	else
+		full_report
+	fi
+	made_a_report=yes
+done
 
-[[ "$GIT_IN_WORK_TREE" = true ]] && git stash list | sed 's/^/  /' | ifne cat <(echo "Stash details:") - <(echo)
-
-:
+# Return true iff we successfully made at least one report.
+[[ "$made_a_report" ]]
