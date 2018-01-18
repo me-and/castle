@@ -15,6 +15,10 @@ indent () {
 	sed 's/^/  /' "$@"
 }
 
+head_and_indent () {
+	indent | ifne cat <(echo "${1}:") - <(echo)
+}
+
 full_report () {
 	description_report
 	state_report
@@ -38,7 +42,7 @@ state_report () {
 	{
 		[[ -e "$git_dir"/BISECT_LOG ]] && echo "Bisecting"
 		[[ -e "$git_dir"/sequencer ]] && echo "Cherry-pick or revert sequence in progress"
-	} | indent | ifne cat <(echo "Current state:") - <(echo)
+	} | head_and_indent "Current state"
 }
 
 wc_report () {
@@ -47,11 +51,11 @@ wc_report () {
 
 branch_report () {
 	longest_br_name="$(git -C "$dir" branch --format="%(refname:short)" | remove_unwanted_branch_names | wc -L)"
-	git -C "$dir" branch --format='%(align:'"$((longest_br_name + 1))"')%(refname:short)%(end)%(upstream:short) %(upstream:track)' | remove_unwanted_branch_names | indent | ifne cat <(echo "Branch details:") - <(echo)
+	git -C "$dir" branch --format='%(align:'"$((longest_br_name + 1))"')%(refname:short)%(end)%(upstream:short) %(upstream:track)' | remove_unwanted_branch_names | head_and_indent "Branch details"
 }
 
 stash_report () {
-	[[ "$git_in_work_tree" = true ]] && git -C "$dir" stash list | indent | ifne cat <(echo "Stash details:") - <(echo)
+	[[ "$git_in_work_tree" = true ]] && git -C "$dir" stash list | head_and_indent "Stash details"
 }
 
 # If no directories are specified, default to the current directory.
@@ -77,8 +81,7 @@ for dir in "${dirs[@]}"; do
 	git_in_work_tree="$(git -C "$dir" rev-parse --is-inside-work-tree)"
 
 	if [[ "$multiple_dirs" ]]; then
-		echo "${dir}:"
-		full_report | indent
+		full_report | head_and_indent "$dir"
 	else
 		full_report
 	fi
