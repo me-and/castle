@@ -35,11 +35,9 @@ description_report () {
 }
 
 state_report () {
-	if [[ -e "$git_dir"/BISECT_LOG ]]; then
-		echo "Current state:"
-		echo "  Bisecting"
-		echo
-	fi
+	{
+		[[ -e "$git_dir"/BISECT_LOG ]] && echo "Bisecting"
+	} | indent | ifne cat <(echo "Current state:") - <(echo)
 }
 
 wc_report () {
