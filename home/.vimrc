@@ -110,5 +110,8 @@ Plug 'junegunn/fzf.vim'
 Plug 'mileszs/ack.vim'
 let g:ackprg = 'ag --nogroup --nocolor --column'
 
+" OpenSCAD syntax highlighting
+Plug 'sirtaj/vim-openscad'
+
 " Finished adding plugins
 call plug#end()
