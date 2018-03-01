@@ -37,6 +37,12 @@ if has("cscope")
     " if you want the reverse search order.
     set csto=0
 
+    " Disable verbose warnings as recommended by :help cscopeverbose in the
+    " name of avoiding warnings when adding a database that was already added
+    " by /etc/vimrc or similar (which appears to happen on some platforms but
+    " not others, so just removing the `cs add` lines below isn't an option).
+    set nocscopeverbose
+
     " add any cscope database in current directory
     if filereadable("cscope.out")
         cs add cscope.out  
