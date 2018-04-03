@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+set -u
+
+GIT_SRC_DIR=${GIT_SRC_DIR:-~/vcs/git}
+GIT_INSTALL_DIR=${GIT_INSTALL_DIR:-~/.local}
+GIT_BUILD_COMMIT=${GIT_BUILD_COMMIT:-origin/master}
+
+cd "$GIT_SRC_DIR" || exit $?
+
+git fetch && git checkout "$GIT_BUILD_COMMIT" || exit $?
+
+make configure || exit $?
+./configure --prefix="$GIT_INSTALL_DIR" || exit $?
+make install install-man || exit $?
