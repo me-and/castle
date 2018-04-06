@@ -45,7 +45,7 @@ if [[ -n "$cygwin_setup_executable" ]]; then
 
     function cygwin_setup {
         cygwin_setup_update &&
-        "$cygwin_setup_path" -d
+        cygstart "$cygwin_setup_path" -d
     }
 else
     {
