@@ -50,8 +50,9 @@ fi
 unset f
 unset enabled_bash_completion
 
-# Enable fzf, but only if it hasn't been enabled already.
-if ! type -t fzf-file-widget >/dev/null 2>&1; then
+# Enable fzf, but only if it hasn't been enabled already, and this isn't Cygwin
+# (where support is sufficiently limited that I'd rather not have it).
+if [[ $OSTYPE != "cygwin" ]] && ! type -t fzf-file-widget >/dev/null 2>&1; then
     if [[ -r ~/.fzf.bash ]]; then
         . ~/.fzf.bash
     else
