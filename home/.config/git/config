@@ -53,6 +53,7 @@
 	detach = checkout --detach
 	pullout = "!f() { git checkout -B \"$1\" \"$1\"@{u}; }; f"
 	qmerge = merge --no-edit
+	pwl = push --force-with-lease
 
 	# Logs
 	lug = log -u
