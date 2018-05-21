@@ -92,6 +92,7 @@
 
 	bivis = bisect visualize --graph --decorate --pretty=oneline --abbrev-commit
 	git-ml-describe = show -s --date=short --pretty='format:%h (\"%s\", %ad)'
+	mydescribe = show -s --pretty='format:%h (\"%s\")'
 [include]
 	# Put this at the bottom, so local values will override general ones.
 	path = ~/.config/git/localconfig
