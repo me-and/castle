@@ -46,7 +46,7 @@ state_report () {
 }
 
 wc_report () {
-	[[ "$git_in_work_tree" = true ]] && git -C "$dir" -c color.status=always status --short | indent | ifne cat <(echo "Working copy details:") - <(echo)
+	[[ "$git_in_work_tree" = true ]] && git -C "$dir" -c color.status=always status --short | head_and_indent "Working copy details"
 }
 
 branch_report () {
