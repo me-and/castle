@@ -29,7 +29,7 @@ full_report () {
 
 description_report () {
 	description_file="$git_dir"/description
-	if [[ -r "$description_file" && -f "$description_file" ]]; then
+	if [[ -r "$description_file" && -f "$description_file" && -s "description_file" ]]; then
 		if grep -Evq '^Unnamed repository' "$description_file"; then
 			echo 'Description:'
 			indent "$description_file"
