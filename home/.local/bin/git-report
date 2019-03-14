@@ -51,7 +51,7 @@ wc_report () {
 
 branch_report () {
 	longest_br_name="$(git -C "$dir" branch --format="%(refname:short)" | remove_unwanted_branch_names | wc -L)"
-	git -C "$dir" branch --format='%(align:'"$((longest_br_name + 1))"')%(refname:short)%(end)%(upstream:short) %(upstream:track)' | remove_unwanted_branch_names | head_and_indent "Branch details"
+	git -C "$dir" branch --format='%(HEAD) %(align:'"$((longest_br_name + 1))"')%(refname:short)%(end)%(upstream:short) %(upstream:track)' | remove_unwanted_branch_names | head_and_indent "Branch details"
 }
 
 stash_report () {
