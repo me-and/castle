@@ -113,5 +113,9 @@ let g:ackprg = 'ag --nogroup --nocolor --column'
 " OpenSCAD syntax highlighting
 Plug 'sirtaj/vim-openscad'
 
+for path in split(globpath('~/.vim/localbundles/', '*.vim'), '\n')
+  exe 'source' path
+endfor
+
 " Finished adding plugins
 call plug#end()
