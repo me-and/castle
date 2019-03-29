@@ -74,7 +74,8 @@ if command -v lesspipe >/dev/null; then
     eval "$(lesspipe)"
 elif command -v lesspipe.sh >/dev/null; then
     # Seen on CentOS.
-    export LESSOPEN="| $(command -v lesspipe.sh) %s"
+    LESSOPEN="| $(command -v lesspipe.sh) %s"
+    export LESSOPEN
 elif [[ "$(uname -s)" = CYGWIN* ]]; then
     # We know it doesn't exist on Cygwin, so don't bother erroring.
     :
@@ -146,7 +147,7 @@ if [[ -d ~/.ssh/config.d ]]; then
     rm -f ~/.ssh/config.tmp.*
     tmpfile="$(mktemp ~/.ssh/config.tmp.XXXXX)"
     for file in ~/.ssh/config.d/*; do
-        printf "# $file\n\n" >>"$tmpfile"
+        printf "# %s\n\n" "$file" >>"$tmpfile"
         cat "$file" >>"$tmpfile"
     done
     if ! diff -q ~/.ssh/config "$tmpfile" &>/dev/null; then
@@ -183,7 +184,7 @@ alias fucking=sudo
 alias snarf='aria2c -x16 -s16'
 
 set_terminal_title () {
-    echo -ne '\e]0;'"$@"'\a'
+    echo -ne '\e]0;'"$*"'\a'
 }
 
 # Set up ssh-agent.  Based on
