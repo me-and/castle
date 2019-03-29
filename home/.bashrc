@@ -231,11 +231,6 @@ else
     (( rc |= 0x10 ))
 fi
 
-# Set up thefuck if it exists.
-if command -v thefuck &>/dev/null; then
-    eval $(thefuck --alias)
-fi
-
 # Import local .bashrc files if they exist.
 if [[ -d ~/.bashrc.d && -r ~/.bashrc.d && -x ~/.bashrc.d ]]; then
     for file in ~/.bashrc.d/*; do
