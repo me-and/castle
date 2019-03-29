@@ -209,12 +209,17 @@ if command -v ssh-agent &>/dev/null; then
         if [[ -r ~/.ssh/ssh-agent ]]; then
             . ~/.ssh/ssh-agent
             command -v pgrep >/dev/null || return 1  # Can't check w/o pgrep
-            running_ssh_pid="$(pgrep ssh-agent)"
-            if [[ -z "$running_ssh_pid" ||
-                  "$running_ssh_pid" != "$SSH_AGENT_PID" ]]; then
-                start_ssh_agent
-            fi
-            unset running_ssh_pid
+            ssh_agent_running=
+            while read -r ssh_agent_pid; do
+                if [[ "$ssh_agent_pid" = "$SSH_AGENT_PID" ]]; then
+                    # The recorded ssh-agent PID in the ~/.ssh/ssh-agent file
+                    # corresponds with a running ssh-agent instance.
+                    ssh_agent_running=Yes
+                    break
+                fi
+            done < <(pgrep ssh-agent)
+            [[ -n "$ssh_agent_running" ]] || start_ssh_agent
+            unset ssh_agent_running
         else
             start_ssh_agent
         fi
