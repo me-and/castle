@@ -241,4 +241,7 @@ if [[ -d ~/.bashrc.d && -r ~/.bashrc.d && -x ~/.bashrc.d ]]; then
     done
 fi
 
+# WSL will start in the wrong directory.  Fix that.
+cd ~
+
 return "$rc"
