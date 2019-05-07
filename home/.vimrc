@@ -89,10 +89,7 @@ call plug#begin('~/.vim/bundle')
 "
 " This also requires g:sh_no_error, as without that some things get
 " inexplicably highlighted as errors even though they're blatantly not.
-"
-" Peg to commit d08e167 because commits more recent than that are broken, at
-" least for me, per https://github.com/luochen1990/rainbow/issues/125
-Plug 'luochen1990/rainbow', {'commit': 'd08e167'}
+Plug 'luochen1990/rainbow'
 let g:rainbow_active = 1
 let g:sh_no_error = 1
 
