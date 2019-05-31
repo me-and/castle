@@ -2,13 +2,13 @@ override_git_prompt_colors() {
     GIT_PROMPT_THEME_NAME="Custom"
 
     case "$(hostname)" in
-        PC5175)
+        PC5819)
             HOST_COLOUR="${Green}"
             PWD_COLOUR="${Yellow}"
             TIME_COLOUR="${Blue}"
             ;;
 
-        pc5175-dev-env.*)
+        pc5819-new-dev-env)
             HOST_COLOUR="${Yellow}"
             PWD_COLOUR="${Red}"
             TIME_COLOUR="${Green}"
