@@ -3,9 +3,21 @@ override_git_prompt_colors() {
 
     case "$(hostname)" in
         PC5819)
-            HOST_COLOUR="${Green}"
-            PWD_COLOUR="${Yellow}"
-            TIME_COLOUR="${Blue}"
+            if [[ "$(uname -s)" = CYGWIN* ]]; then
+                # Cygwin gets one colour scheme...
+                HOST_COLOUR="${Green}"
+                PWD_COLOUR="${Yellow}"
+                TIME_COLOUR="${Blue}"
+            elif [[ "$(uname -s)" = Linux ]]; then
+                # ...WSL gets another.
+                HOST_COLOUR="${Red}"
+                PWD_COLOUR="${Yellow}"
+                TIME_COLOUR="${Blue}"
+            else
+                HOST_COLOUR="${White}"
+                PWD_COLOUR="${White}"
+                TIME_COLOUR="${White}"
+            fi
             ;;
 
         pc5819-new-dev-env)
