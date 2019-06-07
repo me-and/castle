@@ -20,7 +20,7 @@ override_git_prompt_colors() {
             fi
             ;;
 
-        pc5819-new-dev-env)
+        pc5819-new-dev-env|pc5819-new-dev-env.*)
             HOST_COLOUR="${Yellow}"
             PWD_COLOUR="${Red}"
             TIME_COLOUR="${Green}"
