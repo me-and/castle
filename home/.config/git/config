@@ -20,8 +20,6 @@
 	pushmergeinfo = true
 [url "git@github.com:"]
 	pushInsteadOf = https://github.com/
-	pushInsteadOf = git://github.com/
-[url "https://github.com/"]
 	insteadOf = git://github.com/
 [url "git@gist.github.com:"]
 	pushInsteadOf = https://gist.github.com/
