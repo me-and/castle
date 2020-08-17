@@ -100,3 +100,5 @@
 	pager = less -S
 [sendemail]
 	confirm = always
+[pull]
+	rebase = false
