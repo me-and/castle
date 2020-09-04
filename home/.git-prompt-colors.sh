@@ -47,8 +47,8 @@ override_git_prompt_colors() {
     GIT_PROMPT_END_ROOT="$GIT_PROMPT_END_USER"
 
 
-    # The Git prompt on Cygwin is painfully slow, so disable it.
-    if [[ "$(uname -s)" == CYGWIN* ]]; then
+    # The Git prompt on Cygwin and WSL is painfully slow, so disable it.
+    if [[ "$(uname -s)" == CYGWIN* ]] || grep -qi microsoft /proc/version; then
         GIT_PROMPT_DISABLE=1
     fi
 }
