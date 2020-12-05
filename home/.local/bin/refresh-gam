@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+# See https://github.com/jay0lee/GAM
+
+set -u
+
+GAM_INSTALL_SCRIPT_URL=${GAM_INSTALL_SCRIPT_URL:-https://git.io/install-gam}
+GAM_INSTALL_DIR=${GAM_INSTALL_DIR:-~/.local/usr/lib}
+GAM_BINARY_PATH=${GAM_BINARY_PATH:-${GAM_INSTALL_DIR}/gam/gam}
+GAM_BINARY_INSTALL_PATH=${GAM_BINARY_INSTALL_PATH:-~/.local/bin/gam}
+
+if [[ -d "$GAM_INSTALL_DIR" ]]; then
+	# Assume GAM is already installed, so run with the `-l` argument to
+	# just do a software update.  Still remake the links, because that's
+	# quick and easy.
+	bash <(curl -sSL "$GAM_INSTALL_SCRIPT_URL") -l -p false -d "$GAM_INSTALL_DIR" || exit $?
+else
+	bash <(curl -sSL "$GAM_INSTALL_SCRIPT_URL") -p false -d "$GAM_INSTALL_DIR" || exit $?
+fi
+
+rm -f "$GAM_BINARY_INSTALL_PATH" || exit $?
+ln -s "$GAM_BINARY_PATH" "$GAM_BINARY_INSTALL_PATH" || exit $?
