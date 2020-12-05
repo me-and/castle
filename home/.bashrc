@@ -169,31 +169,37 @@ set_terminal_title () {
 
 # Set up ssh-agent.  Based on
 # https://www.cygwin.com/ml/cygwin/2001-06/msg00537.html
+if [[ "$HOSTTYPE" ]]; then
+    ssh_agent_pid_file=~/.ssh/ssh-agent."$HOSTTYPE".pid
+else
+    ssh_agent_pid_file=~/.ssh/ssh-agent.pid
+fi
+
 if command -v ssh-agent &>/dev/null; then
     function start_ssh_agent {
         # Set up the terminal title so KeePass can recognise the window and
         # thus the correct password to use when prompted by ssh-add.
         set_terminal_title "$(hostname):"
 
-        rm -f ~/.ssh/ssh-agent || return 1
+        rm -f "$ssh_agent_pid_file" || return 1
 
         # Create the file with a umask to ensure only the current user can
         # read/write to it.  The ssh-agent call must be outside the umask as
         # otherwise (at least on CentOS) it won't work.
-        ssh-agent | ( umask 0177 && sed 's/^echo/#echo/' >~/.ssh/ssh-agent )
+        ssh-agent | ( umask 0177 && sed 's/^echo/#echo/' >"$ssh_agent_pid_file" )
 
-        . ~/.ssh/ssh-agent
+        . "$ssh_agent_pid_file"
         ssh-add
     }
 
     function ensure_ssh_agent_running {
-        if [[ -r ~/.ssh/ssh-agent ]]; then
-            . ~/.ssh/ssh-agent
+        if [[ -r "$ssh_agent_pid_file" ]]; then
+            . "$ssh_agent_pid_file"
             command -v pgrep >/dev/null || return 1  # Can't check w/o pgrep
             ssh_agent_running=
             while read -r ssh_agent_pid; do
                 if [[ "$ssh_agent_pid" = "$SSH_AGENT_PID" ]]; then
-                    # The recorded ssh-agent PID in the ~/.ssh/ssh-agent file
+                    # The recorded ssh-agent PID in the $ssh_agent_pid_file
                     # corresponds with a running ssh-agent instance.
                     ssh_agent_running=Yes
                     break
