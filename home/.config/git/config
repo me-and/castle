@@ -99,6 +99,6 @@
 [sendemail]
 	confirm = always
 [pull]
-	rebase = false
+	ff = only
 [init]
 	defaultBranch = main
