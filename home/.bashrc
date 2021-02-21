@@ -55,6 +55,9 @@ unset enabled_bash_completion
 if [[ $OSTYPE != "cygwin" ]] && ! type -t fzf-file-widget >/dev/null 2>&1; then
     if [[ -r ~/.fzf.bash ]]; then
         . ~/.fzf.bash
+    elif [[ -r /usr/share/doc/fzf/examples/key-bindings.bash ]]; then
+        # Debian's fzf package, rather than a user-local install.
+        . /usr/share/doc/fzf/examples/key-bindings.bash
     else
         echo 'fzf unavailable' >&2
         (( rc |= 0x20 ))
