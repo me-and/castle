@@ -98,6 +98,8 @@
 	pager = less -S
 [sendemail]
 	confirm = always
+	annotate = true
+	suppresscc = self
 [pull]
 	ff = only
 [init]
