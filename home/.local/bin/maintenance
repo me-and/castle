@@ -1,0 +1,34 @@
+#!/usr/bin/env bash
+
+set -eu
+
+[[ -r ~/.bashrc.d/cygwin-setup ]] && . ~/.bashrc.d/cygwin-setup
+
+case "$HOSTNAME" in
+	DESKTOP-EB4GLQ5)
+		case "$(uname)" in
+			"CYGWIN_NT-10.0")
+				run_cygwin_setup=YesPlease
+				refresh_git=
+				;;
+			*)
+				echo "Unrecognised kernel" >&2
+				exit 1
+				;;
+		esac
+		;;
+	*)
+		echo "Unrecognised host" >&2
+		exit 1
+		;;
+esac
+
+refresh_vim_plugins=YesPlease
+check_homeshick=YesPlease
+
+[[ "$run_cygwin_setup" ]] && cygwin_setup
+[[ "$refresh_vim_plugins" ]] && refresh-vim-plugins
+[[ "$refresh_git" ]] && refresh-git
+[[ "$check_homeshick" ]] && homeshick check
+
+exit 0
