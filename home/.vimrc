@@ -109,5 +109,8 @@ for path in split(globpath('~/.vim/localbundles/', '*.vim'), '\n')
   exe 'source' path
 endfor
 
+" VimTeX
+Plug 'lervag/vimtex'
+
 " Finished adding plugins
 call plug#end()
