@@ -3,6 +3,7 @@
 set -eu
 
 [[ -r ~/.bashrc.d/cygwin-setup ]] && . ~/.bashrc.d/cygwin-setup
+[[ -r ~/.homesick/repos/homeshick/homeshick.sh ]] && . ~/.homesick/repos/homeshick/homeshick.sh
 
 case "$HOSTNAME" in
 	DESKTOP-EB4GLQ5|Multivac)
