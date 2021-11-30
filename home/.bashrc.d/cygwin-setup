@@ -1,4 +1,4 @@
-CYGWIN_BASE_DOWNLOAD_URL='https://cygwin.com/'
+CYGWIN_BASE_DOWNLOAD_URL='https://www.cygwin.com/'
 
 cygwin_setup_executable=
 case "$HOSTTYPE" in
