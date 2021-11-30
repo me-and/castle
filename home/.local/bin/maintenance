@@ -5,7 +5,7 @@ set -eu
 [[ -r ~/.bashrc.d/cygwin-setup ]] && . ~/.bashrc.d/cygwin-setup
 
 case "$HOSTNAME" in
-	DESKTOP-EB4GLQ5)
+	DESKTOP-EB4GLQ5|Multivac)
 		case "$(uname)" in
 			"CYGWIN_NT-10.0")
 				run_cygwin_setup=YesPlease
