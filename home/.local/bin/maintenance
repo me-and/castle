@@ -11,6 +11,7 @@ case "$HOSTNAME" in
 			"CYGWIN_NT-10.0")
 				run_cygwin_setup=YesPlease
 				refresh_vim_plugins=YesPlease
+				update_apt=
 				refresh_git=
 				check_homeshick=YesPlease
 				;;
@@ -23,6 +24,7 @@ case "$HOSTNAME" in
 	lucy)
 		run_cygwin_setup=
 		refresh_vim_plugins=YesPlease
+		update_apt=YesPlease
 		refresh_git=YesPlease
 		check_homeshick=YesPlease
 		;;
@@ -34,6 +36,7 @@ esac
 
 [[ "$run_cygwin_setup" ]] && cygwin_setup
 [[ "$refresh_vim_plugins" ]] && refresh-vim-plugins
+[[ "$update_apt" ]] && sudo apt update && sudo apt upgrade
 [[ "$refresh_git" ]] && refresh-git
 [[ "$check_homeshick" ]] && homeshick check
 
