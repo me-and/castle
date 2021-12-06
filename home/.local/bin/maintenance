@@ -20,6 +20,12 @@ case "$HOSTNAME" in
 				;;
 		esac
 		;;
+	lucy)
+		run_cygwin_setup=
+		refresh_vim_plugins=YesPlease
+		refresh_git=YesPlease
+		check_homeshick=YesPlease
+		;;
 	*)
 		echo "Unrecognised host" >&2
 		exit 1
