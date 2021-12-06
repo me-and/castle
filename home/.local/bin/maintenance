@@ -10,7 +10,9 @@ case "$HOSTNAME" in
 		case "$(uname)" in
 			"CYGWIN_NT-10.0")
 				run_cygwin_setup=YesPlease
+				refresh_vim_plugins=YesPlease
 				refresh_git=
+				check_homeshick=YesPlease
 				;;
 			*)
 				echo "Unrecognised kernel" >&2
@@ -23,9 +25,6 @@ case "$HOSTNAME" in
 		exit 1
 		;;
 esac
-
-refresh_vim_plugins=YesPlease
-check_homeshick=YesPlease
 
 [[ "$run_cygwin_setup" ]] && cygwin_setup
 [[ "$refresh_vim_plugins" ]] && refresh-vim-plugins
