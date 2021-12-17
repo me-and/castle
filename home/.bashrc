@@ -184,10 +184,6 @@ fi
 
 if command -v ssh-agent &>/dev/null; then
     function start_ssh_agent {
-        # Set up the terminal title so KeePass can recognise the window and
-        # thus the correct password to use when prompted by ssh-add.
-        set_terminal_title "$(hostname):"
-
         rm -f "$ssh_agent_pid_file" || return 1
 
         # Create the file with a umask to ensure only the current user can
@@ -196,7 +192,6 @@ if command -v ssh-agent &>/dev/null; then
         ssh-agent | ( umask 0177 && sed 's/^echo/#echo/' >"$ssh_agent_pid_file" )
 
         . "$ssh_agent_pid_file"
-        ssh-add
     }
 
     function ensure_ssh_agent_running {
