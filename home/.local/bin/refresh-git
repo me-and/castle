@@ -1,15 +1,16 @@
 #!/usr/bin/env bash
-set -u
+set -eu
 
 GIT_SRC_DIR=${GIT_SRC_DIR:-~/vcs/git}
 GIT_INSTALL_DIR=${GIT_INSTALL_DIR:-~/.local}
-GIT_BUILD_COMMIT=${GIT_BUILD_COMMIT:-origin/master}
-GIT_BUILD_THREADS=${GIT_BUILD_THREADS:-$(($(nproc) + 1))} || exit $?
+GIT_BUILD_COMMIT=${GIT_BUILD_COMMIT:-origin/main}
+GIT_BUILD_THREADS=${GIT_BUILD_THREADS:-$(($(nproc) + 1))}
 
-cd "$GIT_SRC_DIR" || exit $?
+cd "$GIT_SRC_DIR"
 
-git fetch && git checkout "$GIT_BUILD_COMMIT" || exit $?
+git fetch
+git checkout "$GIT_BUILD_COMMIT"
 
-make -j "$GIT_BUILD_THREADS" configure || exit $?
-./configure --prefix="$GIT_INSTALL_DIR" || exit $?
-make -j "$GIT_BUILD_THREADS" install install-man || exit $?
+make -j "$GIT_BUILD_THREADS" configure
+./configure --prefix="$GIT_INSTALL_DIR"
+make -j "$GIT_BUILD_THREADS" install install-man

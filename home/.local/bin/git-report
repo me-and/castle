@@ -12,6 +12,11 @@ remove_unwanted_branch_names () {
 }
 
 indent () {
+	# This shellcheck warning complains about the use of "$@" in this
+	# function when it's never called with arguments.  I want to be able to
+	# pass file names to this function, but I'm not using that facility
+	# yet, so disable the warning.
+	# shellcheck disable=SC2120
 	sed 's/^/  /' "$@"
 }
 
