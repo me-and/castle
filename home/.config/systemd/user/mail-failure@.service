@@ -1,0 +1,6 @@
+[Unit]
+Description=Unit %i failure report mailer
+
+[Service]
+Type=oneshot
+ExecStart=bash -c 'printf "Subject: Unit %i failure on %H\\n\\nGenerated at %%s\\n\\nUnit %i has failed\\n\\nStatus:\\n%%s" "$(date)" "$(systemctl status "%i")" | exim4 -bm -i -F Lucy -odf adam@dinwoodie.org'
