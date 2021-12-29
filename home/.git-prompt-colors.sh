@@ -49,7 +49,8 @@ override_git_prompt_colors() {
 
     # The Git prompt on Cygwin and WSL is painfully slow, so disable it.
     if [[ "$(uname -s)" == CYGWIN* ]] || grep -qi microsoft /proc/version; then
-        GIT_PROMPT_DISABLE=1
+        GIT_PROMPT_SHOW_UNTRACKED_FILES=no
+        GIT_PROMPT_SHOW_CHANGED_FILES_COUNT=0
     fi
 }
 
