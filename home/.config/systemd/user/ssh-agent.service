@@ -1,0 +1,9 @@
+[Unit]
+Description=OpenSSH Agent
+Documentation=man:ssh-agent(1)
+
+[Service]
+ExecStart=ssh-agent -D -a "${XDG_RUNTIME_DIR}/openssh_agent"
+
+[Install]
+WantedBy=default.target
