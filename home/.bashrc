@@ -174,50 +174,56 @@ set_terminal_title () {
     echo -ne '\e]0;'"$*"'\a'
 }
 
-# Set up ssh-agent.  Based on
-# https://www.cygwin.com/ml/cygwin/2001-06/msg00537.html
-if [[ "$HOSTTYPE" ]]; then
-    ssh_agent_pid_file=~/.ssh/ssh-agent."$HOSTTYPE".pid
+if systemctl --user --quiet is-active ssh-agent.service 2>/dev/null; then
+    # systemd-based system where the ssh-agent user service is working, so the
+    # only necessary step is to set where to find the ssh-agent sockets.
+    export SSH_AUTH_SOCK="${XDG_RUNTIME_DIR}/openssh_agent"
 else
-    ssh_agent_pid_file=~/.ssh/ssh-agent.pid
-fi
+    # Set up ssh-agent.  Based on
+    # https://www.cygwin.com/ml/cygwin/2001-06/msg00537.html
+    if [[ "$HOSTTYPE" ]]; then
+        ssh_agent_pid_file=~/.ssh/ssh-agent."$HOSTTYPE".pid
+    else
+        ssh_agent_pid_file=~/.ssh/ssh-agent.pid
+    fi
 
-if command -v ssh-agent &>/dev/null; then
-    function start_ssh_agent {
-        rm -f "$ssh_agent_pid_file" || return 1
+    if command -v ssh-agent &>/dev/null; then
+        function start_ssh_agent {
+            rm -f "$ssh_agent_pid_file" || return 1
 
-        # Create the file with a umask to ensure only the current user can
-        # read/write to it.  The ssh-agent call must be outside the umask as
-        # otherwise (at least on CentOS) it won't work.
-        ssh-agent | ( umask 0177 && sed 's/^echo/#echo/' >"$ssh_agent_pid_file" )
+            # Create the file with a umask to ensure only the current user can
+            # read/write to it.  The ssh-agent call must be outside the umask as
+            # otherwise (at least on CentOS) it won't work.
+            ssh-agent | ( umask 0177 && sed 's/^echo/#echo/' >"$ssh_agent_pid_file" )
 
-        . "$ssh_agent_pid_file"
-    }
-
-    function ensure_ssh_agent_running {
-        if [[ -r "$ssh_agent_pid_file" ]]; then
             . "$ssh_agent_pid_file"
-            command -v pgrep >/dev/null || return 1  # Can't check w/o pgrep
-            ssh_agent_running=
-            while read -r ssh_agent_pid; do
-                if [[ "$ssh_agent_pid" = "$SSH_AGENT_PID" ]]; then
-                    # The recorded ssh-agent PID in the $ssh_agent_pid_file
-                    # corresponds with a running ssh-agent instance.
-                    ssh_agent_running=Yes
-                    break
-                fi
-            done < <(pgrep ssh-agent)
-            [[ -n "$ssh_agent_running" ]] || start_ssh_agent
-            unset ssh_agent_running
-        else
-            start_ssh_agent
-        fi
-    }
+        }
 
-    ensure_ssh_agent_running
-else
-    echo 'ssh-agent unavailable' >&2
-    (( rc |= 0x10 ))
+        function ensure_ssh_agent_running {
+            if [[ -r "$ssh_agent_pid_file" ]]; then
+                . "$ssh_agent_pid_file"
+                command -v pgrep >/dev/null || return 1  # Can't check w/o pgrep
+                ssh_agent_running=
+                while read -r ssh_agent_pid; do
+                    if [[ "$ssh_agent_pid" = "$SSH_AGENT_PID" ]]; then
+                        # The recorded ssh-agent PID in the $ssh_agent_pid_file
+                        # corresponds with a running ssh-agent instance.
+                        ssh_agent_running=Yes
+                        break
+                    fi
+                done < <(pgrep ssh-agent)
+                [[ -n "$ssh_agent_running" ]] || start_ssh_agent
+                unset ssh_agent_running
+            else
+                start_ssh_agent
+            fi
+        }
+
+        ensure_ssh_agent_running
+    else
+        echo 'ssh-agent unavailable' >&2
+        (( rc |= 0x10 ))
+    fi
 fi
 
 # Import local .bashrc files if they exist.
