@@ -174,7 +174,7 @@ set_terminal_title () {
     echo -ne '\e]0;'"$*"'\a'
 }
 
-if systemctl --user --quiet is-active ssh-agent.service; then
+if systemctl --user --quiet is-active ssh-agent.service 2>/dev/null; then
     # systemd-based system where the ssh-agent user service is working, so the
     # only necessary step is to set where to find the ssh-agent sockets.
     export SSH_AUTH_SOCK="${XDG_RUNTIME_DIR}/openssh_agent"
