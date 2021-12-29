@@ -1,7 +1,7 @@
 [Unit]
 Description=Dropbox rclone mount
 AssertPathIsDirectory=/home/adam/Dropbox
-AssertPathIsDirectory=/mnt/ssd/dropbox-cache
+AssertPathIsDirectory=/mnt/ssd/rclone-cache
 AssertPathExists=/home/adam/.config/rclone/rclone.conf
 Requires=mnt-ssd.mount
 After=mnt-ssd.mount
@@ -12,7 +12,7 @@ After=network-online.target network.target
 Type=notify
 ExecStart=/usr/bin/rclone mount \
 	--config=/home/adam/.config/rclone/rclone.conf \
-	--cache-dir=/mnt/ssd/dropbox-cache/ \
+	--cache-dir=/mnt/ssd/rclone-cache/ \
 	--vfs-cache-mode=full \
 	--vfs-cache-max-age=8760h \
 	dropbox: /home/adam/Dropbox
