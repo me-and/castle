@@ -5,6 +5,7 @@ GIT_SRC_DIR=${GIT_SRC_DIR:-~/vcs/git}
 GIT_INSTALL_DIR=${GIT_INSTALL_DIR:-~/.local}
 GIT_BUILD_COMMIT=${GIT_BUILD_COMMIT:-origin/main}
 GIT_BUILD_THREADS=${GIT_BUILD_THREADS:-$(($(nproc) + 1))}
+GIT_BUILD_TEST=${GIT_BUILD_TEST:-YesPlease}
 GIT_BUILD_FORCE=${GIT_BUILD_FORCE:-}
 
 cd "$GIT_SRC_DIR"
@@ -18,4 +19,5 @@ git checkout "$GIT_BUILD_COMMIT"
 
 make -j "$GIT_BUILD_THREADS" configure
 ./configure --prefix="$GIT_INSTALL_DIR"
+[[ "$GIT_BUILD_TEST" ]] && make -j "$GIT_BUILD_THREADS" test
 make -j "$GIT_BUILD_THREADS" install install-man
