@@ -1,0 +1,26 @@
+[Unit]
+Description=Dropbox rclone mount
+AssertPathIsDirectory=/home/adam/Dropbox
+AssertPathIsDirectory=/mnt/ssd/dropbox-cache
+AssertPathExists=/home/adam/.config/rclone/rclone.conf
+Requires=mnt-ssd.mount
+After=mnt-ssd.mount
+Wants=network-online.target
+After=network-online.target network.target
+
+[Service]
+Type=notify
+ExecStart=/usr/bin/rclone mount \
+        --allow-other \
+	--umask 0000 \
+	--config=/home/adam/.config/rclone/rclone.conf \
+	--cache-dir=/mnt/ssd/dropbox-cache/ \
+	--vfs-cache-mode=full \
+	--vfs-cache-max-age=8760h \
+        dropbox: /home/adam/Dropbox
+ExecStop=/bin/fusermount -u /home/adam/Dropbox
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=default.target
