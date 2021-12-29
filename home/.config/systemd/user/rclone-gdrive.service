@@ -15,7 +15,7 @@ ExecStart=/usr/bin/rclone mount \
 	--cache-dir=/mnt/ssd/gdrive-cache/ \
 	--vfs-cache-mode=full \
 	--vfs-cache-max-age=8760h \
-        gdrive: /home/adam/GDrive
+	gdrive: /home/adam/GDrive
 ExecStop=/bin/fusermount -u /home/adam/GDrive
 Restart=always
 RestartSec=10

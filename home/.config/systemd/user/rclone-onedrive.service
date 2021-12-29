@@ -16,7 +16,7 @@ ExecStart=/usr/bin/rclone mount \
 	--vfs-cache-mode=full \
 	--vfs-cache-max-age=8760h \
 	--vfs-cache-max-size=200G \
-        onedrive: /home/adam/OneDrive
+	onedrive: /home/adam/OneDrive
 ExecStop=/bin/fusermount -u /home/adam/OneDrive
 Restart=always
 RestartSec=10
