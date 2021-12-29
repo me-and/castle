@@ -11,8 +11,6 @@ After=network-online.target network.target
 [Service]
 Type=notify
 ExecStart=/usr/bin/rclone mount \
-        --allow-other \
-	--umask 0000 \
 	--config=/home/adam/.config/rclone/rclone.conf \
 	--cache-dir=/mnt/ssd/gdrive-cache/ \
 	--vfs-cache-mode=full \
