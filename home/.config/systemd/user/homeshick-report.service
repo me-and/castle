@@ -2,4 +2,4 @@
 Description=Email a homeshick status report
 
 [Service]
-ExecStart=bash -c '{ printf "Subject: Homeshick status report from %l\\n\\n"; ~/.homesick/repos/homeshick/bin/homeshick check -q; rc=$?; if (( rc == 0 )); then echo "Everything up to date"; elif (( rc == 85 )); then echo "A homeshick repo on %l is ahead"; elif (( rc == 86 )); then echo "A homeshick repo on %l is behind"; elif (( rc == 87 )); then echo "A homeshick repo on %l is out of date"; elif (( rc == 88 )); then echo "A homeshick repo on %l has modified files"; else echo "Unexpected return code from homeshick check on %l: $rc"; fi; } | exim4 -bm -i -F "adam@%l" -odf adam@dinwoodie.org'
+ExecStart=%h/.local/bin/homeshick-report
