@@ -1,4 +1,0 @@
-[Unit]
-Description=At the dayjob
-Conflicts=in-work.timer
-Wants=out-of-work.timer

@@ -1,9 +1,0 @@
-[Unit]
-Description=Trigger when in the dayjob
-
-[Timer]
-OnCalendar=Mon..Fri 08..16:00..59
-Unit=in-work.target
-
-[Install]
-WantedBy=timers.target

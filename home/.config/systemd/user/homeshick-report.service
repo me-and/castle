@@ -1,5 +1,0 @@
-[Unit]
-Description=Email a homeshick status report
-
-[Service]
-ExecStart=%h/.local/bin/homeshick-report
