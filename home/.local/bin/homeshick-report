@@ -5,23 +5,24 @@ cd "${HOMESHICK_DIR:-$HOME/.homesick/repos}"
 
 if [[ -x homeshick/bin/homeshick ]]; then
 	for repo in *; do
+		printf '%s: ' "$repo"
 		status=0
 		homeshick/bin/homeshick check -q "$repo" || status=$?
 		case "$status" in
 		0)
-			printf '%s: up-to-date\n' "$repo"
+			printf 'up-to-date\n'
 			;;
 		85)  # Ahead
-			printf '%s: ahead\n' "$repo"
+			printf 'ahead\n'
 			;;
 		86)  # Behind
-			printf '%s: behind\n' "$repo"
+			printf 'behind\n'
 			;;
 		88)  # Modified
-			printf '%s: modified\n' "$repo"
+			printf 'modified\n'
 			;;
 		*)
-			printf '%s: unexpected status\n' "$repo"
+			printf 'unexpected status\n'
 			;;
 		esac
 	done
