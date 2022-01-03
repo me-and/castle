@@ -12,6 +12,9 @@ if [[ -x homeshick/bin/homeshick ]]; then
 		0)
 			printf 'up-to-date\n'
 			;;
+		69)  # Unavailable
+			printf 'could not check\n'
+			;;
 		85)  # Ahead
 			printf 'ahead\n'
 			;;
