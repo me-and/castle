@@ -1,9 +1,15 @@
 CYGWIN_BASE_DOWNLOAD_URL='https://www.cygwin.com/'
+CYGWIN_MIRROR_URL='https://www.mirrorservice.org/sites/sourceware.org/pub/cygwin/'
+CYGWIN_DOWNLOAD_DIR=~/WinHome/Downloads
 
 cygwin_setup_executable=
 case "$HOSTTYPE" in
-    x86_64) cygwin_setup_executable=setup-x86_64.exe ;;
-    i686) cygwin_setup_executable=setup-x86.exe ;;
+    x86_64) cygwin_setup_executable=setup-x86_64.exe
+            cygwin_setup_ini_path="$CYGWIN_DOWNLOAD_DIR/$(sed 's/:/%3a/g;s!/!%2f!g' <<<"$CYGWIN_MIRROR_URL")/x86_64/setup.ini"
+            ;;
+    i686)   cygwin_setup_executable=setup-x86.exe
+            cygwin_setup_ini_path="$CYGWIN_DOWNLOAD_DIR/$(sed 's/:/%3a/g;s!/!%2f!g' <<<"$CYGWIN_MIRROR_URL")/x86/setup.ini"
+            ;;
 esac
 
 if [[ -n "$cygwin_setup_executable" ]]; then
@@ -35,7 +41,8 @@ if [[ -n "$cygwin_setup_executable" ]]; then
     cygwin_setup_path=
     for path in /bin/"$cygwin_setup_executable" \
         /usr/bin/"$cygwin_setup_executable" \
-        ~/WinHome/Downloads/"$cygwin_setup_executable"
+        /usr/local/bin/"$cygwin_setup_executable" \
+        "$CYGWIN_DOWNLOAD_DIR"/"$cygwin_setup_executable"
     do
         if [[ -f "$path" && -x "$path" ]]; then
             cygwin_setup_path="$path"
@@ -45,14 +52,42 @@ if [[ -n "$cygwin_setup_executable" ]]; then
     unset path
 
     if [[ -z "$cygwin_setup_path" ]]; then
-        cygwin_setup_path=/usr/bin/"$cygwin_setup_executable"
-        cygwin_setup_update
+        cygwin_setup_path=/usr/local/bin/"$cygwin_setup_executable"
     fi
 
     function cygwin_setup {
         cygwin_setup_update &&
-        cygstart "$cygwin_setup_path" -d "$@"
+        cygstart "$cygwin_setup_path" -d -l "$(cygpath -aw "$CYGWIN_DOWNLOAD_DIR")" -s "$CYGWIN_MIRROR_URL" "$@"
     }
+
+    function cygwin_setup_last_run {
+        date -r "$cygwin_setup_ini_path" "$@"
+    }
+
+    function cygwin_setup_last_run_age {
+        local now="$(date '+%s')"
+        local last_run="$(cygwin_setup_last_run '+%s')"
+        local diff="$(( now - last_run ))"
+        if [[ "$1" = '-h' ]]; then
+            if (( diff < 60 )); then
+                echo "$diff seconds"
+            elif (( diff < (60 * 60) )); then
+                echo "$((diff/60)) minutes"
+            elif (( diff < (60 * 60 * 24) )); then
+                echo "$((diff/60/60)) hours"
+            else
+                echo "$((diff/60/60/24)) days"
+            fi
+        else
+            echo "$diff"
+        fi
+    }
+
+    if [[ ! -r "$cygwin_setup_ini_path" ]]; then
+        echo "Couldn't find Cygwin setup.ini to check age" >&2
+    elif (( $(cygwin_setup_last_run_age) >= (60*60*24*7) )); then
+        echo "Cygwin setup hasn't been run for $(cygwin_setup_last_run_age -h)" >&2
+    fi
 else
     {
         echo 'Unrecognised host architecture!'
