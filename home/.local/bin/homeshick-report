@@ -26,6 +26,7 @@ else
 fi
 
 if [[ -x homeshick/bin/homeshick ]]; then
+	rc=0
 	for repo in *; do
 		printf '%s: ' "$repo"
 		status=0
@@ -36,21 +37,28 @@ if [[ -x homeshick/bin/homeshick ]]; then
 			;;
 		69)  # Unavailable
 			printf "$unavailable\\n"
+			(( 69 > rc && rc != 1 )) && rc=69
 			;;
 		85)  # Ahead
 			printf "$ahead\\n"
+			(( 85 > rc && rc != 1 )) && rc=85
 			;;
 		86)  # Behind
 			printf "$behind\\n"
+			(( 86 > rc && rc != 1 )) && rc=86
 			;;
 		88)  # Modified
 			printf "$modified\\n"
+			(( 88 > rc && rc != 1 )) && rc=88
 			;;
 		*)
 			printf "$unknown\\n" "$status"
+			rc=1
 			;;
 		esac
 	done
+	exit "$rc"
 else
-	printf 'Could not find homesick executable in %s\n' "$(pwd)"
+	printf 'Could not find homesick executable in %s\n' "$(pwd)" >&2
+	exit 1
 fi
