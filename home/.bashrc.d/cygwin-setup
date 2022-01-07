@@ -70,14 +70,19 @@ if [[ -n "$cygwin_setup_executable" ]]; then
         local diff="$(( now - last_run ))"
         if [[ "$1" = '-h' ]]; then
             if (( diff < 60 )); then
-                echo "$diff seconds"
+                unit='seconds'
+                val="$diff"
             elif (( diff < (60 * 60) )); then
-                echo "$((diff/60)) minutes"
+                unit='minutes'
+                val="$((diff/60))"
             elif (( diff < (60 * 60 * 24) )); then
-                echo "$((diff/60/60)) hours"
+                unit='hours'
+                val="$((diff/60/60))"
             else
-                echo "$((diff/60/60/24)) days"
+                unit='days'
+                val="$((diff/60/60/24))"
             fi
+            printf "%'d %s\n" "$val" "$unit"
         else
             echo "$diff"
         fi
