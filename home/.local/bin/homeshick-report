@@ -25,9 +25,15 @@ else
 	unknown='unexpected status: %s'
 fi
 
+if (( $# > 0 )); then
+	repos=("$@")
+else
+	repos=(*)
+fi
+
 if [[ -x homeshick/bin/homeshick ]]; then
 	rc=0
-	for repo in *; do
+	for repo in "${repos[@]}"; do
 		printf '%s: ' "$repo"
 		status=0
 		homeshick/bin/homeshick check -q "$repo" || status=$?
