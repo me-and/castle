@@ -60,38 +60,10 @@ if [[ -n "$cygwin_setup_executable" ]]; then
         cygstart "$cygwin_setup_path" -d -l "$(cygpath -aw "$CYGWIN_DOWNLOAD_DIR")" -s "$CYGWIN_MIRROR_URL" "$@"
     }
 
-    function cygwin_setup_last_run {
-        date -r "$cygwin_setup_ini_path" "$@"
-    }
-
-    function cygwin_setup_last_run_age {
-        local now="$(date '+%s')"
-        local last_run="$(cygwin_setup_last_run '+%s')"
-        local diff="$(( now - last_run ))"
-        if [[ "$1" = '-h' ]]; then
-            if (( diff < 60 )); then
-                unit='seconds'
-                val="$diff"
-            elif (( diff < (60 * 60) )); then
-                unit='minutes'
-                val="$((diff/60))"
-            elif (( diff < (60 * 60 * 24) )); then
-                unit='hours'
-                val="$((diff/60/60))"
-            else
-                unit='days'
-                val="$((diff/60/60/24))"
-            fi
-            printf "%'d %s\n" "$val" "$unit"
-        else
-            echo "$diff"
-        fi
-    }
-
     if [[ ! -r "$cygwin_setup_ini_path" ]]; then
         echo "Couldn't find Cygwin setup.ini to check age" >&2
-    elif (( $(cygwin_setup_last_run_age) >= (60*60*24*7) )); then
-        echo "Cygwin setup hasn't been run for $(cygwin_setup_last_run_age -h)" >&2
+    elif (( $(file-age -- "$cygwin_setup_ini_path") >= (60*60*24*7) )); then
+        echo "Cygwin setup hasn't been run for $(file-age -h -- "$cygwin_setup_ini_path")" >&2
     fi
 else
     {
