@@ -10,12 +10,22 @@ GIT_BUILD_FORCE=${GIT_BUILD_FORCE-}
 
 cd "$GIT_SRC_DIR"
 
-git fetch
+# Find a version of Git to use.  Prefer versions likely to have been more
+# thoroughly tested and therefore more reliable, in the name of avoiding
+# bootstrap problems when getting an up-to-date Git build.
+for git in /usr/bin/git /usr/local/bin/git "${GIT_INSTALL_DIR}/bin/git" "$(which git)"; do
+	[[ -x "$git" ]] && break
+done
 
-# Check if it's even necessary to do anything
-[[ "$GIT_BUILD_FORCE" ]] || git version | grep -Fq "$(git describe "$GIT_BUILD_COMMIT" | sed 's/-/./g;s/v//')" && exit 0
+"$git" fetch
 
-git checkout "$GIT_BUILD_COMMIT"
+# Check if it's even necessary to do anything.  This always uses the version of
+# Git that we're trying to install, since that's the one we'll be replacing,
+# and if it doesn't exist or is somehow invalid, the test should also fail and
+# cause the script to continue.
+[[ "$GIT_BUILD_FORCE" ]] || "${GIT_INSTALL_DIR}/bin/git" version | grep -Fq "$("$git" describe "$GIT_BUILD_COMMIT" | sed 's/-/./g;s/v//')" && exit 0
+
+"$git" checkout "$GIT_BUILD_COMMIT"
 
 make -j "$GIT_BUILD_THREADS" configure
 ./configure --prefix="$GIT_INSTALL_DIR"
