@@ -1,0 +1,15 @@
+[[ "$OSTYPE" = 'cygwin' ]] || return 0
+
+# Report any cron output.
+if [[ -r ~/cron.log ]]; then
+    echo '~/cron.log exists' >&2
+    echo 'Run `cat ~/cron.log` to check latest cron output' >&2
+fi
+
+if [[ -f /usr/sbin/cron && -x /usr/sbin/cron ]] &&
+    command -v pgrep >/dev/null &&
+    ! pgrep cron >/dev/null
+then
+    # Cron is installed and isn't running, so run it.
+    /usr/sbin/cron
+fi

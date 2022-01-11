@@ -95,7 +95,6 @@ let g:rainbow_active = 1
 let g:sh_no_error = 1
 
 " fzf
-Plug 'junegunn/fzf', {'dir': '~/.fzf', 'do': './install --all'}
 Plug 'junegunn/fzf.vim'
 
 " Ag

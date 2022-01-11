@@ -1,0 +1,43 @@
+#!/usr/bin/env bash
+set -eu
+
+human=
+force=
+while getopts hf opt; do
+	case "$opt" in
+		h)	human=YesPlease;;
+		f)	force=YesPlease;;
+	esac
+done
+shift "$((OPTIND - 1))"
+
+if [[ -e "$1" ]]; then
+	then="$(date -r "$1" '+%s')"
+elif [[ "$force" ]]; then
+	then=0
+else
+	echo "No such file $1" >&2
+	exit 1
+fi
+
+now="$(date '+%s')"
+diff="$((now - then))"
+
+if [[ "$human" ]]; then
+	if (( diff < 60 )); then
+		unit='seconds'
+		val="$diff"
+	elif (( diff < (60*60) )); then
+		unit='minutes'
+		val="$((diff/60))"
+	elif (( diff < (60*60*24) )); then
+		unit='hours'
+		val="$((diff/60/60))"
+	else
+		unit='days'
+		val="$((diff/60/60/24))"
+	fi
+	printf "%'d %s\n" "$val" "$unit"
+else
+	echo "$diff"
+fi
