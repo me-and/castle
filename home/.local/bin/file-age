@@ -25,19 +25,24 @@ diff="$((now - then))"
 
 if [[ "$human" ]]; then
 	if (( diff < 60 )); then
-		unit='seconds'
+		unit='second'
 		val="$diff"
 	elif (( diff < (60*60) )); then
-		unit='minutes'
+		unit='minute'
 		val="$((diff/60))"
 	elif (( diff < (60*60*24) )); then
-		unit='hours'
+		unit='hour'
 		val="$((diff/60/60))"
 	else
-		unit='days'
+		unit='day'
 		val="$((diff/60/60/24))"
 	fi
-	printf "%'d %s\n" "$val" "$unit"
+	if (( val > 1 )); then
+		plural='s'
+	else
+		plural=
+	fi
+	printf "%'d %s%s\n" "$val" "$unit" "$plural"
 else
 	echo "$diff"
 fi
