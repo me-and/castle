@@ -2,14 +2,9 @@ if systemctl --user --quiet is-active homeshick-report.timer 2>/dev/null; then
 	# systemctl is looking after homeshick reports, so no need to do
 	# anything nasty and manual here.
 	:
-else
-	now="$(date '+%s')"
-	[[ -e ~/.homesick/.reportlastrun ]] && last_run="$(date -r ~/.homesick/.reportlastrun '+%s')" || last_run=0
-	if (( (now - last_run) >= 60*60*24*7 )); then
-		# More than a week since this was last checked.
-		echo 'Running periodic homeshick report'
-		homeshick-report
-		touch ~/.homesick/.reportlastrun
-	fi
-	unset now last_run
+elif [[ ! -e ~/.homesick/.reportlastrun ]] || (( "$(file-age ~/.homesick/.reportlastrun)" >= 60*60*24*7 )); then
+	# More than a week since this was last checked.
+	echo 'Running periodic homeshick report'
+	homeshick-report
+	touch ~/.homesick/.reportlastrun
 fi
