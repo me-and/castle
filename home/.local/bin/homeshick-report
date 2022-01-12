@@ -3,7 +3,17 @@ set -eu
 
 cd "${HOMESHICK_DIR:-$HOME/.homesick/repos}"
 
+# Use colour output if either the output is a terminal or it has been
+# explicitly requested with a `-c` option.
+use_colour=
 if [[ -t 1 ]]; then
+	use_colour=YesPlease
+elif (( $# > 0 )) && [[ "$1" = '-c' ]]; then
+	use_colour=YesPlease
+	shift
+fi
+
+if [[ "$use_colour" ]]; then
 	# Output to terminal, so use colour.
 	GREEN='\033[0;32m'
 	BLUE='\033[0;34m'
