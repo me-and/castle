@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+
+set -eu
+
+# Check necessary commands exist.
+{ command -v mime-construct && command -v ansi2txt && command -v ansi2html; } >/dev/null || {
+	echo 'Missing commands' >&2
+	echo 'Need mime-construct, ansi2txt and ansi2html in PATH' >&2
+	exit 1
+}
+
+# Set up an unnamed file descriptor, with a write descriptor to store the
+# input, and two read descriptors for reading to the text and html converters.
+file="$(mktemp)"
+exec {write}>"$file" {readtxt}<"$file" {readhtml}<"$file"
+rm "$file"
+
+cat >&"$write"
+
+mime-construct "$@" --multipart 'multipart/alternative' --file <(ansi2txt <&"$readtxt") --type 'text/html' --file <(ansi2html -w <&"$readhtml")
