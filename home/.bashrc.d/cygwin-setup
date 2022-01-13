@@ -58,6 +58,13 @@ if [[ -n "$cygwin_setup_executable" ]]; then
     fi
 
     function cygwin_setup {
+        if [[ "$1" = '-h' || "$1" = '--help' ]]; then
+            # Don't bother with the overhead of updating the installer unless
+            # it's not available at all.
+            [[ -e "$cygwin_setup_path" ]] || cygwin_setup_update &&
+            "$cygwin_setup_path" --help
+            return $?
+        fi
         cygwin_setup_update &&
         cygstart "$cygwin_setup_path" -d -l "$(cygpath -aw "$CYGWIN_DOWNLOAD_DIR")" -s "$CYGWIN_MIRROR_URL" "$@"
     }
