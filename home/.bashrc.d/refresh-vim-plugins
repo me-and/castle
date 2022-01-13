@@ -1,0 +1,23 @@
+if systemctl --user --quiet is-active refresh-vim-plugins.timer 2>/dev/null; then
+	# systemctl is looking after vim plugin updates, so no need to do
+	# anything nasty and manual here.
+	:
+else
+	VIM_PLUGINS_UPDATE_FLAG_FILE=~/.vim/bundle/.lastupdated
+	if [[ ! -e "$VIM_PLUGINS_UPDATE_FLAG_FILE" ]]; then
+		echo 'Could not tell when vim plugins were last updated.  Run'
+		echo '`refresh-vim-plugins` to update them now.'
+	elif (( "$(file-age "$VIM_PLUGINS_UPDATE_FLAG_FILE")" >= 60*60*24*7 )); then
+		echo 'Vim plugins were last updated'
+		echo "$(file-age -h "$VIM_PLUGINS_UPDATE_FLAG_FILE") ago.  Run"
+		echo '`refresh-vim-plugins` to update them now.'
+	fi | fmt -w "${COLUMNS:-80}"
+
+	# Create a function wrapper for the refresh-vim-plugins script to
+	# automatically touch the flag file so its timestamp gets updated once
+	# the plugins are up-to-date.
+	refresh-vim-plugins () {
+		command refresh-vim-plugins &&
+		touch "$VIM_PLUGINS_UPDATE_FLAG_FILE"
+	}
+fi
