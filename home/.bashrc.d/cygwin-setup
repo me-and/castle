@@ -44,6 +44,10 @@ if [[ -n "$cygwin_setup_executable" ]]; then
         chmod +x "$cygwin_setup_path"
     }
 
+    function cygwin_setup_run {
+        cygstart "$cygwin_setup_path" -d -l "$(cygpath -aw "$CYGWIN_DOWNLOAD_DIR")" -s "$CYGWIN_MIRROR_URL" "$@"
+    }
+
     function cygwin_setup {
         if [[ "$1" = '-h' || "$1" = '--help' ]]; then
             # Don't bother with the overhead of updating the installer unless
@@ -52,8 +56,7 @@ if [[ -n "$cygwin_setup_executable" ]]; then
             "$cygwin_setup_path" --help
             return $?
         fi
-        cygwin_setup_update &&
-        cygstart "$cygwin_setup_path" -d -l "$(cygpath -aw "$CYGWIN_DOWNLOAD_DIR")" -s "$CYGWIN_MIRROR_URL" "$@"
+        cygwin_setup_update && cygwin_setup_run "$@"
     }
 
     if [[ ! -r "$cygwin_setup_ini_path" ]]; then
