@@ -15,31 +15,6 @@ case "$HOSTTYPE" in
 esac
 
 if [[ -n "$cygwin_setup_executable" ]]; then
-    if command -v curl >/dev/null; then
-        function cygwin_setup_update {
-            if [[ -e "$cygwin_setup_path" ]]; then
-                # File exists so we can test if the upstream version is newer.
-                curl -o "$cygwin_setup_path" -z "$cygwin_setup_path" \
-                    "${CYGWIN_BASE_DOWNLOAD_URL}${cygwin_setup_executable}"
-            else
-                curl -o "$cygwin_setup_path" \
-                    "${CYGWIN_BASE_DOWNLOAD_URL}${cygwin_setup_executable}"
-            fi &&
-            chmod +x "$cygwin_setup_path"
-        }
-    elif command -v wget >/dev/null; then
-        function cygwin_setup_update {
-            wget -O "$cygwin_setup_path" \
-                "${CYGWIN_BASE_DOWNLOAD_URL}${cygwin_setup_executable}" &&
-            chmod +x "$cygwin_setup_path"
-        }
-    else
-        function cygwin_setup_update {
-            echo 'Can find neither wget nor curl!'
-            echo "Need one of these to update Cygwin's setup program"
-        } >&2
-    fi
-
     cygwin_setup_path=
     for path in /bin/"$cygwin_setup_executable" \
         /usr/bin/"$cygwin_setup_executable" \
@@ -56,6 +31,18 @@ if [[ -n "$cygwin_setup_executable" ]]; then
     if [[ -z "$cygwin_setup_path" ]]; then
         cygwin_setup_path=/usr/local/bin/"$cygwin_setup_executable"
     fi
+
+    function cygwin_setup_update {
+        if [[ -e "$cygwin_setup_path" ]]; then
+            # File exists so we can test if the upstream version is newer.
+            curl -o "$cygwin_setup_path" -z "$cygwin_setup_path" \
+                "${CYGWIN_BASE_DOWNLOAD_URL}${cygwin_setup_executable}"
+        else
+            curl -o "$cygwin_setup_path" \
+                "${CYGWIN_BASE_DOWNLOAD_URL}${cygwin_setup_executable}"
+        fi &&
+        chmod +x "$cygwin_setup_path"
+    }
 
     function cygwin_setup {
         if [[ "$1" = '-h' || "$1" = '--help' ]]; then
