@@ -8,7 +8,7 @@ remoterepository = Remote
 
 [Repository Local]
 type = GmailMaildir
-localfolders = /mnt/gmailstore/adam@dinwoodie.org
+localfolders = ~/.cache/offlineimap/adam@dinwoodie.org
 
 [Repository Remote]
 type = Gmail
