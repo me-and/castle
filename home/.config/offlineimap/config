@@ -15,4 +15,4 @@ type = Gmail
 maxconnections = 8
 remoteuser = adam@dinwoodie.org
 remotepassfile = ~/.adam@dinwoodie.org-offlineimap-password
-sslcacertfile = OS-DEFAULT
+sslcacertfile = /etc/ssl/certs/ca-certificates.crt
