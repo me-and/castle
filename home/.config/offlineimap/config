@@ -16,3 +16,12 @@ maxconnections = 8
 remoteuser = adam@dinwoodie.org
 remotepassfile = ~/.adam@dinwoodie.org-offlineimap-password
 sslcacertfile = /etc/ssl/certs/ca-certificates.crt
+
+[mbnames]
+enabled = yes
+filename = ~/.cache/offlineimap/muttrc.mailboxes
+header = "mailboxes "
+peritem = "+%(accountname)s/%(foldername)s"
+sep = " "
+footer = "\n"
+incremental = no
