@@ -8,7 +8,8 @@ cd "${HOMESHICK_DIR:-$HOME/.homesick/repos}"
 use_colour=
 if [[ -t 1 ]]; then
 	use_colour=YesPlease
-elif (( $# > 0 )) && [[ "$1" = '-c' ]]; then
+fi
+if (( $# > 0 )) && [[ "$1" = '-c' ]]; then
 	use_colour=YesPlease
 	shift
 fi
