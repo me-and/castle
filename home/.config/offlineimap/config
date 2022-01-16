@@ -9,6 +9,7 @@ remoterepository = Remote
 [Repository Local]
 type = GmailMaildir
 localfolders = ~/.cache/offlineimap/adam@dinwoodie.org
+nametrans = lambda f: f.replace('&', '&-')
 
 [Repository Remote]
 type = Gmail
@@ -16,6 +17,8 @@ maxconnections = 8
 remoteuser = adam@dinwoodie.org
 remotepassfile = ~/.adam@dinwoodie.org-offlineimap-password
 sslcacertfile = /etc/ssl/certs/ca-certificates.crt
+folderfilter = lambda f: f not in ('To/post', 'To/post/dinwoodie', 'To/post/dinwoodie/org', '[Gmail]/Important')
+nametrans = lambda f: f.replace('&-', '&')
 
 [mbnames]
 enabled = yes
