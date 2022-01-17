@@ -4,10 +4,10 @@ set -eu
 
 # Check necessary commands exist.
 { command -v mime-construct && command -v ansi2txt && command -v ansi2html; } >/dev/null || {
-	echo 'Missing commands'
-	echo 'Need mime-construct, ansi2txt and ansi2html in PATH'
-	exit 1
-} >&2
+	echo 'Missing one of mime-construct, ansi2txt or ansi2html' >&2
+	echo 'Falling back to mail' >&2
+	exec mail "$@"
+}
 
 # Implement an interface that means this could be used as a drop-in replacement
 # for `mail`.
