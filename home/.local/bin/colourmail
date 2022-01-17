@@ -9,12 +9,34 @@ set -eu
 	exit 1
 } >&2
 
-# Set up an unnamed file descriptor, with a write descriptor to store the
-# input, and two read descriptors for reading to the text and html converters.
-file="$(mktemp)"
-exec {write}>"$file" {readtxt}<"$file" {readhtml}<"$file"
-rm "$file"
+# Implement an interface that means this could be used as a drop-in replacement
+# for `mail`.
+check_empty=
+header_args=()
+while getopts 'a:b:c:dEfIiNnr:s:u:v' opt; do
+	case "$opt" in
+		a)	header_args+=(--header "$OPTARG");;
+		b)	header_args+=(--bcc "$OPTARG");;
+		c)	header_args+=(--cc "$OPTARG");;
+		E)	check_empty=YesPlease;;
+		r)	header_args+=(--header "From: $OPTARG");;
+		s)	header_args+=(--subject "$OPTARG");;
+		d|f|I|i|N|n|u|v)
+			printf '%s is not implemented!\n' "$opt" >&2
+			exit 1
+			;;
+	esac
+done
+shift "$(( OPTIND - 1 ))"
+for arg; do
+	header_args+=(--to "$arg")
+done
 
-cat >&"$write"
+tempfile="$(mktemp)"
+trap 'rm -f -- "$tempfile"' EXIT
 
-mime-construct "$@" --multipart 'multipart/alternative' --file <(ansi2txt <&"$readtxt") --type 'text/html' --file <(ansi2html -w <&"$readhtml")
+cat >"$tempfile"
+
+[[ "$check_empty" && ! -s "$tempfile" ]] && exit 0
+
+mime-construct "${header_args[@]}" --multipart 'multipart/alternative' --file <(ansi2txt <"$tempfile") --type 'text/html' --file <(ansi2html -w <"$tempfile")
