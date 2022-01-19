@@ -11,6 +11,10 @@ fi
 # to the bash history.
 HISTCONTROL=ignoreboth
 
+# Don't use -S automatically when calling `less` from systemctl commands; I
+# find it annoying more often than I find it helpful.
+export SYSTEMD_LESS=FRXMK
+
 # Append to the history file rather than overwriting it.
 shopt -s histappend
 
