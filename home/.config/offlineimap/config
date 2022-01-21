@@ -1,6 +1,5 @@
 [general]
 accounts = adam@dinwoodie.org
-ui = blinkenlights
 
 [Account adam@dinwoodie.org]
 localrepository = Local
