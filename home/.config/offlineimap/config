@@ -12,7 +12,7 @@ nametrans = lambda f: f.replace('&', '&-')
 
 [Repository Remote]
 type = Gmail
-maxconnections = 8
+maxconnections = 4
 remoteuser = adam@dinwoodie.org
 remotepassfile = ~/.adam@dinwoodie.org-offlineimap-password
 sslcacertfile = /etc/ssl/certs/ca-certificates.crt
