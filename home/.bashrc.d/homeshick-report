@@ -2,9 +2,21 @@ if systemctl --user --quiet is-active homeshick-report.timer 2>/dev/null; then
 	# systemctl is looking after homeshick reports, so no need to do
 	# anything nasty and manual here.
 	:
-elif [[ ! -e ~/.homesick/.reportlastrun ]] || (( "$(file-age ~/.homesick/.reportlastrun)" >= 60*60*24*7 )); then
-	# More than a week since this was last checked.
-	echo 'Running periodic homeshick report'
-	homeshick-report
-	touch ~/.homesick/.reportlastrun
+else
+	homeshick-report () {
+		command homeshick-report "$@" || return "$?"
+		if (( $# == 0 )) || { (( $# == 1 )) && [[ "$1" = '-c' ]]; }; then
+			# This was a full report, and we didn't hit the return
+			# statement above, so everything was up-to-date.  Touch
+			# the flag file to record the current time.
+			touch ~/.homesick/.reportlastrun
+		fi
+	}
+
+	if (( "$(file-age -f ~/.homesick/.reportlastrun)" >= 60*60*24*7 )); then
+		# More than a week since this was last checked and found to be
+		# all up-to-date.
+		echo 'Running periodic homeshick report'
+		homeshick-report
+	fi
 fi
