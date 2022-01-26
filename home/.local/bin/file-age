@@ -33,9 +33,18 @@ if [[ "$human" ]]; then
 	elif (( diff < (60*60*24) )); then
 		unit='hour'
 		val="$((diff/60/60))"
-	else
+	elif (( diff < (60*60*24*7) )); then
 		unit='day'
 		val="$((diff/60/60/24))"
+	elif (( diff < (60*60*24*30) )); then
+		unit='week'
+		val="$((diff/60/60/24/7))"
+	elif (( diff < (60*60*24*365) )); then
+		unit='month'
+		val="$((diff/60/60/24/30))"
+	else
+		unit='year'
+		val="$((diff/60/60/24/365))"
 	fi
 	if (( val > 1 )); then
 		plural='s'
