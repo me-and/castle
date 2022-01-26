@@ -13,7 +13,7 @@ else
 		fi
 	}
 
-	if [[ ! -e ~/.homesick/.reportlastrun ]] || (( "$(file-age ~/.homesick/.reportlastrun)" >= 60*60*24*7 )); then
+	if (( "$(file-age -f ~/.homesick/.reportlastrun)" >= 60*60*24*7 )); then
 		# More than a week since this was last checked and found to be
 		# all up-to-date.
 		echo 'Running periodic homeshick report'
