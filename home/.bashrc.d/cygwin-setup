@@ -56,7 +56,12 @@ if [[ -n "$cygwin_setup_executable" ]]; then
             "$cygwin_setup_path" --help
             return $?
         fi
-        cygwin_setup_update && cygwin_setup_run "$@"
+        # Try and update the installer if it's more than a few hours old.  Less
+        # than that and I'm probably running a bunch of installer commands in
+        # quick succession and I don't want to go through the download every
+        # time!
+        (( "$(file-age "$cygwin_setup_path")" < (60*60*4) )) || cygwin_setup_update || return $?
+        cygwin_setup_run "$@"
     }
 
     if [[ ! -r "$cygwin_setup_ini_path" ]]; then
