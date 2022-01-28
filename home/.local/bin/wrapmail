@@ -13,7 +13,7 @@ set -eu
 # for `mail`.
 check_empty=
 header_args=()
-while getopts 'a:b:c:dEfIiNnr:s:u:v' opt; do
+while getopts ':a:b:c:dEfIiNnr:s:u:v' opt; do
 	case "$opt" in
 		a)	header_args+=(--header "$OPTARG");;
 		b)	header_args+=(--bcc "$OPTARG");;
@@ -22,11 +22,11 @@ while getopts 'a:b:c:dEfIiNnr:s:u:v' opt; do
 		r)	header_args+=(--header "From: $OPTARG");;
 		s)	header_args+=(--subject "$OPTARG");;
 		d|f|I|i|N|n|u|v)
-			printf '%s is not implemented!\n' "$opt" >&2
-			exit 3  # LSB EXIT_NOTIMPLEMENTED
+			printf -- '-%s is not implemented!\n' "$opt" >&2
+			exit 70  # EX_SOFTWARE
 			;;
-		*)	printf -- '-%s is not a valid option!\n' "$opt" >&2
-			exit 2  # LSB EXIT_INVALIDARGUMENT
+		*)	printf -- '-%s is not a valid option!\n' "$OPTARG" >&2
+			exit 64  # EX_USAGE
 			;;
 	esac
 done
