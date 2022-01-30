@@ -33,8 +33,15 @@ if [[ ! -v SSH_AUTH_SOCK ]]; then
 
         function ensure_ssh_agent_running {
             if [[ -r "$ssh_agent_pid_file" ]]; then
+                # Start the ssh-agent if ssh-add isn't able to contact the
+                # running agent based on the content of $ssh_agent_pid_file.
+                # `ssh-add -L` returns 0 if it was able to return any keys, 1
+                # if it was able to contact the agent but no keys were present,
+                # or 2 if it couldn't contact the agent at all.
                 . "$ssh_agent_pid_file"
-                ssh-add -L &>/dev/null || start_ssh_agent
+                local rc=0
+                ssh-add -L &>/dev/null || rc="$?"
+                (( rc == 2 )) && start_ssh_agent
             else
                 start_ssh_agent
             fi
