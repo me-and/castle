@@ -45,7 +45,7 @@ if [[ -n "$cygwin_setup_executable" ]]; then
     }
 
     function cygwin_setup_run {
-        cygstart "$cygwin_setup_path" -d -l "$(cygpath -aw "$CYGWIN_DOWNLOAD_DIR")" -s "$CYGWIN_MIRROR_URL" "$@"
+        cygstart "$cygwin_setup_path" -d -l "$(cygpath -aw "$CYGWIN_DOWNLOAD_DIR")" -s "$CYGWIN_MIRROR_URL" "$@" -R "$(cygpath -aw /)"
     }
 
     function cygwin_setup {
