@@ -23,7 +23,9 @@ done
 # Git that we're trying to install, since that's the one we'll be replacing,
 # and if it doesn't exist or is somehow invalid, the test should also fail and
 # cause the script to continue.
-[[ "$GIT_BUILD_FORCE" ]] || "${GIT_INSTALL_DIR}/bin/git" version | grep -Fq "$("$git" describe "$GIT_BUILD_COMMIT" | sed 's/-/./g;s/v//')" && exit 0
+if [[ -z "$GIT_BUILD_FORCE" ]] && "${GIT_INSTALL_DIR}/bin/git" version | grep -Fq "$("$git" describe "$GIT_BUILD_COMMIT" | sed 's/-/./g;s/v//')"; then
+	exit 0
+fi
 
 "$git" checkout "$GIT_BUILD_COMMIT"
 
