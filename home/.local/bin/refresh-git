@@ -30,6 +30,6 @@ fi
 "$git" checkout "$GIT_BUILD_COMMIT"
 
 make -j "$GIT_BUILD_THREADS" configure
-./configure --prefix="$GIT_INSTALL_DIR"
+./configure --prefix="$GIT_INSTALL_DIR" --with-libpcre
 [[ "$GIT_BUILD_TEST" ]] && make -j "$GIT_BUILD_THREADS" test
 make -j "$GIT_BUILD_THREADS" install install-man
