@@ -10,7 +10,7 @@ set -eu
 }
 
 # Implement an interface that means this could be used as a drop-in replacement
-# for `mail`.
+# for the version of `mail` provided by Debian's bsd-mailx package.
 check_empty=
 header_args=()
 while getopts ':a:b:c:dEfIiNnr:s:u:v' opt; do
