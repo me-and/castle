@@ -29,6 +29,11 @@ fi
 
 "$git" checkout "$GIT_BUILD_COMMIT"
 
+# If AsciiDoctor is available, prefer that to asciidoc.
+if command -v asciidoctor >/dev/null; then
+	export USE_ASCIIDOCTOR=YesPlease
+fi
+
 make -j "$GIT_BUILD_THREADS" configure
 ./configure --prefix="$GIT_INSTALL_DIR" --with-libpcre
 [[ "$GIT_BUILD_TEST" ]] && make -j "$GIT_BUILD_THREADS" test
