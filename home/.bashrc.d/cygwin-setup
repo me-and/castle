@@ -1,7 +1,7 @@
 [[ "$OSTYPE" = 'cygwin' ]] || return 0
 
 CYGWIN_BASE_DOWNLOAD_URL='https://www.cygwin.com/'
-CYGWIN_MIRROR_URL='https://www.mirrorservice.org/sites/sourceware.org/pub/cygwin/'
+CYGWIN_MIRROR_URL='http://www.mirrorservice.org/sites/sourceware.org/pub/cygwin/'
 CYGWIN_DOWNLOAD_DIR=~/WinHome/Downloads
 
 cygwin_setup_executable=
