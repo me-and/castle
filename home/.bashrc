@@ -68,10 +68,6 @@ if [[ $OSTYPE != "cygwin" ]] && ! type -t fzf-file-widget >/dev/null 2>&1; then
     fi
 fi
 
-# Enable GAM (https://github.com/jay0lee/GAM) in the unlikely event it's
-# installed.
-[[ -d ~/.gam && -x ~/.gam/gam ]] && gam() { "/home/adam/.gam/gam" "$@" ; }
-
 # Check for the existance of pgrep, since a bunch of other things rely on it
 # and it's easier to complain once than complain every time.
 if ! command -v pgrep >/dev/null; then
