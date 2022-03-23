@@ -17,3 +17,5 @@ for f; do
 done
 
 exit "$rc"
+
+# vim: ft=bash noet ts=8

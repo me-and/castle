@@ -58,3 +58,5 @@ prompt_callback() {
 }
 
 reload_git_prompt_colors "Custom"
+
+# vim: ft=bash et ts=4

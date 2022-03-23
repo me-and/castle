@@ -38,3 +38,5 @@ make -j "$GIT_BUILD_THREADS" configure
 ./configure --prefix="$GIT_INSTALL_DIR" --with-libpcre
 [[ "$GIT_BUILD_TEST" ]] && make -j "$GIT_BUILD_THREADS" test
 make -j "$GIT_BUILD_THREADS" install install-man
+
+# vim: ft=bash noet ts=8

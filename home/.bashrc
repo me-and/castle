@@ -187,3 +187,5 @@ fi
 cd ~
 
 return "$rc"
+
+# vim: ft=bash et ts=4

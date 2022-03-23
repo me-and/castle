@@ -23,3 +23,5 @@ else
 		touch "$VIM_PLUGINS_UPDATE_FLAG_FILE"
 	}
 fi
+
+# vim: ft=bash noet ts=8

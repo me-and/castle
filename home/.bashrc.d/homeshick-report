@@ -21,3 +21,5 @@ else
 		echo "homeshick-report hasn't had a clear run for $(file-age -h -- ~/.homesick/.reportlastrun)" >&2
 	fi
 fi
+
+# vim: ft=bash noet ts=8

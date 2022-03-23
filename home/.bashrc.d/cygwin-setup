@@ -88,3 +88,5 @@ function cygwin_list_leaves {
     fi
     cygcheck-dep -cl 2>/dev/null | grep -vF '[Base]' | sed 's/^ *//'
 }
+
+# vim: ft=bash et ts=4

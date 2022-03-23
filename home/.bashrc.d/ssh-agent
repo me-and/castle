@@ -53,3 +53,5 @@ if [[ ! -v SSH_AUTH_SOCK ]]; then
         (( rc |= 0x10 ))
     fi
 fi
+
+# vim: ft=bash et ts=4
