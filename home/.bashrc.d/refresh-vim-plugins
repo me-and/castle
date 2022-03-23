@@ -1,7 +1,9 @@
 if systemctl --user --quiet is-active refresh-vim-plugins.timer 2>/dev/null; then
-	# systemctl is looking after vim plugin updates, so no need to do
-	# anything nasty and manual here.
-	:
+	# systemctl is looking after vim plugin updates, so this is just a
+	# simple call to the systemctl unit.
+	refresh-vim-plugins () {
+		systemctl --user start --wait refresh-vim-plugins.service
+	}
 else
 	VIM_PLUGINS_UPDATE_FLAG_FILE=~/.vim/bundle/.lastupdated
 	if [[ ! -e "$VIM_PLUGINS_UPDATE_FLAG_FILE" ]]; then
@@ -17,7 +19,7 @@ else
 	# automatically touch the flag file so its timestamp gets updated once
 	# the plugins are up-to-date.
 	refresh-vim-plugins () {
-		command refresh-vim-plugins &&
+		vim +PlugUpdate +qall &&
 		touch "$VIM_PLUGINS_UPDATE_FLAG_FILE"
 	}
 fi
