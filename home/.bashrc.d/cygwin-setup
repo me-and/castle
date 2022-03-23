@@ -66,7 +66,7 @@ if [[ -n "$cygwin_setup_executable" ]]; then
 
     if [[ ! -r "$cygwin_setup_ini_path" ]]; then
         echo "Couldn't find Cygwin setup.ini to check age" >&2
-        echo "Expected to find it at $cygwin_setup_path_ini" >&2
+        echo "Expected to find it at $cygwin_setup_ini_path" >&2
     elif (( $(file-age -- "$cygwin_setup_ini_path") >= (60*60*24*7) )); then
         echo "Cygwin setup hasn't been run for $(file-age -h -- "$cygwin_setup_ini_path")" >&2
     fi
