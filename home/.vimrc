@@ -30,6 +30,9 @@ set number
 set relativenumber
 highlight LineNr ctermfg=gray
 
+" Default shell syntax, per `:help ft-sh-syntax`
+let g:is_bash = 1
+
 " Allow toggling between relative numbers and absolute line numbers by
 " pressing ^N.
 function! NumberToggle()

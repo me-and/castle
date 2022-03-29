@@ -95,3 +95,5 @@ done
 
 # Return true iff we successfully made at least one report.
 [[ "$made_a_report" ]]
+
+# vim: ft=bash noet ts=8

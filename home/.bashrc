@@ -184,3 +184,5 @@ if [[ -d ~/.bashrc.d && -r ~/.bashrc.d && -x ~/.bashrc.d ]]; then
 fi
 
 return "$rc"
+
+# vim: ft=bash et ts=4

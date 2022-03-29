@@ -16,3 +16,5 @@ if (( "$(file-age -f ~/.config/disk-usage-report/lastrun)" >= 60*60*24*7 )); the
 	echo 'Up to you whether you need to do anything about this...'
 	disk-usage-report
 fi
+
+# vim: ft=bash noet ts=8

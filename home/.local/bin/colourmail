@@ -43,3 +43,5 @@ cat >"$tempfile"
 [[ "$check_empty" && ! -s "$tempfile" ]] && exit 0
 
 mime-construct "${header_args[@]}" --multipart 'multipart/alternative' --file <(ansi2txt <"$tempfile") --type 'text/html' --file <(ansi2html -w <"$tempfile")
+
+# vim: ft=bash noet ts=8

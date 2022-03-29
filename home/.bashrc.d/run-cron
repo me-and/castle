@@ -13,3 +13,5 @@ then
     # Cron is installed and isn't running, so run it.
     /usr/sbin/cron
 fi
+
+# vim: ft=bash et ts=4

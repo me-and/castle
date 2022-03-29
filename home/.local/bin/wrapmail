@@ -40,3 +40,5 @@ if [[ "$check_empty" ]]; then
 else
 	mime-construct "${header_args[@]}" --file -
 fi
+
+# vim: ft=bash noet ts=8

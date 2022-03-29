@@ -79,3 +79,5 @@ else
 	printf 'Could not find homesick executable in %s\n' "$(pwd)" >&2
 	exit 1
 fi
+
+# vim: ft=bash noet ts=8
