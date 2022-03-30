@@ -1,4 +1,6 @@
-if [[ ! -v SSH_AUTH_SOCK ]] && command -v systemctl &>/dev/null; then
+if [[ ! -v SSH_AUTH_SOCK ]] &&
+        command -v systemctl &>/dev/null &&
+        systemctl --user -q is-system-running; then
     # This system is governed by systemctl, so we can hopefully use systemctl
     # units to set up the ssh-agent.
     ssh_auth_sock_systemctl_env="$(systemctl --user show-environment | grep '^SSH_AUTH_SOCK=')"
