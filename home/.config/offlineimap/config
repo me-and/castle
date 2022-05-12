@@ -5,6 +5,10 @@ accounts = adam@dinwoodie.org
 localrepository = Local
 remoterepository = Remote
 
+[Account adam.dinwoodie.git@gmail.com]
+localrepository = LocalGitStore
+remoterepository = RemoteGitStore
+
 [Repository Local]
 type = GmailMaildir
 localfolders = ~/.cache/offlineimap/adam@dinwoodie.org
@@ -17,6 +21,20 @@ remoteuser = adam@dinwoodie.org
 remotepassfile = ~/.adam@dinwoodie.org-offlineimap-password
 sslcacertfile = /etc/ssl/certs/ca-certificates.crt
 folderfilter = lambda f: f not in ('To/post', 'To/post/dinwoodie', 'To/post/dinwoodie/org', '[Gmail]/Important')
+nametrans = lambda f: f.replace('&-', '&')
+
+[Repository LocalGitStore]
+type = GmailMaildir
+localfolders = ~/.cache/offlineimap/adam.dinwoodie.git@gmail.com
+nametrans = lambda f: f.replace('&', '&-')
+
+[Repository RemoteGitStore]
+type = Gmail
+maxconnections = 4
+remoteuser = adam.dinwoodie.git@gmail.com
+remotepassfile = ~/.adam.dinwoodie.git@gmail.com-offlineimap-password
+sslcacertfile = /etc/ssl/certs/ca-certificates.crt
+folderfilter = lambda f: f != '[Gmail]/Important'
 nametrans = lambda f: f.replace('&-', '&')
 
 [mbnames]
