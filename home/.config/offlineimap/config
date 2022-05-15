@@ -4,6 +4,7 @@ accounts = adam@dinwoodie.org
 [Account adam@dinwoodie.org]
 localrepository = Local
 remoterepository = Remote
+synclabels = yes
 
 [Account adam.dinwoodie.git@gmail.com]
 localrepository = LocalGitStore
