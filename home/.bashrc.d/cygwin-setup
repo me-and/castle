@@ -89,4 +89,11 @@ function cygwin_list_leaves {
     cygcheck-dep -cl 2>/dev/null | grep -vF '[Base]' | sed 's/^ *//'
 }
 
+function cygwin_whatprovides {
+    # This is a BRE, and if I'm looking for what provides the file 'vim', I'm
+    # actually interested in what provides any of (a) /vim, (b) /vim.exe or (c)
+    # /vim -> vim8.2 (which is how symlinks get stored).
+    cygcheck -p '\/'"$1"'\( -> \|$\|\.exe\)'
+}
+
 # vim: ft=bash et ts=4
