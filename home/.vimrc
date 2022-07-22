@@ -93,26 +93,26 @@ call plug#begin('~/.vim/bundle')
 "
 " This also requires g:sh_no_error, as without that some things get
 " inexplicably highlighted as errors even though they're blatantly not.
-Plug 'luochen1990/rainbow'
+Plug '~/.vim/bundle/rainbow'
 let g:rainbow_active = 1
 let g:sh_no_error = 1
 
 " fzf
-Plug 'junegunn/fzf.vim'
+Plug '~/.vim/bundle/fzf.vim'
 
 " Ag
-Plug 'mileszs/ack.vim'
+Plug '~/.vim/bundle/ack.vim'
 let g:ackprg = 'ag --nogroup --nocolor --column'
 
 " OpenSCAD syntax highlighting
-Plug 'sirtaj/vim-openscad'
+Plug '~/.vim/bundle/vim-openscad'
 
 for path in split(globpath('~/.vim/localbundles/', '*.vim'), '\n')
   exe 'source' path
 endfor
 
 " VimTeX
-Plug 'lervag/vimtex'
+Plug '~/.vim/bundle/vimtex'
 
 " Finished adding plugins
 call plug#end()
