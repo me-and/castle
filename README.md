@@ -5,7 +5,5 @@ I don't expect anyone other than me to want to use this repo as-is, although you
     git clone https://github.com/andsens/homeshick ~/.homesick/repos/homeshick
     . ~/.homesick/repos/homeshick
     homeshick clone me-and/castle magicmonty/bash-git-prompt junegunn/vim-plug mileszs/ack.vim junegunn/fzf.vim luochen1990/rainbow sirtaj/vim-openscad lervag/vimtex
-    . ~/.bashrc
-    refresh-vim-plugins
 
 [Homeshick]: https://github.com/andsens/homeshick
