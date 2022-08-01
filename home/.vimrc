@@ -61,6 +61,9 @@ set formatoptions+=r formatoptions+=o
 " Syntax higlighting is big and clever.
 syntax enable
 
+" In LaTeX files, don't spell check comments.
+let g:tex_comment_nospell=1
+
 " If using the spell checker, we're writing in British English.
 set spelllang=en_gb
 
