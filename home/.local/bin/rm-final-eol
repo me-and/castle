@@ -1,11 +1,6 @@
 #!/usr/bin/env bash
 set -eu
 
-if ! command -v sponge &>/dev/null; then
-	echo 'sponge must be in PATH' >&2
-	exit 1
-fi
-
 if (( $# == 0 )); then
 	echo 'No files specified' >&2
 	exit 1
