@@ -11,3 +11,4 @@ fi
 
 LANG=en_GB.UTF-8
 LANGUAGE=en_GB:en
+TIME_STYLE=$'+%a %_d %b  %Y\n%a %_d %b %R'  # see ls(1)
