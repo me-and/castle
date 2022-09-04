@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+wrapmail () { ~/.local/bin/wrapmail "$@"; }
+
+TRELLO_BOARD_ADDRESS="$(cat ~/.trello-board-address)"
+
+if (( $# == 1 )); then
+	# No body specified on the command line.
+	#
+	# If we have vipe and stdin is a terminal, use that to provide
+	# an editor.  Otherwise just read the body from stdin: either
+	# it'll be from a pipeline, or it'll be a terminal when vipe is
+	# unavailable so the user can just type the body into the
+	# terminal directly.
+	if command -v vipe >/dev/null && [[ -t 0 ]]; then
+		vipe | wrapmail -s "$1" -- "$TRELLO_BOARD_ADDRESS"
+	else
+		wrapmail -s "$1" -- "$TRELLO_BOARD_ADDRESS"
+	fi
+elif (( "$#" == 2 )) && [[ -z "$2" ]]; then
+	# Empty body explicitly specified on the command line.
+	wrapmail -s "$1" -- "$TRELLO_BOARD_ADDRESS" </dev/null
+elif (( "$#" == 2 )); then
+	# Non-empty body specified on the command line.
+	wrapmail -s "$1" -- "$TRELLO_BOARD_ADDRESS" <<<"$2"
+else
+	echo 'Invalid arguments' >&2
+	exit 1
+fi
