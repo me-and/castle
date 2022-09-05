@@ -117,5 +117,8 @@ endfor
 " VimTeX
 Plug '~/.vim/bundle/vimtex'
 
+" PlantUML syntax
+Plug '~/.vim/bundle/plantuml-syntax'
+
 " Finished adding plugins
 call plug#end()
