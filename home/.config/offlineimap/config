@@ -1,19 +1,24 @@
 [general]
 accounts = adam@dinwoodie.org
+metadata = ~/.cache/mail/offlineimap
 
 [Account adam@dinwoodie.org]
 localrepository = Local
 remoterepository = Remote
 synclabels = yes
+labelsheader = X-Labels
 
 [Account adam.dinwoodie.git@gmail.com]
 localrepository = LocalGitStore
 remoterepository = RemoteGitStore
+synclabels = yes
+labelsheader = X-Labels
 
 [Repository Local]
 type = GmailMaildir
-localfolders = ~/.cache/offlineimap/adam@dinwoodie.org
+localfolders = ~/.cache/mail/adam@dinwoodie.org
 nametrans = lambda f: f.replace('&', '&-')
+utime_from_header = yes
 
 [Repository Remote]
 type = Gmail
@@ -26,8 +31,9 @@ nametrans = lambda f: f.replace('&-', '&')
 
 [Repository LocalGitStore]
 type = GmailMaildir
-localfolders = ~/.cache/offlineimap/adam.dinwoodie.git@gmail.com
+localfolders = ~/.cache/mail/adam.dinwoodie.git@gmail.com
 nametrans = lambda f: f.replace('&', '&-')
+utime_from_header = yes
 
 [Repository RemoteGitStore]
 type = Gmail
@@ -40,7 +46,7 @@ nametrans = lambda f: f.replace('&-', '&')
 
 [mbnames]
 enabled = yes
-filename = ~/.cache/offlineimap/muttrc.mailboxes
+filename = ~/.cache/mail/muttrc.mailboxes
 header = "mailboxes "
 peritem = "+%(accountname)s/%(foldername)s"
 sep = " "
