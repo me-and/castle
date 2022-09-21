@@ -1,0 +1,57 @@
+mosh () {
+	local arg
+	local skip_next=
+	local remote=
+	local remote_is_next=
+	local ports_specified=
+	local port_args=()
+	for arg; do
+		if [[ "$skip_next" ]]; then
+			# Previous argument indicated the next one should be
+			# skipped, so do so and clear that flag.
+			skip_next=
+		elif [[ "$remote_is_next" ]]; then
+			# Previous argument indicated the next one would be the
+			# remote specifier, so remove any optional username and
+			# record the host.
+			remote="${arg#*@}"
+			break;
+		elif [[ "$arg" = --port=* ]]; then
+			# Long port number option, so the ports have been
+			# explicitly specified.
+			ports_specified=Yes
+		elif [[ "$arg" = -p ]]; then
+			# Port number option, so the next argument should be a
+			# port number or number range, and the ports have been
+			# explicitly specified.
+			skip_next=Yes
+			ports_specified=Yes
+		elif [[ "$arg" = -- ]]; then
+			# End of option marker.  If we get to this, it means
+			# the next argument must be the host.
+			remote_is_next=Yes
+		elif [[ "$arg" = --* ]]; then
+			# Long argument. We can ignore these.
+			:
+		else
+			# By process of elimination, this is the first
+			# non-option argument, so it must be the host, possibly
+			# with a username prepended.
+			remote="${arg#*@}"
+			break;
+		fi
+	done
+
+	if [[ -z "$ports_specified" ]]; then
+		# Pick the correct port range.
+		case "$remote" in
+			lucy|lucy.dinwoodie.org)	port_args=(-p 60000:60020);;
+			hendrix|hendrix.dinwoodie.org)	port_args=(-p 60021:60040);;
+		esac
+		command mosh "${port_args[@]}" "$@"
+	else
+		command mosh "$@"
+	fi
+}
+
+# vim: ft=bash noet ts=8
