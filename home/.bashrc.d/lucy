@@ -23,3 +23,5 @@ lucy-add-to-trello () {
 		ssh adam@lucy.dinwoodie.org /home/adam/.local/bin/add-to-trello $(printf '%q ' "$@")
 	fi
 }
+
+# vim: ft=bash noet ts=8
