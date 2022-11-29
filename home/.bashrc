@@ -123,13 +123,13 @@ fi
 if command -v gls >/dev/null; then
     # On macOS with coreutils installed with "g" prefix (as is the default for
     # Brew's coreutils package), default to using that.
-    alias ls='gls --color=auto'
-    alias dir='gdir --color=auto'
-    alias vdir='gvdir --color=auto'
+    alias ls='gls --color=auto -h'
+    alias dir='gdir --color=auto -h'
+    alias vdir='gvdir --color=auto -h'
 else
-    alias ls='ls --color=auto'
-    alias dir='dir --color=auto'
-    alias vdir='vdir --color=auto'
+    alias ls='ls --color=auto -h'
+    alias dir='dir --color=auto -h'
+    alias vdir='vdir --color=auto -h'
 fi
 alias grep='grep --color=auto'
 alias egrep='egrep --color=auto'
