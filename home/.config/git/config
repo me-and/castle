@@ -85,7 +85,7 @@
 	fix-email = "!f () { git config user.email \"$1\" && git commit --amend --reset-author --no-edit; }; f"
 
 	bivis = bisect visualize --graph --decorate --pretty=oneline --abbrev-commit
-	git-ml-describe = show -s --date=short --pretty='format:%h (\"%s\", %ad)'
+	git-ml-describe = show -s --pretty=reference
 	mydescribe = show -s --pretty='format:%h (\"%s\")'
 [core]
 	pager = less -S
