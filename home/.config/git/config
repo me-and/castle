@@ -12,6 +12,7 @@
 	prompt = false
 [push]
 	default = simple
+	autoSetupRemote = true
 [rebase]
 	autoSquash = true
 [rerere]
