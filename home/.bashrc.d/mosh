@@ -1,3 +1,7 @@
+# Wrapper for calling mosh, that will pick appropriate ports for my systems
+# that might be behind a NAT.  Without this, I can't configure my NAT to know
+# which mosh ports are intended for which server.
+
 mosh () {
 	local arg
 	local skip_next=
@@ -13,7 +17,8 @@ mosh () {
 		elif [[ "$remote_is_next" ]]; then
 			# Previous argument indicated the next one would be the
 			# remote specifier, so remove any optional username and
-			# record the host.
+			# record the host.  This will always be the last
+			# argument that needs special handling by this wrapper.
 			remote="${arg#*@}"
 			break;
 		elif [[ "$arg" = --port=* ]]; then
