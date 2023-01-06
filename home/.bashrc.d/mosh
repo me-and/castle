@@ -5,6 +5,11 @@ mosh () {
 	local remote_is_next=
 	local ports_specified=
 	local port_args=()
+
+	# Looping over the arguments is significantly easier as mosh itself
+	# cannot cope with combining short arguments -- `-n -6` cannot be
+	# shortened to `-n6` -- so the argument parsing can just emulate mosh's
+	# own limitations.
 	for arg; do
 		if [[ "$skip_next" ]]; then
 			# Previous argument indicated the next one should be
