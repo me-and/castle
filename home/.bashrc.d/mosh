@@ -45,8 +45,10 @@ mosh () {
 	if [[ -z "$ports_specified" ]]; then
 		# Pick the correct port range.
 		case "$remote" in
-			lucy|lucy.dinwoodie.org)	port_args=(-p 60000:60020);;
-			hendrix|hendrix.dinwoodie.org)	port_args=(-p 60021:60040);;
+			lucy|lucy.local|lucy.lan|lucy.dinwoodie.org)
+				port_args=(-p 60000:60019);;
+			hendrix|hendrix.local|hendrix.lan|hendrix.dinwoodie.org)
+				port_args=(-p 60020:60039);;
 		esac
 		command mosh "${port_args[@]}" "$@"
 	else
