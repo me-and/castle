@@ -174,6 +174,11 @@ set_terminal_title () {
     echo -ne '\e]0;'"$*"'\a'
 }
 
+# Use gh completion if available
+if [[ "$BASH_COMPLETION_VERSINFO" ]] && command -v gh >/dev/null; then
+    eval "$(gh completion -s bash)"
+fi
+
 # Import local .bashrc files if they exist.
 if [[ -d ~/.bashrc.d && -r ~/.bashrc.d && -x ~/.bashrc.d ]]; then
     for file in ~/.bashrc.d/*; do
