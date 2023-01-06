@@ -15,36 +15,45 @@ mosh () {
 			# Previous argument indicated the next one should be
 			# skipped, so do so and clear that flag.
 			skip_next=
-		elif [[ "$remote_is_next" ]]; then
+			continue
+		fi
+
+		if [[ "$remote_is_next" ]]; then
 			# Previous argument indicated the next one would be the
 			# remote specifier, so remove any optional username and
 			# record the host.
 			remote="${arg#*@}"
-			break;
-		elif [[ "$arg" = --port=* ]]; then
-			# Long port number option, so the ports have been
-			# explicitly specified.
-			ports_specified=Yes
-		elif [[ "$arg" = -p ]]; then
-			# Port number option, so the next argument should be a
-			# port number or number range, and the ports have been
-			# explicitly specified.
-			skip_next=Yes
-			ports_specified=Yes
-		elif [[ "$arg" = -- ]]; then
-			# End of option marker.  If we get to this, it means
-			# the next argument must be the host.
-			remote_is_next=Yes
-		elif [[ "$arg" = --* ]]; then
-			# Long argument. We can ignore these.
-			:
-		else
-			# By process of elimination, this is the first
-			# non-option argument, so it must be the host, possibly
-			# with a username prepended.
-			remote="${arg#*@}"
-			break;
+			break
 		fi
+
+		case "$arg" in
+			--port=*)
+				# Long port number option, so the ports have
+				# been explicitly specified.
+				ports_specified=Yes
+				;;
+			-p)
+				# Short port number option, so the next
+				# argument should be a port number or number
+				# range, and the ports have been explicitly
+				# specified.
+				skip_next=Yes
+				ports_specified=Yes
+				;;
+			--)
+				# End of option marker.  If we get to this, the
+				# next argument must be the host.
+				remote_is_next=Yes
+				;;
+			--*)
+				# Long argument.  We can ignore these.
+				;;
+			*)
+				# Must be the host, possibly with a username prepended.
+				remote="${arg#*@}"
+				break
+				;;
+		esac
 	done
 
 	if [[ -z "$ports_specified" ]]; then
@@ -55,10 +64,9 @@ mosh () {
 			hendrix|hendrix.local|hendrix.lan|hendrix.dinwoodie.org)
 				port_args=(-p 60020:60039);;
 		esac
-		command mosh "${port_args[@]}" "$@"
-	else
-		command mosh "$@"
 	fi
+
+	command mosh "${port_args[@]}" "$@"
 }
 
 # vim: ft=bash noet ts=8
