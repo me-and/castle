@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
-set -eu
+set -euo pipefail
+shopt -s dotglob
 
 if ! command -v ifne &>/dev/null; then
 	echo 'git-report requires ifne' >&2
@@ -12,88 +13,103 @@ remove_unwanted_branch_names () {
 }
 
 indent () {
-	# This shellcheck warning complains about the use of "$@" in this
-	# function when it's never called with arguments.  I want to be able to
-	# pass file names to this function, but I'm not using that facility
-	# yet, so disable the warning.
-	# shellcheck disable=SC2120
 	sed 's/^/  /' "$@"
 }
 
 head_and_indent () {
-	indent | ifne cat <(echo "${1}:") - <(echo)
+	header="$1"
+	shift
+	indent "$@" | ifne cat <(echo "${header}:") - <(echo)
 }
-
-full_report () {
-	description_report
-	state_report
-	wc_report
-	branch_report
-	stash_report
-}
-
 description_report () {
-	description_file="$git_dir"/description
-	if [[ -r "$description_file" && -f "$description_file" && -s "description_file" ]]; then
+	local dir="$1"
+	local git_dir="$dir"/"$2"
+	local description_file="$git_dir"/description
+	if [[ -r "$description_file" && -f "$description_file" && -s "$description_file" ]]; then
 		if grep -Evq '^Unnamed repository' "$description_file"; then
-			echo 'Description:'
-			indent "$description_file"
-			echo
+			head_and_indent 'Description' "$description_file"
 		fi
 	fi
 }
 
 state_report () {
+	local dir="$1"
+	local git_dir="$dir"/"$2"
 	{
-		[[ -e "$git_dir"/BISECT_LOG ]] && echo "Bisecting"
-		[[ -e "$git_dir"/sequencer ]] && echo "Cherry-pick or revert sequence in progress"
-	} | head_and_indent "Current state"
+		[[ -e "$git_dir"/BISECT_LOG ]] && echo 'Bisecting'
+		[[ -e "$git_dir"/sequencer ]] && echo 'Cherry-pick or revert sequence in progress'
+	} | head_and_indent 'Current state'
 }
 
 wc_report () {
-	[[ "$git_in_work_tree" = true ]] && git -C "$dir" -c color.status=always status --short | head_and_indent "Working copy details"
+	local dir="$1"
+	git -C "$dir" -c color.status=always status --short | head_and_indent 'Working copy details'
 }
 
 branch_report () {
-	longest_br_name="$(git -C "$dir" branch --format="%(refname:short)" | remove_unwanted_branch_names | wc -L)"
-	git -C "$dir" branch --format='%(HEAD) %(align:'"$((longest_br_name + 1))"')%(refname:short)%(end)%(upstream:short) %(upstream:track)' | remove_unwanted_branch_names | head_and_indent "Branch details"
+	local longest_br_name="$(git -C "$1" branch --format="(refname:short)" | remove_unwanted_branch_names | wc -L)"
+	git -C "$1" branch --format='%(HEAD) %(align:'"$((longest_br_name + 1))"')%(refname:short)%(end)%(upstream:short) %(upstream:track)' | remove_unwanted_branch_names | head_and_indent 'Branch details'
 }
 
 stash_report () {
-	[[ "$git_in_work_tree" = true ]] && git -C "$dir" stash list | head_and_indent "Stash details"
+	git -C "$1" stash list | head_and_indent 'Stash details'
 }
 
-# If no directories are specified, default to the current directory.
-# Otherwise, report on all the specified directories.
+full_report () {
+	local dir="$1"
+	local relative_git_dir="$(git -C "$dir" rev-parse --git-dir 2>/dev/null)"
+	local rc=0
+
+	if [[ "$relative_git_dir" ]]; then
+		# This is a Git directory
+		local git_in_work_tree="$(git -C "$dir" rev-parse --is-inside-work-tree)"
+
+		if [[ "$check_remotes" ]]; then
+			git -C "$dir" fetch -q --all
+		fi
+
+		description_report "$dir" "$relative_git_dir"
+		state_report "$dir" "$relative_git_dir"
+		[[ "$git_in_work_tree" = true ]] && wc_report "$dir"
+		branch_report "$dir"
+		[[ "$git_in_work_tree" = true ]] && stash_report "$dir" "$relative_git_dir"
+
+	elif [[ "$recurse" ]]; then
+		for subdir in "$dir"/*; do
+			rc=1
+			[[ -d "$subdir" ]] && full_report "$subdir" | head_and_indent "${subdir#./}" && rc=0
+		done
+	else
+		rc=1
+	fi
+
+	return "$rc"
+}
+
+recurse=
+check_remotes=
+while getopts ':rR' opt; do
+	case "$opt" in
+		r)	check_remotes=YesPlease;;
+		R)	recurse=YesPlease;;
+		*)	printf -- '-%s is not a valid option\n' "$OPTARG" >&2
+			exit 64  # EX_USAGE
+			;;
+	esac
+done
+shift "$(( OPTIND - 1 ))"
+
+rc=0
 if (( $# == 0 )); then
-	dirs=('.')
-	multiple_dirs=
+	full_report . || rc=$?
 elif (( $# == 1 )); then
-	dirs=("$1")
-	multiple_dirs=
+	full_report "$1" || rc=$?
 else
-	dirs=("$@")
-	multiple_dirs=yes
+	for dir; do
+		full_report "$dir" | head_and_indent "$dir" || rc=$?
+	done
 fi
 
-made_a_report=
-
-for dir in "${dirs[@]}"; do
-	if ! git_dir="$(git -C "$dir" rev-parse --git-dir 2>/dev/null)"; then
-		# This isn't a valid Git directory.
-		continue
-	fi
-	git_in_work_tree="$(git -C "$dir" rev-parse --is-inside-work-tree)"
-
-	if [[ "$multiple_dirs" ]]; then
-		full_report | head_and_indent "$dir"
-	else
-		full_report
-	fi
-	made_a_report=yes
-done
-
-# Return true iff we successfully made at least one report.
-[[ "$made_a_report" ]]
+exit "$rc"
 
 # vim: ft=bash noet ts=8
