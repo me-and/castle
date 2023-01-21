@@ -47,8 +47,8 @@ wc_report () {
 }
 
 branch_report () {
-	local longest_br_name="$(git -C "$1" branch --format="(refname:short)" | remove_unwanted_branch_names | wc -L)"
-	git -C "$1" branch --format='%(HEAD) %(align:'"$((longest_br_name + 1))"')%(refname:short)%(end)%(upstream:short) %(upstream:track)' | remove_unwanted_branch_names | head_and_indent 'Branch details'
+	local longest_br_name="$(git -C "$1" branch --format="%(refname:short)" | remove_unwanted_branch_names | wc -L)"
+	git -C "$1" branch --format='%(HEAD) %(align:'"$((longest_br_name + 2))"')%(refname:short)%(end)%(upstream:short) %(upstream:track)' | remove_unwanted_branch_names | head_and_indent 'Branch details'
 }
 
 stash_report () {
