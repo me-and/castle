@@ -3,7 +3,7 @@ set -euo pipefail
 
 wrapmail () { ~/.local/bin/wrapmail "$@"; }
 
-TRELLO_BOARD_ADDRESS="$(cat ~/.trello-board-address)"
+SKEDPAL_BOARD_ADDRESS="$(cat ~/.skedpal-board-address)"
 
 if (( $# == 1 )); then
 	# No body specified on the command line.
@@ -14,16 +14,16 @@ if (( $# == 1 )); then
 	# unavailable so the user can just type the body into the
 	# terminal directly.
 	if command -v vipe >/dev/null && [[ -t 0 ]]; then
-		vipe | wrapmail -s "$1" -- "$TRELLO_BOARD_ADDRESS"
+		vipe | wrapmail -s "$1" -- "$SKEDPAL_BOARD_ADDRESS"
 	else
-		wrapmail -s "$1" -- "$TRELLO_BOARD_ADDRESS"
+		wrapmail -s "$1" -- "$SKEDPAL_BOARD_ADDRESS"
 	fi
 elif (( "$#" == 2 )) && [[ -z "$2" ]]; then
 	# Empty body explicitly specified on the command line.
-	wrapmail -s "$1" -- "$TRELLO_BOARD_ADDRESS" </dev/null
+	wrapmail -s "$1" -- "$SKEDPAL_BOARD_ADDRESS" </dev/null
 elif (( "$#" == 2 )); then
 	# Non-empty body specified on the command line.
-	wrapmail -s "$1" -- "$TRELLO_BOARD_ADDRESS" <<<"$2"
+	wrapmail -s "$1" -- "$SKEDPAL_BOARD_ADDRESS" <<<"$2"
 else
 	echo 'Invalid arguments' >&2
 	exit 1
