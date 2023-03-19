@@ -7,10 +7,12 @@ set -eu
 check_empty=
 test_mode=
 header_args=()
-while getopts ':a:b:c:dEfIiNnr:s:tu:v' opt; do
+ansi2html_args=(-w)
+while getopts ':a:b:Bc:dEfIiNnr:s:tu:v' opt; do
 	case "$opt" in
 		a)	header_args+=(--header "$OPTARG");;
 		b)	header_args+=(--bcc "$OPTARG");;
+		B)	ansi2html_args=(--style 'pre {background-color:black}');;
 		c)	header_args+=(--cc "$OPTARG");;
 		E)	check_empty=YesPlease;;
 		r)	header_args+=(--header "From: $OPTARG");;
@@ -51,6 +53,6 @@ cat >"$tempfile"
 
 [[ "$check_empty" && ! -s "$tempfile" ]] && exit 0
 
-mime-construct "${header_args[@]}" --multipart 'multipart/alternative' --file <(ansi2txt <"$tempfile") --type 'text/html' --file <(ansi2html -w <"$tempfile")
+mime-construct "${header_args[@]}" --multipart 'multipart/alternative' --file <(ansi2txt <"$tempfile") --type 'text/html' --file <(ansi2html "${ansi2html_args[@]}" <"$tempfile")
 
 # vim: ft=bash noet ts=8
