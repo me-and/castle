@@ -1,7 +1,5 @@
 lucy-neomutt () {
-	ssh adam@lucy.dinwoodie.org '~/.local/bin/mailsync -il' &&
-	mosh adam@lucy.dinwoodie.org -- neomutt &&
-	ssh adam@lucy.dinwoodie.org '~/.local/bin/mailsync -i'
+	mosh adam@lucy.dinwoodie.org -- '~/.local/bin/mailsync -il && neomutt && ~/.local/bin/mailsync -i'
 }
 
 lucy-mailsync () {
