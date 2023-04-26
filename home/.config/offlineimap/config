@@ -23,23 +23,6 @@ sslcacertfile = /etc/ssl/certs/ca-certificates.crt
 folderfilter = lambda f: not f.startswith('To/') and not f.startswith('Git/') and not f.startswith('Cygwin/') and not f.startswith('Retention/') and f not in ('To', 'Git', 'Cygwin', 'Retention', '[Gmail]/Important')
 nametrans = lambda f: f.replace('&-', '&')
 
-[Account adam@mailtest.dinwoodie.org]
-localrepository = LocalMBTest
-remoterepository = RemoteMBTest
-
-[Repository LocalMBTest]
-type = Maildir
-localfolders = ~/.cache/mail/adam@mailtest.dinwoodie.org
-utime_from_header = yes
-
-[Repository RemoteMBTest]
-type = IMAP
-remotehost = caracal.mythic-beasts.com
-maxconnections = 4
-remoteuser = adam@mailtest.dinwoodie.org
-remotepassfile = ~/.adam@mailtest.dinwoodie.org-password
-sslcacertfile = /etc/ssl/certs/ca-certificates.crt
-
 [mbnames]
 enabled = yes
 filename = ~/.cache/mail/muttrc.mailboxes
