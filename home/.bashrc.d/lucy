@@ -23,15 +23,10 @@ lucy-add-to-trello () {
 }
 
 lucy-add-to-skedpal () {
-	if (( $# == 1 )) && command -v vipe >/dev/null && [[ -t 0 ]]; then
-		# No body specified on the command line, we could use vipe
-		# locally, and stdin is a terminal.  Launch vipe to get the
-		# body of the card.
-		vipe | ssh adam@lucy.dinwoodie.org /home/adam/.local/bin/add-to-skedpal $(printf '%q ' "$@")
-	elif (( $# == 1 )) && [[ -t 0 ]]; then
-		# No body specified on the commandline, stdin is a terminal,
-		# but there's no local vipe.  Allocate a terminal on the remote
-		# so that vipe can be run there instead.
+	if (( $# == 1 )) && [[ -t 0 ]]; then
+		# No body specified on the commandline, stdin is a terminal.
+		# Allocate a terminal on the remote so that things like `vipe`
+		# can be run there.
 		ssh adam@lucy.dinwoodie.org -t /home/adam/.local/bin/add-to-skedpal $(printf '%q ' "$@")
 	else
 		ssh adam@lucy.dinwoodie.org /home/adam/.local/bin/add-to-skedpal $(printf '%q ' "$@")
