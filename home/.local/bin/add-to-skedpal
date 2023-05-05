@@ -25,7 +25,7 @@ help () {
 	printf -- '    e.g. `-z exercise`.\n'
 }
 
-SKEDPAL_BOARD_ADDRESS="$(cat ~/.skedpal-board-address)"
+SKEDPAL_BOARD_ADDRESS="$(< ~/.skedpal-board-address)"
 
 properties=()
 while getopts :hd:D:p:P:t:w:z: opt; do
