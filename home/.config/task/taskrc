@@ -1,0 +1,86 @@
+# Files; locations per XDG Base Directory spec and task 2.6.0 changelog docs,
+# but hardcoded to handle the case where XDG_DATA_HOME etc aren't set.
+data.location=~/.local/share/task/
+hooks.location=~/.config/task/hooks/
+
+# Color theme (uncomment one to use)
+#include /usr/share/taskwarrior/light-16.theme
+#include /usr/share/taskwarrior/light-256.theme
+#include /usr/share/taskwarrior/dark-16.theme
+#include /usr/share/taskwarrior/dark-256.theme
+#include /usr/share/taskwarrior/dark-red-256.theme
+#include /usr/share/taskwarrior/dark-green-256.theme
+#include /usr/share/taskwarrior/dark-blue-256.theme
+#include /usr/share/taskwarrior/dark-violets-256.theme
+#include /usr/share/taskwarrior/dark-yellow-green.theme
+#include /usr/share/taskwarrior/dark-gray-256.theme
+#include /usr/share/taskwarrior/dark-gray-blue-256.theme
+#include /usr/share/taskwarrior/solarized-dark-256.theme
+#include /usr/share/taskwarrior/solarized-light-256.theme
+#include /usr/share/taskwarrior/no-color.theme
+
+# Recur after completion fields
+uda.recurAfterDue.type=duration
+uda.recurAfterDue.label=Rec. after
+uda.recurAfterWait.type=duration
+uda.recurAfterWait.label=Rec. after wait
+
+# next filter: don't show full annotations, just a count of them, and hide
+# "waitingfor" tasks that I'm still waiting for.
+report.next.columns=id,start.age,entry.age,depends,priority,project,tags,recur,scheduled.countdown,due.relative,until.remaining,description.count,urgency
+report.next.filter=status:pending -WAITING (-waitingfor or +READY) limit:page
+
+# "Until" behaviour on recurring tasks
+uda.recurTaskUntil.type=duration
+uda.recurTaskUntil.label=Child until
+
+# Stuff for tasksh's review process
+uda.reviewed.type=date
+uda.reviewed.label=Reviewed
+report._reviewed.description=Tasksh review report.  Adjust the filter to your needs.
+report._reviewed.columns=uuid
+report._reviewed.sort=reviewed+,modified+
+report._reviewed.filter=( reviewed.none: or reviewed.before:now-6days ) and ( +PENDING or +WAITING )
+
+# Don't show logs in task info -- it's not worth the screen space
+journal.info=off
+
+# Use inherited urgency for blocked tasks: tasks have the highest urgency of
+# their own urgency or whatever they're blocking.  Do reduce the priority
+# slighty for things that are blocked, just to make sure they don't overtake
+# the blocking tasks.
+urgency.blocking.coefficient=0
+urgency.blocked.coefficient=-0.1
+urgency.inherit=1
+
+# Report on tasks I'm waiting for
+report.waitingfor.description=Tasks where I'm waiting on others
+report.waitingfor.filter=+waitingfor status:pending
+report.waitingfor.columns=id,start.age,project,tags,scheduled.remaining,due.remaining,until.remaining,description
+report.waitingfor.sort=scheduled
+report.waitingfor.labels=ID,Age,Project,Tags,Sched,Due,Until,Description
+
+# Use Inthe.am (adamdinwoodie@gmail.com)
+taskd.certificate=~/.config/task/private.certificate.pem
+taskd.key=~/.config/task/private.key.pem
+taskd.ca=~/.config/task/ca.cert.pem
+taskd.server=inthe.am:53589
+taskd.credentials=inthe_am/adamdinwoodie/2c5555f2-ed5f-4b8d-96fa-69e17d3a05f5
+taskd.trust=strict
+
+# Rejig priorities: I want L to mean "explicitly low", and to rescore
+# accordingly.
+uda.priority.values=H,M,,L
+urgency.uda.priority.H.coefficient=6.0
+urgency.uda.priority.M.coefficient=1.8
+urgency.uda.priority.L.coefficient=-1.8
+
+# I have a big shell prompt, so allow multiple lines for it.
+reserved.lines=3
+
+# Contexts
+context.evening-weekend.read=-business
+
+# Stuff Taskwarrior has added itself
+news.version=2.6.0
+context=evening-weekend
