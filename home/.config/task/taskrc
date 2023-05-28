@@ -81,6 +81,9 @@ reserved.lines=3
 # Contexts
 context.evening-weekend.read=-business
 
+# Local include, in particular for disabling recurrence on secondary systems.
+include ~/.config/task/localtaskrc
+
 # Stuff Taskwarrior has added itself
 news.version=2.6.0
 context=evening-weekend
