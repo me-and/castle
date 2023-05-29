@@ -61,11 +61,10 @@ report.waitingfor.sort=scheduled
 report.waitingfor.labels=ID,Age,Project,Tags,Sched,Due,Until,Description
 
 # Use Inthe.am (adamdinwoodie@gmail.com)
-taskd.certificate=~/.config/task/private.certificate.pem
-taskd.key=~/.config/task/private.key.pem
-taskd.ca=~/.config/task/ca.cert.pem
-taskd.server=inthe.am:53589
-taskd.credentials=inthe_am/adamdinwoodie/2c5555f2-ed5f-4b8d-96fa-69e17d3a05f5
+taskd.certificate=~/.config/task/adam.cert.pem
+taskd.key=~/.config/task/adam.key.pem
+taskd.server=lucy.dinwoodie.org:53589
+taskd.credentials=adam/adam/e43bec8b-cd9b-4257-ae16-66f9d5270078
 taskd.trust=strict
 
 # Rejig priorities: I want L to mean "explicitly low", and to rescore
