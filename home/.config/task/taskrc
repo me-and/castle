@@ -28,7 +28,7 @@ uda.recurAfterWait.label=Rec. after wait
 # next filter: don't show full annotations, just a count of them, and hide
 # "waitingfor" tasks that I'm still waiting for.
 report.next.columns=id,start.age,entry.age,depends,priority,project,tags,recur,scheduled.countdown,due.relative,until.remaining,description.count,urgency
-report.next.filter=status:pending -WAITING (-waitingfor or +READY) limit:page
+report.next.filter=status:pending (-waitingfor or +READY) -BLOCKED limit:page
 
 # "Until" behaviour on recurring tasks
 uda.recurTaskUntil.type=duration
@@ -55,10 +55,16 @@ urgency.inherit=1
 
 # Report on tasks I'm waiting for
 report.waitingfor.description=Tasks where I'm waiting on others
-report.waitingfor.filter=+waitingfor status:pending
+report.waitingfor.filter=+waitingfor status:pending -BLOCKED
 report.waitingfor.columns=id,start.age,project,tags,scheduled.remaining,due.remaining,until.remaining,description
 report.waitingfor.sort=scheduled
 report.waitingfor.labels=ID,Age,Project,Tags,Sched,Due,Until,Description
+
+report.waitingfor-full.description=Tasks where I'm waiting on others
+report.waitingfor-full.filter=+waitingfor (status:pending or status:waiting)
+report.waitingfor-full.columns=id,start.age,project,tags,scheduled.remaining,due.remaining,until.remaining,description
+report.waitingfor-full.sort=scheduled
+report.waitingfor-full.labels=ID,Age,Project,Tags,Sched,Due,Until,Description
 
 # Use Inthe.am (adamdinwoodie@gmail.com)
 taskd.certificate=~/.config/task/adam.cert.pem
@@ -79,6 +85,26 @@ reserved.lines=3
 
 # Contexts
 context.evening-weekend.read=-business
+
+# Taskwarrior seems confused about whether tasks that are waiting should be
+# included in status:pending or not.  The default report definitions seem to
+# assume they will be, but the behaviour assumes they won't be.  Change the
+# report definitions to match actual behaviour.
+report.active.filter=status:pending +ACTIVE
+report.blocked.filter=status:pending +BLOCKED
+report.blocking.filter=status:pending +BLOCKING
+report.completed.filter=status:cmpleted
+report.list.filter=status:pending
+report.long.filter=status:pending
+report.ls.filter=status:pending
+report.minimal.filter=status:pending or status:waiting
+report.newest.filter=status:pending or status:waiting
+report.oldest.filter=status:pending or status:waiting
+report.overdue.filter=(status:pending or status:waiting) and +OVERDUE
+report.recurring.filter=((status:pending or status:waiting) +CHILD) or (status:recurring +PARENT)
+report.timesheet.filter=((status:pending or status:waiting) start.after:now-4wks) or (status:completed end.after:now-4wks)
+report.unblocked.filter=status:pending -BLOCKED
+report.waiting.filter=status:waiting
 
 # Local include, in particular for disabling recurrence on secondary systems.
 include ~/.config/task/localtaskrc
