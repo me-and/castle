@@ -84,7 +84,7 @@ urgency.uda.priority.L.coefficient=-1.8
 reserved.lines=3
 
 # Contexts
-context.evening-weekend.read=-business
+context.evening-weekend.read=-business -linaker
 
 # Taskwarrior seems confused about whether tasks that are waiting should be
 # included in status:pending or not.  The default report definitions seem to
@@ -111,4 +111,7 @@ include ~/.config/task/localtaskrc
 
 # Stuff Taskwarrior has added itself
 news.version=2.6.0
+context.allotment.read=-business -home -linaker
 context=evening-weekend
+context.dadford.read=+dadford
+context.dadford.write=+dadford
