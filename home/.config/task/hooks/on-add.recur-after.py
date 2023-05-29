@@ -24,42 +24,42 @@ if __name__ == '__main__':
     env = os.environ.copy()
     env['TZ'] = 'UTC0'
 
-    task_str = sys.stdin.readline()
-    task = json.loads(task_str)
+    new_task_str = sys.stdin.readline()
+    new_task = json.loads(new_task_str)
 
-    if (UDA_DUE in task or UDA_WAIT in task) and task['status'] == 'completed':
-        del task['modified']
+    if (UDA_DUE in new_task or UDA_WAIT in new_task) and new_task['status'] == 'completed':
+        del new_task['modified']
         try:
-            del task['start']
+            del new_task['start']
         except KeyError:
             pass
 
-        if UDA_DUE in task:
-            task['due'] = calc(task['end'] + '+' + task[UDA_DUE], env)
+        if UDA_DUE in new_task:
+            new_task['due'] = calc(new_task['end'] + '+' + new_task[UDA_DUE], env)
             set_due = True
         else:
             set_due = False
 
-        if UDA_WAIT in task:
-            task['wait'] = calc(task['end'] + '+' + task[UDA_WAIT], env)
+        if UDA_WAIT in new_task:
+            new_task['wait'] = calc(new_task['end'] + '+' + new_task[UDA_WAIT], env)
             set_wait = True
         else:
             set_wait = False
 
-        task['status'] = 'pending'  # Original code would conditionally set this to "waiting", but a change in 2.6.0 is deprecating that status, so hopefully this is the correct solution...
-        task['entry'] = task['end']
-        del task['uuid']  # Taskwarrior will generate a new one
-        del task['end']
+        new_task['status'] = 'pending'  # Original code would conditionally set this to "waiting", but a change in 2.6.0 is deprecating that status, so hopefully this is the correct solution...
+        new_task['entry'] = new_task['end']
+        del new_task['uuid']  # Taskwarrior will generate a new one
+        del new_task['end']
 
         # Return the task so it gets added, plus a message about the new task.
-        print(task_str)
+        print(new_task_str)
         if set_due and set_wait:
-            print(f'Will create new recur-after task due {task["due"]} waiting until {task["wait"]}')
+            print(f'Will create new recur-after task due {new_task["due"]} waiting until {new_task["wait"]}')
         elif set_due:
-            print(f'Will create new recur-after task due {task["due"]}')
+            print(f'Will create new recur-after task due {new_task["due"]}')
         else:
             assert set_wait
-            print(f'Will create new recur-after task waiting until {task["wait"]}')
+            print(f'Will create new recur-after task waiting until {new_task["wait"]}')
 
         # Wait for taskwarrior to finish so the new task can be created
         sys.stdout.flush()
@@ -75,7 +75,7 @@ if __name__ == '__main__':
             psutil.Process().parent().wait()
 
             # Import the new task
-            subprocess.run(['task', 'rc.verbose=nothing', 'import', '-'], input=json.dumps(task), encoding='utf-8', check=True)
+            subprocess.run(['task', 'rc.verbose=nothing', 'import', '-'], input=json.dumps(new_task), encoding='utf-8', check=True)
     else:
         # Return the task unaltered
-        print(task_str)
+        print(new_task_str)
