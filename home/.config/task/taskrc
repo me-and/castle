@@ -69,7 +69,7 @@ report.waitingfor-full.labels=ID,Age,Project,Tags,Sched,Due,Until,Description
 # Use Inthe.am (adamdinwoodie@gmail.com)
 taskd.certificate=~/.config/task/adam.cert.pem
 taskd.key=~/.config/task/adam.key.pem
-taskd.server=lucy.dinwoodie.org:53589
+taskd.server=lucy.dinwoodie.org:50340
 taskd.credentials=adam/adam/e43bec8b-cd9b-4257-ae16-66f9d5270078
 taskd.trust=strict
 
