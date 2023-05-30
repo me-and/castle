@@ -114,6 +114,5 @@ news.version=2.6.0
 context.allotment.read=-business -home -linaker
 default.command=oldest
 dateformat.info=a d b Y H:N:S
-context=evening-weekend
 context.dadford.read=+dadford
 context.dadford.write=+dadford
