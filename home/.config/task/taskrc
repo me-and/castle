@@ -116,3 +116,4 @@ default.command=oldest
 dateformat.info=a d b Y H:N:S
 context.dadford.read=+dadford
 context.dadford.write=+dadford
+recurrence.limit=2
