@@ -29,7 +29,7 @@ def list_map(f: Callable[[U], V]) -> Callable[[list[U]], list[V]]:
 @dataclass(frozen=True)
 class Column:
     name: str
-    json_decoder: Callable[[Any], Any]  # TODO fixup typing
+    json_decoder: Optional[Callable[[Any], Any]] = None  # TODO fixup typing
     json_pre_dump: Optional[Callable[[Any], Any]] = None  # TODO fixup typing
     required: bool = False
     read_only: bool = False
@@ -50,26 +50,26 @@ class Column:
 
             # Singular fields
             Column('depends', list_map(uuid.UUID), list_map(str))
-            Column('description', str, required=True)
-            Column('id', int, read_only=True)
-            Column('mask', str, read_only=True)  # TODO Can this be more structured?
+            Column('description', required=True)
+            Column('id', read_only=True)
+            Column('mask', read_only=True)  # TODO Can this be more structured?
             Column('parent', uuid.UUID, str)  # type: ignore[arg-type]  # mypy doesn't think uuid.UUID is callable
-            Column('recur', str)  # TODO Can this be more structured?
-            Column('rtype', str)  # TODO Can this be more structured?
-            Column('status', str)  # TODO Can this be more structured?
-            Column('tags', list_map(str))
+            Column('recur')  # TODO Can this be more structured?
+            Column('rtype')  # TODO Can this be more structured?
+            Column('status')  # TODO Can this be more structured?
+            Column('tags')
             Column('template', uuid.UUID)
-            Column('urgency', float)
+            Column('urgency')
             Column('uuid', uuid.UUID, str, read_only=True)
 
             # TODO These are handled as read-only ints, but it might be
             # possible to do better here once I work out how they're used.
             for k in ('imask', 'last'):
-                Column(k, int, read_only=True)
+                Column(k, read_only=True)
 
             # Modifiable string entries
             for k in ('priority', 'project'):
-                Column(k, str)
+                Column(k)
 
             # Modifiable date/time entries
             for k in ('due', 'end', 'entry', 'modified', 'scheduled', 'start',
@@ -79,7 +79,7 @@ class Column:
             # UDA durations.  TODO Make these dynamic.  TODO Make these more
             # structured.
             for k in ('recurAfterDue', 'recurAfterWait', 'recurTaskUntil'):
-                Column(k, str)
+                Column(k)
 
             # UDA date/time entry.  TODO Make these dynamic.
             Column('reviewed', datetime.datetime.fromisoformat, cls.datetime_pre_dump)
@@ -132,7 +132,10 @@ class Task(collections.abc.MutableMapping):
         d = {}
         for key in obj:
             c = Column.by_name(key)
-            d[key] = c.json_decoder(obj[key])
+            if c.json_decoder is None:
+                d[key] = obj[key]
+            else:
+                d[key] = c.json_decoder(obj[key])
         return cls(d)
 
     def __getitem__(self, key):
