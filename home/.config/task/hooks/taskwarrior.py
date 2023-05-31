@@ -140,7 +140,7 @@ class Task(collections.abc.MutableMapping):
             return self.d[key]
         except KeyError:
             try:
-                return self.d[key.by_name]
+                return self.d[key.name]
             except (KeyError, AttributeError):
                 if key == 'uuid' or key == Column.by_name('uuid'):
                     self.gen_uuid()
