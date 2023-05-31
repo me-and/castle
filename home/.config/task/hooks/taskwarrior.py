@@ -49,6 +49,7 @@ class Column:
             # Creating the instances will automatically populate cls._by_name
 
             # Singular fields
+            Column('annotations')
             Column('depends', list_map(uuid.UUID), list_map(str))
             Column('description', required=True)
             Column('id', read_only=True)
