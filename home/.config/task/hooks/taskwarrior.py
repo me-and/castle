@@ -302,6 +302,10 @@ def finish(rc: int, post_taskwarrior_call: Optional[PostHookAction]) -> None:
 
 
 def due_end_of(task: Task) -> tuple[Optional[str], Task]:
+    if task['status'] == 'recurring':
+        # Don't modify recurring tasks; they'll get fixed when the individual
+        # instances are created.
+        return (None, task)
     try:
         due_date = task['due'].astimezone()
     except KeyError:
