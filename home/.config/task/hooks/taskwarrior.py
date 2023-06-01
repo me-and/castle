@@ -168,7 +168,7 @@ class Task(collections.abc.MutableMapping):
     def __delitem__(self, key) -> None:
         if isinstance(key, Column):
             key = key.by_name
-        del self._d[key]
+        del self.d[key]
 
     def __iter__(self):
         return iter(self.d)
@@ -177,7 +177,7 @@ class Task(collections.abc.MutableMapping):
         return len(self.d)
 
     def duplicate(self) -> 'Task':
-        new_task = self.__class__(deepcopy(self._d))
+        new_task = self.__class__(deepcopy(self.d))
         del new_task['uuid']
         return new_task
 
