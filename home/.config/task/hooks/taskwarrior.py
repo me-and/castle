@@ -40,7 +40,7 @@ class Column:
         self._by_name[self.name] = self
 
     @staticmethod
-    def datetime_pre_dump(d: datetime) -> str:
+    def datetime_pre_dump(d: datetime.datetime) -> str:
         return d.astimezone(datetime.UTC).strftime('%Y%m%dT%H%M%SZ')
 
     @classmethod
