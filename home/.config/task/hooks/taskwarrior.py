@@ -392,10 +392,10 @@ def recur_after(task1: Task, task2: Optional[Task]=None) -> tuple[Literal[0], Ta
 
     message_parts = [f'Creating new task {task["description"]}']
     if wait_delay:
-        new_task['wait'] = tw_calc_datetime(task.get_pre_json('end') + ' + ' + wait_delay)
+        new_task['wait'] = tw_calc_datetime(task.get_pre_json('end') + ' + ' + wait_delay).astimezone()
         message_parts.append(f'waiting until {new_task["wait"].isoformat()}')
     if due_delay:
-        new_task['due'] = tw_calc_datetime(task.get_pre_json('end') + ' + ' + due_delay)
+        new_task['due'] = tw_calc_datetime(task.get_pre_json('end') + ' + ' + due_delay).astimezone()
         message_parts.append(f'due {new_task["due"].isoformat()}')
 
     return 0, task, ', '.join(message_parts), functools.partial(tw_import, new_task)
@@ -420,7 +420,7 @@ def child_until(task1: Task, task2: Optional[Task]=None) -> tuple[int, Optional[
         return 1, None, f'Task {task["uuid"]} with recurTaskUntil but without due date', None
 
     old_until = task.get('until', None)
-    task['until'] = tw_calc_datetime(task.get_pre_json('due') + ' + ' + child_until)
+    task['until'] = tw_calc_datetime(task.get_pre_json('due') + ' + ' + child_until).astimezone()
 
     if old_until is None:
         return 0, task, f'Task {task["description"]} expires {task["until"].isoformat()}', None
