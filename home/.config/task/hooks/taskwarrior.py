@@ -17,6 +17,9 @@ import psutil
 sprint = functools.partial(print, file=sys.stderr)
 
 
+DEBUG = False
+
+
 DATETIME_CALC_RE = re.compile(r'^\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\d$')
 
 T = TypeVar('T', str, int, uuid.UUID, list[uuid.UUID], datetime.datetime, list[str])
@@ -233,7 +236,11 @@ def on_add(hooks: Iterable[OnAddHook]) -> NoReturn:
     feedback_messages = []
     final_tasks = []
     for hook in hooks:
+        if DEBUG:
+            sprint(f'Pre-add hook: {task=!r}, {hook=!r}')
         rc, task, feedback, final = hook(task)
+        if DEBUG:
+            sprint(f'Hook result: {rc=!r}, {task=!r}, {feedback=!r}, {final=!r}')
         assert task is not None or (rc != 0 and feedback is not None)
         if rc != 0:
             print('{}')
@@ -244,6 +251,8 @@ def on_add(hooks: Iterable[OnAddHook]) -> NoReturn:
         if final is not None:
             final_tasks.append(final)
 
+    if DEBUG:
+        sprint(f'Done: {task=!r}, {feedback_messages=!r}')
     print(json.dumps(task, cls=TaskEncoder))
     print('; '.join(feedback_messages))
 
@@ -257,7 +266,11 @@ def on_modify(hooks: Iterable[OnModifyHook]) -> NoReturn:
     feedback_messages = []
     final_tasks = []
     for hook in hooks:
+        if DEBUG:
+            sprint(f'Pre-modify hook: {task=!r}, {hook=!r}')
         rc, task, feedback, final = hook(old_task, task)
+        if DEBUG:
+            sprint(f'Hook result: {rc=!r}, {task=!r}, {feedback=!r}, {final=!r}')
         assert task is not None or (rc != 0 and feedback is not None)
         if rc != 0:
             print('{}')
@@ -268,6 +281,8 @@ def on_modify(hooks: Iterable[OnModifyHook]) -> NoReturn:
         if final is not None:
             final_tasks.append(final)
 
+    if DEBUG:
+        sprint(f'Done: {task=!r}, {feedback_messages=!r}')
     print(json.dumps(task, cls=TaskEncoder))
     print('; '.join(feedback_messages))
 
@@ -278,7 +293,11 @@ def on_launch_or_exit(hooks: Iterable[BareHook]) -> NoReturn:
     feedback_messages = []
     final_tasks = []
     for hook in hooks:
+        if DEBUG:
+            sprint(f'Pre-bare hook: {hook=!r}')
         rc, feedback, final = hook()
+        if DEBUG:
+            sprint(f'Hook result: {rc=!r}, {feedback=!r}, {final=!r}')
         assert rc == 0 or feedback is not None
         if rc != 0:
             print(feedback)
@@ -288,12 +307,17 @@ def on_launch_or_exit(hooks: Iterable[BareHook]) -> NoReturn:
         if final is not None:
             final_tasks.append(final)
 
+    if DEBUG:
+        sprint(f'Done: {feedback_messages=!r}')
     print('; '.join(feedback_messages))
 
     do_final_tasks(final_tasks)
 
 
 def do_final_tasks(tasks: Iterable[PostHookAction]) -> NoReturn:
+    if DEBUG:
+        sprint(f'Pre-fork: {tasks=!r}')
+
     if tasks:
         sys.stdout.flush()
 
@@ -312,6 +336,8 @@ def do_final_tasks(tasks: Iterable[PostHookAction]) -> NoReturn:
         psutil.Process().parent().wait()
 
         for task in tasks:
+            if DEBUG:
+                sprint(f'Task: {task=!r}')
             task()
 
     sys.exit(0)
