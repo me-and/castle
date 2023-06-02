@@ -425,3 +425,10 @@ def child_until(task1: Task, task2: Optional[Task]=None) -> tuple[int, Optional[
     if old_until is None:
         return 0, task, f'Task {task["description"]} expires {task["until"].isoformat()}', None
     return 0, task, f'Task {task["description"]} did expire {old_until.isoformat()}, now expires {task["until"].isoformat()}', None
+
+
+def inbox(task: Task) -> tuple[Literal[0], Task, Optional[str], None]:
+    if 'tags' in task or 'project' in task:
+        return 0, task, None, None
+    task['tags'] = ['inbox']
+    return 0, task, f'Tagged {task["description"]} as inbox', None
