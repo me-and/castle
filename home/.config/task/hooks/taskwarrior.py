@@ -382,7 +382,7 @@ def recur_after(task1: Task, task2: Optional[Task]=None) -> tuple[Literal[0], Ta
     wait_delay = task.get('recurAfterWait', None)
     due_delay = task.get('recurAfterDue', None)
     if wait_delay is None and due_delay is None:
-        0, task, None, None
+        return 0, task, None, None
 
     new_task = task.duplicate()
     new_task['status'] = 'pending'
