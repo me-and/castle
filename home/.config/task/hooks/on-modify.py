@@ -3,4 +3,4 @@
 import taskwarrior as tw
 
 if __name__ == '__main__':
-    tw.on_modify(tw.on_modify_due_end_of)
+    tw.on_modify((tw.due_end_of, tw.recur_after, tw.child_until))
