@@ -2,19 +2,22 @@ import subprocess
 import json
 import re
 import datetime
-from typing import Union, Callable, NoReturn, TypeVar, Optional, TypeAlias, ClassVar, Any, Iterable
+from typing import Union, Callable, NoReturn, TypeVar, Optional, TypeAlias, ClassVar, Any, Iterable, Literal
 import sys
 import functools
 import os
 import collections.abc
 import uuid
 from copy import deepcopy
-from dataclasses import dataclass, field, InitVar
+from dataclasses import dataclass
 
 import psutil
 
 
 sprint = functools.partial(print, file=sys.stderr)
+
+
+DEBUG = False
 
 
 DATETIME_CALC_RE = re.compile(r'^\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\d$')
@@ -40,7 +43,7 @@ class Column:
         self._by_name[self.name] = self
 
     @staticmethod
-    def datetime_pre_dump(d: datetime) -> str:
+    def datetime_pre_dump(d: datetime.datetime) -> str:
         return d.astimezone(datetime.UTC).strftime('%Y%m%dT%H%M%SZ')
 
     @classmethod
@@ -168,7 +171,7 @@ class Task(collections.abc.MutableMapping):
     def __delitem__(self, key) -> None:
         if isinstance(key, Column):
             key = key.by_name
-        del self._d[key]
+        del self.d[key]
 
     def __iter__(self):
         return iter(self.d)
@@ -177,7 +180,7 @@ class Task(collections.abc.MutableMapping):
         return len(self.d)
 
     def duplicate(self) -> 'Task':
-        new_task = self.__class__(deepcopy(self._d))
+        new_task = self.__class__(deepcopy(self.d))
         del new_task['uuid']
         return new_task
 
@@ -227,107 +230,159 @@ OnModifyHook: TypeAlias = Callable[[Task, Task], tuple[int, Optional[Task], Opti
 BareHook: TypeAlias = Callable[[], tuple[int, Optional[str], Optional[PostHookAction]]]
 OnLaunchHook = OnExitHook = BareHook
 
-def on_add(hook: OnAddHook) -> None:
-    new_task = json.loads(sys.stdin.readline(), object_hook=Task.json_decoder)
-    #print(f'{new_task=!r}', file=sys.stderr)
+def on_add(hooks: Iterable[OnAddHook]) -> NoReturn:
+    task = json.loads(sys.stdin.readline(), object_hook=Task.json_decoder)
 
-    rc, modified_task, feedback, final = hook(new_task)
-    #print(f'{rc=!r}', file=sys.stderr)
-    #print(f'{modified_task=!r}', file=sys.stderr)
-    #print(f'{feedback=!r}', file=sys.stderr)
-    #print(f'{final=!r}', file=sys.stderr)
-    #print(file=sys.stderr)
-
-    if modified_task is None:
-        assert rc != 0
-        assert feedback is not None
-        print('{}')
-        print(feedback)
-    else:
-        assert rc == 0 or feedback is not None
-        print(json.dumps(modified_task, cls=TaskEncoder))
-        if feedback is not None:
+    feedback_messages = []
+    final_tasks = []
+    for hook in hooks:
+        if DEBUG:
+            sprint(f'Pre-add hook: {task=!r}, {hook=!r}')
+        rc, task, feedback, final = hook(task)
+        if DEBUG:
+            sprint(f'Hook result: {rc=!r}, {task=!r}, {feedback=!r}, {final=!r}')
+        assert task is not None or (rc != 0 and feedback is not None)
+        if rc != 0:
+            print('{}')
             print(feedback)
-
-    finish(rc, final)
-
-
-def on_modify(hook: OnModifyHook) -> None:
-    old_task = json.loads(sys.stdin.readline(), object_hook=Task.json_decoder)
-    new_task = json.loads(sys.stdin.readline(), object_hook=Task.json_decoder)
-
-    rc, modified_task, feedback, final = hook(old_task, new_task)
-
-    if modified_task is None:
-        assert rc != 0
-        assert feedback is not None
-        print('{}')
-        print(feedback)
-    else:
-        assert rc == 0 or feedback is not None
-        print(json.dumps(modified_task, cls=TaskEncoder))
-        if feedback is not None:
-            print(feedback)
-
-    finish(rc, final)
-
-
-def on_launch_or_exit(hook: BareHook) -> None:
-    rc, feedback, final = hook()
-    if feedback is None:
-        assert rc == 0
-    else:
-        print(feedback)
-
-    finish(rc, final)
-
-
-def finish(rc: int, post_taskwarrior_call: Optional[PostHookAction]) -> None:
-    if post_taskwarrior_call is None:
-        sys.exit(rc)
-    else:
-        # Based on https://github.com/JensErat/task-relative-recur/blob/master/on-modify.relative-recur
-        sys.stdout.flush()
-        if (0 < os.fork()):
             sys.exit(rc)
-        else:
-            try:
-                os.close(sys.stdout.fileno())
-            except OSError:
-                pass
+        if feedback is not None:
+            feedback_messages.append(feedback)
+        if final is not None:
+            final_tasks.append(final)
+
+    if DEBUG:
+        sprint(f'Done: {task=!r}, {feedback_messages=!r}')
+    print(json.dumps(task, cls=TaskEncoder))
+    print('; '.join(feedback_messages))
+
+    do_final_tasks(final_tasks)
+
+
+def on_modify(hooks: Iterable[OnModifyHook]) -> NoReturn:
+    old_task = json.loads(sys.stdin.readline(), object_hook=Task.json_decoder)
+    task = json.loads(sys.stdin.readline(), object_hook=Task.json_decoder)
+
+    feedback_messages = []
+    final_tasks = []
+    for hook in hooks:
+        if DEBUG:
+            sprint(f'Pre-modify hook: {task=!r}, {hook=!r}')
+        rc, task, feedback, final = hook(old_task, task)
+        if DEBUG:
+            sprint(f'Hook result: {rc=!r}, {task=!r}, {feedback=!r}, {final=!r}')
+        assert task is not None or (rc != 0 and feedback is not None)
+        if rc != 0:
+            print('{}')
+            print(feedback)
+            sys.exit(rc)
+        if feedback is not None:
+            feedback_messages.append(feedback)
+        if final is not None:
+            final_tasks.append(final)
+
+    if DEBUG:
+        sprint(f'Done: {task=!r}, {feedback_messages=!r}')
+    print(json.dumps(task, cls=TaskEncoder))
+    print('; '.join(feedback_messages))
+
+    do_final_tasks(final_tasks)
+
+
+def on_launch_or_exit(hooks: Iterable[BareHook]) -> NoReturn:
+    feedback_messages = []
+    final_tasks = []
+    for hook in hooks:
+        if DEBUG:
+            sprint(f'Pre-bare hook: {hook=!r}')
+        rc, feedback, final = hook()
+        if DEBUG:
+            sprint(f'Hook result: {rc=!r}, {feedback=!r}, {final=!r}')
+        assert rc == 0 or feedback is not None
+        if rc != 0:
+            print(feedback)
+            sys.exit(rc)
+        if feedback is not None:
+            feedback_messages.append(feedback)
+        if final is not None:
+            final_tasks.append(final)
+
+    if DEBUG:
+        sprint(f'Done: {feedback_messages=!r}')
+    print('; '.join(feedback_messages))
+
+    do_final_tasks(final_tasks)
+
+
+def do_final_tasks(tasks: Iterable[PostHookAction]) -> NoReturn:
+    if DEBUG:
+        sprint(f'Pre-fork: {tasks=!r}')
+
+    if tasks:
+        sys.stdout.flush()
+
+        if (0 < os.fork()):
+            sys.exit(0)
+
+        try:
+            # TaskWarrior waits for this process to close stdout, so do that.
+            os.close(sys.stdout.fileno())
+        except OSError as ex:
+            # Apparently this sometimes produces an error, possibly because
+            # stdout has already been closed!?  I want to see if/when this
+            # happens!
+            sprint(f'Temporary OSError info: f{ex=!r}')
 
         psutil.Process().parent().wait()
 
-        post_taskwarrior_call()
+        for task in tasks:
+            if DEBUG:
+                sprint(f'Task: {task=!r}')
+            task()
+
+    sys.exit(0)
 
 
-def due_end_of(task: Task) -> tuple[Optional[str], Task]:
+def due_end_of(task1: Task, task2: Optional[Task]=None) -> tuple[Literal[0], Task, Optional[str], None]:
+    if task2 is None:  # On-add hook
+        task = task1
+    else:  # On-modify hook
+        task = task2
+
+    if task['status'] == 'recurring':
+        # Don't modify recurring tasks; they'll get fixed when the individual
+        # instances are created.
+        return 0, task, None, None
+
     try:
         due_date = task['due'].astimezone()
     except KeyError:
-        return (None, task)
+        return 0, task, None, None
+
     if due_date.time() == datetime.time():
         task['due'] = due_date - datetime.timedelta(seconds=1)
-        return (f'Changed due from {due_date.isoformat()} to {task["due"].isoformat()}', task)
-    return (None, task)
+        return 0, task, f'Changed due from {due_date.isoformat()} to {task["due"].isoformat()}', None
+
+    return 0, task, None, None
 
 
-def on_add_due_end_of(task) -> tuple[int, Task, Optional[str], None]:
-    feedback, task = due_end_of(task)
-    return (0, task, feedback, None)
+def recur_after(task1: Task, task2: Optional[Task]=None) -> tuple[Literal[0], Task, Optional[str], Optional[PostHookAction]]:
+    if task2 is None:  # On-add hook
+        task = task1
+        if task['status'] != 'completed':
+            # Not a new completed task, so nothing to do.
+            return 0, task, None, None
+    else:  # On-modify hook
+        old_task, task = task1, task2
+        if task['status'] != 'completed' or old_task['status'] == 'completed':
+            # Change doesn't include completing the task, so nothing to do.
+            return 0, task, None, None
 
-
-def on_modify_due_end_of(old_task, new_task) -> tuple[int, Task, Optional[str], None]:
-    feedback, task = due_end_of(new_task)
-    return (0, task, feedback, None)
-
-
-def recur_after(task: Task) -> tuple[Optional[str], Optional[PostHookAction]]:
     end_date = task['end']
     wait_delay = task.get('recurAfterWait', None)
     due_delay = task.get('recurAfterDue', None)
     if wait_delay is None and due_delay is None:
-        return (None, None)
+        return 0, task, None, None
 
     new_task = task.duplicate()
     new_task['status'] = 'pending'
@@ -337,49 +392,43 @@ def recur_after(task: Task) -> tuple[Optional[str], Optional[PostHookAction]]:
 
     message_parts = [f'Creating new task {task["description"]}']
     if wait_delay:
-        new_task['wait'] = tw_calc_datetime(task.get_pre_json('end') + ' + ' + wait_delay)
+        new_task['wait'] = tw_calc_datetime(task.get_pre_json('end') + ' + ' + wait_delay).astimezone()
         message_parts.append(f'waiting until {new_task["wait"].isoformat()}')
     if due_delay:
-        new_task['due'] = tw_calc_datetime(task.get_pre_json('end') + ' + ' + due_delay)
+        new_task['due'] = tw_calc_datetime(task.get_pre_json('end') + ' + ' + due_delay).astimezone()
         message_parts.append(f'due {new_task["due"].isoformat()}')
 
-    return (', '.join(message_parts), functools.partial(tw_import, new_task))
-
-def on_add_recur_after(task: Task) -> tuple[int, Task, Optional[str], Optional[PostHookAction]]:
-    if task['status'] == 'completed':
-        feedback, action = recur_after(task)
-        return (0, task, feedback, action)
-    return (0, task, None, None)
+    return 0, task, ', '.join(message_parts), functools.partial(tw_import, new_task)
 
 
-def on_modify_recur_after(old_task: Task, new_task: Task) -> tuple[int, Task, Optional[str], Optional[PostHookAction]]:
-    if old_task['status'] != 'completed' and new_task['status'] == 'completed':
-        feedback, action = recur_after(new_task)
-        return (0, new_task, feedback, action)
-    return (0, new_task, None, None)
+def child_until(task1: Task, task2: Optional[Task]=None) -> tuple[int, Optional[Task], Optional[str], None]:
+    if task2 is None:  # On-add hook
+        task = task1
+    else:  # On-modify hook
+        task = task2
 
-
-def child_until(task: Task) -> tuple[int, Optional[str], Optional[Task]]:
     if task['status'] == 'recurring':
-        return (0, None, task)
+        return 0, task, None, None
+
     due = task.get('due', None)
     child_until = task.get('recurTaskUntil', None)
+
     if child_until is None:
-        return (0, None, task)
+        return 0, task, None, None
+
     if due is None and child_until is not None:
-        return (1, f'Task {task["uuid"]} with recurTaskUntil but without due date', None)
+        return 1, None, f'Task {task["uuid"]} with recurTaskUntil but without due date', None
+
     old_until = task.get('until', None)
-    task['until'] = tw_calc_datetime(task.get_pre_json('due') + ' + ' + child_until)
+    task['until'] = tw_calc_datetime(task.get_pre_json('due') + ' + ' + child_until).astimezone()
+
     if old_until is None:
-        return (0, f'Task {task["description"]} expires {task["until"].isoformat()}', task)
-    return (0, f'Task {task["description"]} did expire {old_until.isoformat()}, now expires {task["until"].isoformat()}', task)
+        return 0, task, f'Task {task["description"]} expires {task["until"].isoformat()}', None
+    return 0, task, f'Task {task["description"]} did expire {old_until.isoformat()}, now expires {task["until"].isoformat()}', None
 
 
-def on_add_child_until(task: Task) -> tuple[int, Optional[Task], Optional[str], None]:
-    rc, feedback, new_task = child_until(task)
-    return (rc, new_task, feedback, None)
-
-
-def on_modify_child_until(old_task: Task, new_task: Task) -> tuple[int, Optional[Task], Optional[str], None]:
-    rc, feedback, task = child_until(new_task)
-    return (rc, task, feedback, None)
+def inbox(task: Task) -> tuple[Literal[0], Task, Optional[str], None]:
+    if 'tags' in task or 'project' in task:
+        return 0, task, None, None
+    task['tags'] = ['inbox']
+    return 0, task, f'Tagged {task["description"]} as inbox', None
