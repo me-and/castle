@@ -148,5 +148,9 @@ default.command=oldest
 # Local include, in particular for disabling recurrence on secondary systems.
 include ~/.config/task/localtaskrc
 
+# Search case insensitive.  I don't want to remember whether the word I'm
+# thinking of in a description is at the start of the description or not.
+search.case.sensitive=0
+
 # Stuff Taskwarrior has added itself
 news.version=2.6.0
