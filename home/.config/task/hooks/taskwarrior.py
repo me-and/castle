@@ -424,6 +424,8 @@ def child_until(task1: Task, task2: Optional[Task]=None) -> tuple[int, Optional[
 
     if old_until is None:
         return 0, task, f'Task {task["description"]} expires {task["until"].isoformat()}', None
+    if old_until == task['until']:
+        return 0, task, None, None
     return 0, task, f'Task {task["description"]} did expire {old_until.isoformat()}, now expires {task["until"].isoformat()}', None
 
 
