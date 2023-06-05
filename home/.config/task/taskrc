@@ -83,8 +83,32 @@ urgency.uda.priority.L.coefficient=-1.8
 # I have a big shell prompt, so allow multiple lines for it.
 reserved.lines=3
 
-# Contexts
-context.evening-weekend.read=-business -linaker
+# Context: evening and weekend
+context.evening-weekend.read=-business -linaker -dadford -work
+
+# Context: allotment
+context.allotment.read=-home -linaker -dadford -enfield -work
+
+# Context: day off.  Prioritise things that can only be done in business hours.
+context.day-off.read=-linaker -dadford -work
+context.work.rc.urgency.user.tag.business.coefficient=6
+
+# Context: work.  Prioritise things that can only be done at work or in
+# business hours
+context.work.read=-linaker -dadford -enfield -multivac
+context.work.rc.urgency.user.tag.work.coefficient=10
+context.work.rc.urgency.user.tag.business.coefficient=4
+
+# Context: dadford.  Prioritise things that can only be done on site.
+context.dadford.read=-home -linaker -enfield
+context.dadford.write=+dadford
+context.dadford.rc.urgency.user.tag.dadford.coefficient=10
+
+# Default urgency coefficients for things that have context-specific urgencies,
+# otherwise the context-specific ones seem to not take effect.
+urgency.user.tag.work.coefficient=0
+urgency.user.tag.business.coefficient=0
+urgency.user.tag.dadford.coefficient=0
 
 # Taskwarrior seems confused about whether tasks that are waiting should be
 # included in status:pending or not.  The default report definitions seem to
@@ -111,9 +135,6 @@ include ~/.config/task/localtaskrc
 
 # Stuff Taskwarrior has added itself
 news.version=2.6.0
-context.allotment.read=-business -home -linaker
 default.command=oldest
 dateformat.info=a d b Y H:N:S
-context.dadford.read=+dadford
-context.dadford.write=+dadford
 recurrence.limit=2
