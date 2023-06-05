@@ -49,8 +49,8 @@ journal.info=off
 # their own urgency or whatever they're blocking.  Do reduce the priority
 # slighty for things that are blocked, just to make sure they don't overtake
 # the blocking tasks.
-urgency.blocking.coefficient=0
-urgency.blocked.coefficient=-0.1
+urgency.blocking.coefficient=0.1
+urgency.blocked.coefficient=0
 urgency.inherit=1
 
 # Report on tasks I'm waiting for
