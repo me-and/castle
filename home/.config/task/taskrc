@@ -110,6 +110,10 @@ urgency.user.tag.work.coefficient=0
 urgency.user.tag.business.coefficient=0
 urgency.user.tag.dadford.coefficient=0
 
+# Tasks in the inbox should be right at the top to get sorted, unless there is
+# something even more burningly urgent.
+urgency.user.tag.inbox.coefficient=20
+
 # Taskwarrior seems confused about whether tasks that are waiting should be
 # included in status:pending or not.  The default report definitions seem to
 # assume they will be, but the behaviour assumes they won't be.  Change the
