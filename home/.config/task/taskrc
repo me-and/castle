@@ -70,7 +70,7 @@ report.waitingfor-full.labels=ID,Age,Proj,Tag,Dep,Wait,Due,Until,Description
 taskd.certificate=~/.config/task/adam.cert.pem
 taskd.key=~/.config/task/adam.key.pem
 taskd.server=lucy.dinwoodie.org:50340
-taskd.credentials=adam/adam/e43bec8b-cd9b-4257-ae16-66f9d5270078
+taskd.credentials=adam/adam/5e378a6c-4552-46e0-a173-dec9d75894b0
 taskd.trust=strict
 
 # Rejig priorities: I want L to mean "explicitly low", and to rescore
