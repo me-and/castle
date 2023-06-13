@@ -66,6 +66,12 @@ report.waitingfor-full.columns=id,start.age,project,tags,depends,wait.remaining,
 report.waitingfor-full.sort=due
 report.waitingfor-full.labels=ID,Age,Proj,Tag,Dep,Wait,Due,Until,Description
 
+# More useful columns for the oldest and newest reports
+report.oldest.columns=id,start.age,entry.age,modified.age,depends.indicator,status.short,priority,project,tags,recur.indicator,wait.relative,scheduled.relative,due.relative,until.relative,description
+report.oldest.labels=ID,Active,Age,Mod,D,S,P,Proj,Tag,R,Wait,Sch,Due,Until,Description
+report.newest.columns=id,start.age,entry.age,modified.age,depends.indicator,status.short,priority,project,tags,recur.indicator,wait.relative,scheduled.relative,due.relative,until.relative,description
+report.newest.labels=ID,Active,Age,Mod,D,S,P,Proj,Tag,R,Wait,Sch,Due,Until,Description
+
 # Use Inthe.am (adamdinwoodie@gmail.com)
 taskd.certificate=~/.config/task/adam.cert.pem
 taskd.key=~/.config/task/adam.key.pem
