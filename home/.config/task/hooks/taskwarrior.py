@@ -434,3 +434,6 @@ def inbox(task: Task) -> tuple[Literal[0], Task, Optional[str], None]:
         return 0, task, None, None
     task['tags'] = ['inbox']
     return 0, task, f'Tagged {task["description"]} as inbox', None
+
+def decode_string(string: str) -> Any:
+    return json.loads(string, object_hook=Task.json_decoder)
