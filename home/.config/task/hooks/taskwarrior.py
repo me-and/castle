@@ -132,7 +132,7 @@ class Task(collections.abc.MutableMapping):
     d: dict
 
     @classmethod
-    def json_decoder(cls, obj):
+    def json_decoder(cls, obj: dict) -> 'Task':
         d = {}
         for key in obj:
             c = Column.by_name(key)
@@ -142,7 +142,7 @@ class Task(collections.abc.MutableMapping):
                 d[key] = c.json_decoder(obj[key])
         return cls(d)
 
-    def __getitem__(self, key):
+    def __getitem__(self, key: str | Column):
         try:
             return self.d[key]
         except KeyError:
