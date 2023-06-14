@@ -144,15 +144,15 @@ class Task(collections.abc.MutableMapping):
 
     def __getitem__(self, key: str | Column):
         try:
-            return self.d[key]
-        except KeyError:
-            try:
+            if isinstance(key, str):
+                return self.d[key]
+            else:
                 return self.d[key.name]
-            except (KeyError, AttributeError):
-                if key == 'uuid' or key == Column.by_name('uuid'):
-                    self.gen_uuid()
-                    return self['uuid']
-                raise KeyError(repr(key))
+        except KeyError:
+            if key == 'uuid' or key == Column.by_name('uuid'):
+                self.gen_uuid()
+                return self['uuid']
+            raise
 
     def gen_uuid(self):
         self['uuid'] = uuid.uuid4()
