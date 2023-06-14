@@ -72,13 +72,6 @@ report.oldest.labels=ID,Active,Age,Mod,D,S,P,Proj,Tag,R,Wait,Sch,Due,Until,Descr
 report.newest.columns=id,start.age,entry.age,modified.age,depends.indicator,status.short,priority,project,tags,recur.indicator,wait.relative,scheduled.relative,due.relative,until.relative,description
 report.newest.labels=ID,Active,Age,Mod,D,S,P,Proj,Tag,R,Wait,Sch,Due,Until,Description
 
-# Use Inthe.am (adamdinwoodie@gmail.com)
-taskd.certificate=~/.config/task/adam.cert.pem
-taskd.key=~/.config/task/adam.key.pem
-taskd.server=lucy.dinwoodie.org:50340
-taskd.credentials=adam/adam/5e378a6c-4552-46e0-a173-dec9d75894b0
-taskd.trust=strict
-
 # Rejig priorities: I want L to mean "explicitly low", and to rescore
 # accordingly.
 uda.priority.values=H,M,,L
