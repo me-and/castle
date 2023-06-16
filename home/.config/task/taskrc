@@ -151,5 +151,9 @@ include ~/.config/task/localtaskrc
 # thinking of in a description is at the start of the description or not.
 search.case.sensitive=0
 
+# I don't care whether a task is associated with a project or not.
+urgency.project.coefficient=0
+urgency.tags.coefficient=0
+
 # Stuff Taskwarrior has added itself
 news.version=2.6.0
