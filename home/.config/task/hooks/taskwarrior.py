@@ -429,6 +429,20 @@ def child_until(task1: Task, task2: Optional[Task]=None) -> tuple[int, Optional[
     return 0, task, f'Task {task["description"]} did expire {old_until.isoformat()}, now expires {task["until"].isoformat()}', None
 
 
+# I want all tasks to have a reviewed date, as I want tasks that have never
+# been reviewed to be higher on the to-review list than tasks that have been
+# reviewed albeit a while ago.
+#
+# For some reason, times before 2001-09-09T01:46:40Z seem to get treated as
+# equivalent to no time being set at all, so choose an arbitrary time after
+# then.
+def reviewed(task: Task) -> tuple[Literal[0], Task, None, None]:
+    if 'reviewed' in task:
+        return 0, task, None, None
+    task['reviewed'] = datetime.datetime(2002, 1, 1)
+    return 0, task, None, None
+
+
 def inbox(task: Task) -> tuple[Literal[0], Task, Optional[str], None]:
     if 'tags' in task or 'project' in task:
         return 0, task, None, None
