@@ -21,7 +21,7 @@ hooks.location=~/.config/task/hooks/
 
 # Recur after completion fields
 uda.recurAfterDue.type=duration
-uda.recurAfterDue.label=Rec. after
+uda.recurAfterDue.label=Rec. after due
 uda.recurAfterWait.type=duration
 uda.recurAfterWait.label=Rec. after wait
 
