@@ -114,6 +114,11 @@ urgency.user.tag.dadford.coefficient=0
 # something even more burningly urgent.
 urgency.user.tag.inbox.coefficient=20
 
+# Tasks tagged "later" should be significantly less urgent than they otherwise
+# might.  This is an alternative to using "wait:later" or similar, since
+# "wait:later" seems to break TaskServer sync :(
+urgency.user.tag.later.coefficient=-10
+
 # Taskwarrior seems confused about whether tasks that are waiting should be
 # included in status:pending or not.  The default report definitions seem to
 # assume they will be, but the behaviour assumes they won't be.  Change the
