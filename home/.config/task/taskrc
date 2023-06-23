@@ -68,10 +68,10 @@ report.waitingfor-full.sort=due
 report.waitingfor-full.labels=ID,Age,Proj,Tag,Dep,Wait,Due,Until,Description
 
 # More useful columns for the oldest and newest reports
-report.oldest.columns=id,start.age,entry.age,modified.age,depends.indicator,status.short,priority,project,tags,recur.indicator,wait.remaining,scheduled.relative,due.relative,until.relative,description
-report.oldest.labels=ID,Active,Age,Mod,D,S,P,Proj,Tag,R,Wait,Sch,Due,Until,Description
-report.newest.columns=id,start.age,entry.age,modified.age,depends.indicator,status.short,priority,project,tags,recur.indicator,wait.remaining,scheduled.relative,due.relative,until.relative,description
-report.newest.labels=ID,Active,Age,Mod,D,S,P,Proj,Tag,R,Wait,Sch,Due,Until,Description
+report.oldest.columns=id,start.age,entry.age,modified.age,depends.indicator,status.short,priority,project,tags,recur.indicator,wait.remaining,scheduled.relative,due.relative,until.relative,description,urgency
+report.oldest.labels=ID,Active,Age,Mod,D,S,P,Proj,Tag,R,Wait,Sch,Due,Until,Description,Urg
+report.newest.columns=id,start.age,entry.age,modified.age,depends.indicator,status.short,priority,project,tags,recur.indicator,wait.remaining,scheduled.relative,due.relative,until.relative,description,urgency
+report.newest.labels=ID,Active,Age,Mod,D,S,P,Proj,Tag,R,Wait,Sch,Due,Until,Description,Urg
 
 # Rejig priorities: I want L to mean "explicitly low", and to rescore
 # accordingly.
