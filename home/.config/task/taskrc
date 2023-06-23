@@ -161,5 +161,10 @@ search.case.sensitive=0
 urgency.project.coefficient=0
 urgency.tags.coefficient=0
 
+# Don't merge colours.  It makes the text for tasks that are blocking and
+# tagged +next unreadable.  Longer-term I might prefer to improve the colour
+# scheme, but this is good enough for now.
+rule.color.merge=0
+
 # Stuff Taskwarrior has added itself
 news.version=2.6.0
