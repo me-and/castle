@@ -68,10 +68,10 @@ report.waitingfor-full.sort=due
 report.waitingfor-full.labels=ID,Age,Proj,Tag,Dep,Wait,Due,Until,Description
 
 # More useful columns for the oldest and newest reports
-report.oldest.columns=id,start.age,entry.age,modified.age,depends.indicator,status.short,priority,project,tags,recur.indicator,wait.remaining,scheduled.relative,due.relative,until.relative,description
-report.oldest.labels=ID,Active,Age,Mod,D,S,P,Proj,Tag,R,Wait,Sch,Due,Until,Description
-report.newest.columns=id,start.age,entry.age,modified.age,depends.indicator,status.short,priority,project,tags,recur.indicator,wait.remaining,scheduled.relative,due.relative,until.relative,description
-report.newest.labels=ID,Active,Age,Mod,D,S,P,Proj,Tag,R,Wait,Sch,Due,Until,Description
+report.oldest.columns=id,start.age,entry.age,modified.age,depends.indicator,status.short,priority,project,tags,recur.indicator,wait.remaining,scheduled.relative,due.relative,until.relative,description,urgency
+report.oldest.labels=ID,Active,Age,Mod,D,S,P,Proj,Tag,R,Wait,Sch,Due,Until,Description,Urg
+report.newest.columns=id,start.age,entry.age,modified.age,depends.indicator,status.short,priority,project,tags,recur.indicator,wait.remaining,scheduled.relative,due.relative,until.relative,description,urgency
+report.newest.labels=ID,Active,Age,Mod,D,S,P,Proj,Tag,R,Wait,Sch,Due,Until,Description,Urg
 
 # Rejig priorities: I want L to mean "explicitly low", and to rescore
 # accordingly.
@@ -113,6 +113,11 @@ urgency.user.tag.dadford.coefficient=0
 # Tasks in the inbox should be right at the top to get sorted, unless there is
 # something even more burningly urgent.
 urgency.user.tag.inbox.coefficient=20
+
+# Tasks tagged "later" should be significantly less urgent than they otherwise
+# might.  This is an alternative to using "wait:later" or similar, since
+# "wait:later" seems to break TaskServer sync :(
+urgency.user.tag.later.coefficient=-10
 
 # More useful "completed" report details.
 report.completed.columns=uuid.short,end.age,priority,project,tags,due,description
@@ -159,6 +164,11 @@ search.case.sensitive=0
 # I don't care whether a task is associated with a project or not.
 urgency.project.coefficient=0
 urgency.tags.coefficient=0
+
+# Don't merge colours.  It makes the text for tasks that are blocking and
+# tagged +next unreadable.  Longer-term I might prefer to improve the colour
+# scheme, but this is good enough for now.
+rule.color.merge=0
 
 # Stuff Taskwarrior has added itself
 news.version=2.6.0

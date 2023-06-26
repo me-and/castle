@@ -20,7 +20,7 @@ maxconnections = 4
 remoteuser = adam@dinwoodie.org
 remotepassfile = ~/.adam@dinwoodie.org-offlineimap-password
 sslcacertfile = /etc/ssl/certs/ca-certificates.crt
-folderfilter = lambda f: not f.startswith('To/') and not f.startswith('Git/') and not f.startswith('Cygwin/') and not f.startswith('Retention/') and f not in ('To', 'Git', 'Cygwin', 'Retention', '[Gmail]/Important')
+folderfilter = lambda f: not f.startswith('To/') and not f.startswith('Git/') and not f.startswith('Cygwin/') and f not in ('To', 'Git', 'Cygwin', 'Retention', '[Gmail]/Important')
 nametrans = lambda f: f.replace('&-', '&')
 
 [mbnames]
