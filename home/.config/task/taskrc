@@ -114,6 +114,10 @@ urgency.user.tag.dadford.coefficient=0
 # something even more burningly urgent.
 urgency.user.tag.inbox.coefficient=20
 
+# More useful "completed" report details.
+report.completed.columns=uuid.short,end.age,priority,project,tags,due,description
+report.completed.labels=UUID,Done,P,Proj,Tags,Due,Description
+
 # Taskwarrior seems confused about whether tasks that are waiting should be
 # included in status:pending or not.  The default report definitions seem to
 # assume they will be, but the behaviour assumes they won't be.  Change the
