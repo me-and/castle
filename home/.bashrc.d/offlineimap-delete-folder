@@ -1,0 +1,44 @@
+offlineimap-delete-folder () (
+	set -euxo pipefail
+	while getopts :h opt; do
+		case "$opt" in
+			h)	_offlineimap-delete-folder-help
+				return 0
+				;;
+			*)	printf 'Unexpected option -%s\n' "$OPTARG" >&2
+				help
+				return 64  # EX_USAGE
+				;;
+		esac
+	done
+	shift "$(( OPTIND - 1 ))"
+	account="$1"
+	folder="$2"
+	folder_imap="${folder//&/&-}"
+	folder_local="${folder//\//.}"
+	folder_localish="${folder_local//&/&-}"
+
+	{
+		read -r metadata_dir
+		read -r local_repo_name
+		read -r remote_repo_name
+		read -r local_repo_dir
+	} < <(python3 - "$account" <<-'EOF'
+		import configparser, os.path, sys
+		c = configparser.ConfigParser()
+		c.read(os.path.expanduser("~/.config/offlineimap/config"))
+		print(os.path.expanduser(c["general"]["metadata"]))
+		print(local_name := c[f"Account {sys.argv[1]}"]["localrepository"])
+		print(c[f"Account {sys.argv[1]}"]["remoterepository"])
+		print(os.path.expanduser(c[f"Repository {local_name}"]["localfolders"]))
+		EOF
+	)
+
+	offlineimap -a "$account" --delete-folder "$folder_imap"
+	rm -r "${local_repo_dir}/${folder_local}"
+	rm "${metadata_dir}/Account-${account}/LocalStatus-sqlite/${folder_local}"
+	rm "${metadata_dir}/Repository-${local_repo_name}/FolderValidity/${folder_local}"
+	rm "${metadata_dir}/Repository-${remote_repo_name}/FolderValidity/${folder_localish}"
+)
+
+# vim: ft=bash noet ts=8
