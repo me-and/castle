@@ -2,7 +2,8 @@ import subprocess
 import json
 import re
 import datetime
-from typing import Union, Callable, NoReturn, TypeVar, Optional, TypeAlias, ClassVar, Any, Iterable, Literal
+from typing import Union, Callable, NoReturn, TypeVar, Optional, TypeAlias, ClassVar, Any, Literal, Self, TypeGuard, TypedDict, NotRequired
+from collections.abc import Iterable, Iterator
 import sys
 import functools
 import os
@@ -22,18 +23,24 @@ DEBUG = False
 
 DATETIME_CALC_RE = re.compile(r'^\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\d$')
 
-T = TypeVar('T', str, int, uuid.UUID, list[uuid.UUID], datetime.datetime, list[str])
+BaseJsonValue: TypeAlias = Union[dict[str, 'BaseJsonValue'],
+                                 list['BaseJsonValue'],
+                                 str, int, float, bool, None]
+TaskJsonValue: TypeAlias = Union[dict[str, 'TaskJsonValue'],
+                                 list['TaskJsonValue'], 'Task',
+                                 str, int, float, bool, None]
+
 U = TypeVar('U')
 V = TypeVar('V')
 
-def list_map(f: Callable[[U], V]) -> Callable[[list[U]], list[V]]:
+def list_map(f: Callable[[U], V]) -> Callable[[Iterable[U]], list[V]]:
     return lambda x: list(map(f, x))
 
 @dataclass(frozen=True)
 class Column:
     name: str
-    json_decoder: Optional[Callable[[Any], Any]] = None  # TODO fixup typing
-    json_pre_dump: Optional[Callable[[Any], Any]] = None  # TODO fixup typing
+    json_decoder: Optional[Callable[[BaseJsonValue], Any]] = None  # TODO fixup typing
+    json_pre_dump: Optional[Callable[[Any], BaseJsonValue]] = None
     required: bool = False
     read_only: bool = False
 
@@ -57,7 +64,7 @@ class Column:
             Column('description', required=True)
             Column('id', read_only=True)
             Column('mask', read_only=True)  # TODO Can this be more structured?
-            Column('parent', uuid.UUID, str)  # type: ignore[arg-type]  # mypy doesn't think uuid.UUID is callable
+            Column('parent', uuid.UUID, str)
             Column('recur')  # TODO Can this be more structured?
             Column('rtype')  # TODO Can this be more structured?
             Column('status')  # TODO Can this be more structured?
@@ -127,12 +134,49 @@ def tw_calc_bool(statement: str, env_ext: Optional[dict[str, str]]=None) -> bool
     raise RuntimeError(f"{calc_str:r} neither 'false' nor 'true'")
 
 
+def tw_add(args: list[str],
+           entry: Optional[datetime.datetime] = None,
+           extra_tags: Optional[Iterable[str]] = None,
+           env_ext: Optional[dict[str, str]] = None) -> uuid.UUID:
+    '''Add a task using the command line interface for setting properties.'''
+    if entry is not None:
+        args.append('entry:' + Column.datetime_pre_dump(entry))
+
+    if extra_tags is not None:
+        args.extend(f'+{tag}' for tag in extra_tags)
+
+    env: Optional[dict[str, str]]
+    if env_ext is None:
+        env = None
+    else:
+        env = temp_environ(env_ext)
+
+    print(f'{args=!r}')
+    p = subprocess.run(['task', 'rc.verbose=new-uuid', 'add'] + args, env=env,
+                       stdout=subprocess.PIPE, check=True, encoding='utf-8')
+
+    new_uuid: Optional[uuid.UUID] = None
+    for line in p.stdout.split('\n'):
+        if line.startswith('Created task ') and line.endswith('.'):
+            if new_uuid is not None:
+                ex = RuntimeError('Unexpectedly multiple task UUIDs in "task add" output')
+                ex.add_note(p.stdout)
+                raise ex
+            new_uuid = uuid.UUID(line.removeprefix('Created task ').removesuffix('.'))
+    if new_uuid is None:
+        ex = RuntimeError('Unexpectedly no tasks UUIDs in "task add" output')
+        ex.add_note(p.stdout)
+        raise ex
+
+    return new_uuid
+
+
 @dataclass
-class Task(collections.abc.MutableMapping):
-    d: dict
+class Task(collections.abc.MutableMapping[str, Any]):  # TODO fixup typing?
+    d: dict[str, Any]
 
     @classmethod
-    def json_decoder(cls, obj: dict) -> 'Task':
+    def json_decoder(cls, obj: dict[str, BaseJsonValue]) -> Self:
         d = {}
         for key in obj:
             c = Column.by_name(key)
@@ -142,7 +186,7 @@ class Task(collections.abc.MutableMapping):
                 d[key] = c.json_decoder(obj[key])
         return cls(d)
 
-    def __getitem__(self, key: str | Column):
+    def __getitem__(self, key: str | Column) -> Any:
         try:
             if isinstance(key, str):
                 return self.d[key]
@@ -154,49 +198,49 @@ class Task(collections.abc.MutableMapping):
                 return self['uuid']
             raise
 
-    def gen_uuid(self):
+    def gen_uuid(self) -> None:
         self['uuid'] = uuid.uuid4()
 
-    def gen_missing_uuid(self):
+    def gen_missing_uuid(self) -> None:
         try:
             self.d['uuid']
         except KeyError:
             self.gen_uuid()
 
-    def __setitem__(self, key, value) -> None:
+    def __setitem__(self, key: str | Column, value: Any) -> None:
         if isinstance(key, Column):
             key = key.name
         self.d[key] = value
 
-    def __delitem__(self, key) -> None:
+    def __delitem__(self, key: str | Column) -> None:
         if isinstance(key, Column):
-            key = key.by_name
+            key = key.name
         del self.d[key]
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[str]:
         return iter(self.d)
 
     def __len__(self) -> int:
         return len(self.d)
 
-    def duplicate(self) -> 'Task':
+    def duplicate(self) -> Self:
         new_task = self.__class__(deepcopy(self.d))
         del new_task['uuid']
         return new_task
 
-    def get_pre_json(self, key):
+    def get_pre_json(self, key: str | Column) -> BaseJsonValue:
         if isinstance(key, str):
             key = Column.by_name(key)
         if key.json_pre_dump is None:
             return self[key]
         return key.json_pre_dump(self[key])
 
-    def get_json(self, key):
+    def get_json(self, key: str | Column) -> str:
         return json.dumps(self.get_pre_json(key))
 
 
 class TaskEncoder(json.JSONEncoder):
-    def default(self, obj):
+    def default(self, obj: object) -> Any:  # TODO fixup typing
         if isinstance(obj, Task):
             d = {}
             for key in obj:
@@ -206,11 +250,50 @@ class TaskEncoder(json.JSONEncoder):
                 else:
                     d[key] = column.json_pre_dump(obj[key])
             return d
-        return super().default(self, obj)
+        return super().default(obj)
 
 
 def tw_import(tasks: Union[Task, Iterable[Task]]) -> None:
     subprocess.run(['task', 'rc.verbose=nothing', 'import', '-'], input=json.dumps(tasks, cls=TaskEncoder), encoding='utf-8', check=True)
+
+
+def is_list_of_tasks(v: Any) -> TypeGuard[list[Task]]:
+    return isinstance(v, list) and all(map(lambda t: isinstance(t, Task), v))
+
+
+def tw_export(filter_args: Optional[list[str]] = None,
+              env_ext: Optional[dict[str, str]] = None) -> list[Task]:
+    if filter_args is None:
+        filter_args = []
+
+    env: Optional[dict[str, str]]
+    if env_ext is None:
+        env = None
+    else:
+        env = temp_environ(env_ext)
+
+    p = subprocess.run(['task', 'rc.verbose=none'] + filter_args + ['export'],
+                       env=env, stdout=subprocess.PIPE, check=True,
+                       encoding='utf-8')
+    decoded = decode_string(p.stdout)
+    assert is_list_of_tasks(decoded)
+    return decoded
+
+
+def annotate(task_uuid: uuid.UUID, annotation: str,
+             entry: Optional[datetime.datetime]) -> None:
+    annotation_obj: dict[str, Union[str, datetime.datetime]] = {'description': annotation}
+    if entry is not None:
+        annotation_obj['entry'] = entry
+
+    task = tw_export([str(task_uuid)])[0]
+
+    if 'annotations' in task:
+        task['annotations'].append(annotation_obj)
+    else:
+        task['annotations'] = [annotation_obj]
+
+    tw_import(task)
 
 
 # The shape I'm expecting the hook functions to take.
@@ -224,9 +307,10 @@ def tw_import(tasks: Union[Task, Iterable[Task]]) -> None:
 #   otherwise.
 # - An optional post-hook action, which will be called after TaskWarrior exits
 #   and can do things like creating new follow-up tasks
-PostHookAction: TypeAlias = Callable[[], Any]
-OnAddHook: TypeAlias = Callable[[Task], tuple[int, Optional[Task], Optional[str], Optional[PostHookAction]]]
-OnModifyHook: TypeAlias = Callable[[Task, Task], tuple[int, Optional[Task], Optional[str], Optional[PostHookAction]]]
+PostHookAction: TypeAlias = Callable[[], Any]  # TODO fixup typing
+HookResult: TypeAlias = tuple[int, Optional[Task], Optional[str], Optional[PostHookAction]]
+OnAddHook: TypeAlias = Callable[[Task], HookResult]
+OnModifyHook: TypeAlias = Callable[[Task, Task], HookResult]
 BareHook: TypeAlias = Callable[[], tuple[int, Optional[str], Optional[PostHookAction]]]
 OnLaunchHook = OnExitHook = BareHook
 
@@ -449,5 +533,17 @@ def inbox(task: Task) -> tuple[Literal[0], Task, Optional[str], None]:
     task['tags'] = ['inbox']
     return 0, task, f'Tagged {task["description"]} as inbox', None
 
-def decode_string(string: str) -> Any:
-    return json.loads(string, object_hook=Task.json_decoder)
+def is_task_json_value(v: Any) -> TypeGuard[TaskJsonValue]:
+    if isinstance(v, dict):
+        return all(isinstance(key, str) and is_task_json_value(value) for key, value in v.items())
+    if isinstance(v, list):
+        return all(map(is_task_json_value, v))
+    if (isinstance(v, Task) or isinstance(v, str) or isinstance(v, int) or
+            isinstance(v, float) or isinstance(v, bool) or v is None):
+        return True
+    return False
+
+def decode_string(string: str) -> TaskJsonValue:
+    decoded = json.loads(string, object_hook=Task.json_decoder)
+    assert is_task_json_value(decoded)
+    return decoded
