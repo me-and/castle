@@ -563,3 +563,16 @@ def decode_string(string: str) -> TaskJsonValue:
     decoded = json.loads(string, object_hook=Task.json_decoder)
     assert is_task_json_value(decoded)
     return decoded
+
+
+def reject_colon_in_project(changed_task: Task, orig_task: Optional[Task] = None
+        ) -> tuple[int, Optional[Task], Optional[str], None]:
+    if 'project' not in changed_task:
+        # No project so nothing to check.
+        return 0, changed_task, None, None
+    if orig_task is not None and orig_task.get('project', None) == changed_task['project']:
+        # Project hasn't changed, so no point checking.
+        return 0, changed_task, None, None
+    if ':' in changed_task['project']:
+        return 1, None, f'Task {changed_task["description"]} cannot have a ":" in the project name', None
+    return 0, changed_task, None, None
