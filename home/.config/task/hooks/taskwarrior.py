@@ -232,11 +232,27 @@ class Task(collections.abc.MutableMapping[str, Any]):  # TODO fixup typing?
         if isinstance(key, str):
             key = Column.by_name(key)
         if key.json_pre_dump is None:
-            return self[key]
+            value = self[key]
+            assert is_base_json_value(value)
+            return value
         return key.json_pre_dump(self[key])
 
     def get_json(self, key: str | Column) -> str:
         return json.dumps(self.get_pre_json(key))
+
+    def identifier(self) -> str:
+        try:
+            ident = self['id']
+        except KeyError:
+            pass
+        else:
+            if ident != 0:
+                return str(ident)
+
+        # Either there is no ID number at all, or the ID number is the fake
+        # value "0".  In either case, return the first part of the UUID
+        # instead.  This will generate a UUID if one doesn't exist already.
+        return str(self['uuid']).split('-', maxsplit=1)[0]
 
 
 class TaskEncoder(json.JSONEncoder):
@@ -318,7 +334,7 @@ def on_add(hooks: Iterable[OnAddHook]) -> NoReturn:
     task = json.loads(sys.stdin.readline(), object_hook=Task.json_decoder)
 
     feedback_messages = []
-    final_tasks = []
+    final_jobs = []
     for hook in hooks:
         if DEBUG:
             sprint(f'Pre-add hook: {task=!r}, {hook=!r}')
@@ -327,35 +343,34 @@ def on_add(hooks: Iterable[OnAddHook]) -> NoReturn:
             sprint(f'Hook result: {rc=!r}, {task=!r}, {feedback=!r}, {final=!r}')
         assert task is not None or (rc != 0 and feedback is not None)
         if rc != 0:
-            print('{}')
             print(feedback)
             sys.exit(rc)
         if feedback is not None:
             feedback_messages.append(feedback)
         if final is not None:
-            final_tasks.append(final)
+            final_jobs.append(final)
 
     if DEBUG:
         sprint(f'Done: {task=!r}, {feedback_messages=!r}')
     print(json.dumps(task, cls=TaskEncoder))
     print('; '.join(feedback_messages))
 
-    do_final_tasks(final_tasks)
+    do_final_jobs(final_jobs)
 
 
 def on_modify(hooks: Iterable[OnModifyHook]) -> NoReturn:
-    old_task = json.loads(sys.stdin.readline(), object_hook=Task.json_decoder)
-    task = json.loads(sys.stdin.readline(), object_hook=Task.json_decoder)
+    orig_task = json.loads(sys.stdin.readline(), object_hook=Task.json_decoder)
+    changed_task = json.loads(sys.stdin.readline(), object_hook=Task.json_decoder)
 
     feedback_messages = []
-    final_tasks = []
+    final_jobs = []
     for hook in hooks:
         if DEBUG:
-            sprint(f'Pre-modify hook: {task=!r}, {hook=!r}')
-        rc, task, feedback, final = hook(old_task, task)
+            sprint(f'Pre-modify hook: {changed_task=!r}, {hook=!r}')
+        rc, changed_task, feedback, final = hook(changed_task, orig_task)
         if DEBUG:
-            sprint(f'Hook result: {rc=!r}, {task=!r}, {feedback=!r}, {final=!r}')
-        assert task is not None or (rc != 0 and feedback is not None)
+            sprint(f'Hook result: {rc=!r}, {changed_task=!r}, {feedback=!r}, {final=!r}')
+        assert changed_task is not None or (rc != 0 and feedback is not None)
         if rc != 0:
             print('{}')
             print(feedback)
@@ -363,19 +378,19 @@ def on_modify(hooks: Iterable[OnModifyHook]) -> NoReturn:
         if feedback is not None:
             feedback_messages.append(feedback)
         if final is not None:
-            final_tasks.append(final)
+            final_jobs.append(final)
 
     if DEBUG:
-        sprint(f'Done: {task=!r}, {feedback_messages=!r}')
-    print(json.dumps(task, cls=TaskEncoder))
+        sprint(f'Done: {changed_task=!r}, {feedback_messages=!r}')
+    print(json.dumps(changed_task, cls=TaskEncoder))
     print('; '.join(feedback_messages))
 
-    do_final_tasks(final_tasks)
+    do_final_jobs(final_jobs)
 
 
 def on_launch_or_exit(hooks: Iterable[BareHook]) -> NoReturn:
     feedback_messages = []
-    final_tasks = []
+    final_jobs = []
     for hook in hooks:
         if DEBUG:
             sprint(f'Pre-bare hook: {hook=!r}')
@@ -389,20 +404,20 @@ def on_launch_or_exit(hooks: Iterable[BareHook]) -> NoReturn:
         if feedback is not None:
             feedback_messages.append(feedback)
         if final is not None:
-            final_tasks.append(final)
+            final_jobs.append(final)
 
     if DEBUG:
         sprint(f'Done: {feedback_messages=!r}')
     print('; '.join(feedback_messages))
 
-    do_final_tasks(final_tasks)
+    do_final_jobs(final_jobs)
 
 
-def do_final_tasks(tasks: Iterable[PostHookAction]) -> NoReturn:
+def do_final_jobs(jobs: Iterable[PostHookAction]) -> NoReturn:
     if DEBUG:
-        sprint(f'Pre-fork: {tasks=!r}')
+        sprint(f'Pre-fork: {jobs=!r}')
 
-    if tasks:
+    if jobs:
         sys.stdout.flush()
 
         if (0 < os.fork()):
@@ -415,102 +430,91 @@ def do_final_tasks(tasks: Iterable[PostHookAction]) -> NoReturn:
             # Apparently this sometimes produces an error, possibly because
             # stdout has already been closed!?  I want to see if/when this
             # happens!
-            sprint(f'Temporary OSError info: f{ex=!r}')
+            sprint(f'Temporary OSError info: {ex=!r}')
 
         psutil.Process().parent().wait()
 
-        for task in tasks:
+        for job in jobs:
             if DEBUG:
-                sprint(f'Task: {task=!r}')
-            task()
+                sprint(f'Job: {job=!r}')
+            job()
 
     sys.exit(0)
 
 
-def due_end_of(task1: Task, task2: Optional[Task]=None) -> tuple[Literal[0], Task, Optional[str], None]:
-    if task2 is None:  # On-add hook
-        task = task1
-    else:  # On-modify hook
-        task = task2
-
-    if task['status'] == 'recurring':
+def due_end_of(changed_task: Task, orig_task: Optional[Task]=None) -> tuple[Literal[0], Task, Optional[str], None]:
+    if changed_task['status'] == 'recurring':
         # Don't modify recurring tasks; they'll get fixed when the individual
         # instances are created.
-        return 0, task, None, None
+        return 0, changed_task, None, None
 
     try:
-        due_date = task['due'].astimezone()
-    except KeyError:
-        return 0, task, None, None
+        due_date = changed_task['due'].astimezone()
+    except KeyError:  # No due date
+        return 0, changed_task, None, None
 
     if due_date.time() == datetime.time():
-        task['due'] = due_date - datetime.timedelta(seconds=1)
-        return 0, task, f'Changed due from {due_date.isoformat()} to {task["due"].isoformat()}', None
+        changed_task['due'] = due_date - datetime.timedelta(seconds=1)
+        return 0, changed_task, f'Changed due from {due_date.isoformat()} to {changed_task["due"].isoformat()}', None
 
-    return 0, task, None, None
-
-
-def recur_after(task1: Task, task2: Optional[Task]=None) -> tuple[Literal[0], Task, Optional[str], Optional[PostHookAction]]:
-    if task2 is None:  # On-add hook
-        task = task1
-        if task['status'] != 'completed':
-            # Not a new completed task, so nothing to do.
-            return 0, task, None, None
-    else:  # On-modify hook
-        old_task, task = task1, task2
-        if task['status'] != 'completed' or old_task['status'] == 'completed':
-            # Change doesn't include completing the task, so nothing to do.
-            return 0, task, None, None
-
-    end_date = task['end']
-    wait_delay = task.get('recurAfterWait', None)
-    due_delay = task.get('recurAfterDue', None)
-    if wait_delay is None and due_delay is None:
-        return 0, task, None, None
-
-    new_task = task.duplicate()
-    new_task['status'] = 'pending'
-    new_task['entry'] = task['end']
-    del new_task['modified']
-    del new_task['end']
-
-    message_parts = [f'Creating new task {task["description"]}']
-    if wait_delay:
-        new_task['wait'] = tw_calc_datetime(task.get_pre_json('end') + ' + ' + wait_delay).astimezone()
-        message_parts.append(f'waiting until {new_task["wait"].isoformat()}')
-    if due_delay:
-        new_task['due'] = tw_calc_datetime(task.get_pre_json('end') + ' + ' + due_delay).astimezone()
-        message_parts.append(f'due {new_task["due"].isoformat()}')
-
-    return 0, task, ', '.join(message_parts), functools.partial(tw_import, new_task)
+    return 0, changed_task, None, None
 
 
-def child_until(task1: Task, task2: Optional[Task]=None) -> tuple[int, Optional[Task], Optional[str], None]:
-    if task2 is None:  # On-add hook
-        task = task1
-    else:  # On-modify hook
-        task = task2
+def recur_after(changed_task: Task, orig_task: Optional[Task]=None) -> tuple[Literal[0], Task, Optional[str], Optional[PostHookAction]]:
+    if changed_task['status'] == 'completed' and (
+            orig_task is None or orig_task['status'] != 'completed'):
+        # Either a brand new task that's started as completed, or an existing
+        # task that has changed to being completed, so this check should run.
 
-    if task['status'] == 'recurring':
-        return 0, task, None, None
+        wait_delay = changed_task.get('recurAfterWait', None)
+        due_delay = changed_task.get('recurAfterDue', None)
+        if wait_delay is None and due_delay is None:
+            return 0, changed_task, None, None
 
-    due = task.get('due', None)
-    child_until = task.get('recurTaskUntil', None)
+        new_task = changed_task.duplicate()
+        new_task['status'] = 'pending'
+        new_task['entry'] = changed_task['end']
+        del new_task['modified']
+        del new_task['end']
+
+        message_parts = [f'Creating new task {new_task["description"]}']
+        end_as_str = changed_task.get_pre_json('end')
+        assert isinstance(end_as_str, str)
+        if wait_delay:
+            new_task['wait'] = tw_calc_datetime(end_as_str + ' + ' + wait_delay).astimezone()
+            message_parts.append(f'waiting until {new_task["wait"].isoformat()}')
+        if due_delay:
+            new_task['due'] = tw_calc_datetime(end_as_str + ' + ' + due_delay).astimezone()
+            message_parts.append(f'due {new_task["due"].isoformat()}')
+
+        return 0, changed_task, ', '.join(message_parts), functools.partial(tw_import, new_task)
+    return 0, changed_task, None, None
+
+
+def child_until(changed_task: Task, orig_task: Optional[Task]=None) -> tuple[int, Optional[Task], Optional[str], None]:
+    if changed_task['status'] == 'recurring':
+        return 0, changed_task, None, None
+
+    due = changed_task.get('due', None)
+    child_until = changed_task.get('recurTaskUntil', None)
 
     if child_until is None:
-        return 0, task, None, None
+        return 0, changed_task, None, None
+    assert isinstance(child_until, str)
 
     if due is None and child_until is not None:
-        return 1, None, f'Task {task["uuid"]} with recurTaskUntil but without due date', None
+        return 1, None, f'Task {changed_task.identifier()} with recurTaskUntil but without due date', None
 
-    old_until = task.get('until', None)
-    task['until'] = tw_calc_datetime(task.get_pre_json('due') + ' + ' + child_until).astimezone()
+    old_until = changed_task.get('until', None)
+    due_as_str = changed_task.get_pre_json('due')
+    assert isinstance(due_as_str, str)
+    changed_task['until'] = tw_calc_datetime(due_as_str + ' + ' + child_until).astimezone()
 
     if old_until is None:
-        return 0, task, f'Task {task["description"]} expires {task["until"].isoformat()}', None
-    if old_until == task['until']:
-        return 0, task, None, None
-    return 0, task, f'Task {task["description"]} did expire {old_until.isoformat()}, now expires {task["until"].isoformat()}', None
+        return 0, changed_task, f'Task "{changed_task["description"]}" expires {changed_task["until"].isoformat()}', None
+    if old_until == changed_task['until']:
+        return 0, changed_task, None, None
+    return 0, changed_task, f'Task "{changed_task["description"]}" did expire {old_until.isoformat()}, now expires {changed_task["until"].isoformat()}', None
 
 
 # I want all tasks to have a reviewed date, as I want tasks that have never
@@ -542,6 +546,18 @@ def is_task_json_value(v: Any) -> TypeGuard[TaskJsonValue]:
             isinstance(v, float) or isinstance(v, bool) or v is None):
         return True
     return False
+
+
+def is_base_json_value(v: Any) -> TypeGuard[BaseJsonValue]:
+    if isinstance(v, dict):
+        return all(isinstance(key, str) and is_base_json_value(value) for key, value in v.items())
+    if isinstance(v, list):
+        return all(map(is_base_json_value, v))
+    if (isinstance(v, str) or isinstance(v, int) or isinstance(v, float) or
+            isinstance(v, bool) or v is None):
+        return True
+    return False
+
 
 def decode_string(string: str) -> TaskJsonValue:
     decoded = json.loads(string, object_hook=Task.json_decoder)
