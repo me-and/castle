@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-import taskwarrior as tw
+from asmodeus.hook import on_add, inbox, child_until, recur_after, due_end_of
 
 if __name__ == '__main__':
-    tw.on_add((tw.due_end_of, tw.recur_after, tw.child_until, tw.reviewed, tw.inbox, tw.reject_colon_in_project))
+    on_add(due_end_of, recur_after, child_until, inbox)

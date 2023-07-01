@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-import taskwarrior as tw
+from asmodeus.hook import on_modify, child_until, recur_after, due_end_of
 
 if __name__ == '__main__':
-    tw.on_modify((tw.due_end_of, tw.recur_after, tw.child_until, tw.reject_colon_in_project))
+    on_modify((due_end_of, recur_after, child_until))
