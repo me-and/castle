@@ -170,5 +170,8 @@ urgency.tags.coefficient=0
 # scheme, but this is good enough for now.
 rule.color.merge=0
 
+# Don't tell me about not completing the highest priority task; I know!
+nag=
+
 # Stuff Taskwarrior has added itself
 news.version=2.6.0
