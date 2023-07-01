@@ -100,7 +100,7 @@ context.work.rc.urgency.user.tag.work.coefficient=10
 context.work.rc.urgency.user.tag.business.coefficient=4
 
 # Context: dadford.  Prioritise things that can only be done on site.
-context.dadford.read=-home -linaker -enfield
+context.dadford.read=-home -linaker -enfield -business
 context.dadford.write=+dadford
 context.dadford.rc.urgency.user.tag.dadford.coefficient=10
 
