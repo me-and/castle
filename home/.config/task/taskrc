@@ -34,6 +34,10 @@ report.next.filter=status:pending ( -waitingfor or +OVERDUE or +inbox or due.non
 uda.recurTaskUntil.type=duration
 uda.recurTaskUntil.label=Child until
 
+# Record where tasks came from
+uda.source.type=string
+uda.source.label=Source
+
 # Stuff for tasksh's review process
 uda.reviewed.type=date
 uda.reviewed.label=Reviewed
