@@ -43,11 +43,10 @@ uda.source.label=Source
 # Stuff for tasksh's review process
 uda.reviewed.type=date
 uda.reviewed.label=Reviewed
-uda.reviewed.default=20020101T000000Z
 report._reviewed.description=Tasksh review report.  Adjust the filter to your needs.
 report._reviewed.columns=uuid
 report._reviewed.sort=reviewed+,modified+
-report._reviewed.filter=( reviewed.none: or reviewed.before:now-6days ) and ( +PENDING or +WAITING )
+report._reviewed.filter=( reviewed.none: or reviewed.bofer:now-6days ) -COMPLETED -DELETED
 
 # Don't show logs in task info -- it's not worth the screen space
 journal.info=off
