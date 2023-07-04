@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 
-from asmodeus.hook import on_modify, child_until, recur_after, due_end_of
+import asmodeus.hook as h
 from asmodeus.taskwarrior import TaskWarrior
 
 if __name__ == '__main__':
-    on_modify(TaskWarrior(), (child_until, recur_after, due_end_of))
+    h.on_modify(TaskWarrior(), (h.child_until, h.recur_after, h.due_end_of,
+                                h.reviewed_to_entry))
