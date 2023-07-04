@@ -123,9 +123,12 @@ urgency.user.tag.inbox.coefficient=20
 # "wait:later" seems to break TaskServer sync :(
 urgency.user.tag.later.coefficient=-10
 
-# More useful "completed" report details.
+# More useful "completed" report details, limited to only showing a sensible
+# number of most recently completed tasks.
 report.completed.columns=uuid.short,end.age,priority,project,tags,due,description
 report.completed.labels=UUID,Done,P,Proj,Tags,Due,Description
+report.completed.filter=status:completed limit:page
+report.completed.sort=end-
 
 # Taskwarrior seems confused about whether tasks that are waiting should be
 # included in status:pending or not.  The default report definitions seem to
@@ -134,7 +137,6 @@ report.completed.labels=UUID,Done,P,Proj,Tags,Due,Description
 report.active.filter=status:pending +ACTIVE
 report.blocked.filter=status:pending +BLOCKED
 report.blocking.filter=status:pending +BLOCKING
-report.completed.filter=status:completed
 report.list.filter=status:pending
 report.long.filter=status:pending
 report.ls.filter=status:pending
