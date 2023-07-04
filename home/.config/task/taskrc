@@ -24,6 +24,8 @@ uda.recurAfterDue.type=duration
 uda.recurAfterDue.label=Rec. after due
 uda.recurAfterWait.type=duration
 uda.recurAfterWait.label=Rec. after wait
+uda.recurAfterModifications.type=string
+uda.recurAfterModifications.label=Rec. after changes
 
 # next filter: don't show full annotations, just a count of them, and hide
 # "waitingfor" tasks that I'm still waiting for.
