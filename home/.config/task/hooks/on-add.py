@@ -17,5 +17,10 @@ if __name__ == '__main__':
     except subprocess.CalledProcessError:
         # Not work, meaning I want to tag anything as "inbox" if it doesn't
         # already have a tag.
-        hooks.append(h.inbox)
+        hooks.append(h.inbox_if_no_tag)
+    else:
+        # Work, meaning I want to tag anything as "inbox" if it
+        # doesn't already have a project.
+        hooks.append(h.inbox_if_no_project)
+
     h.on_add(tw, hooks)
