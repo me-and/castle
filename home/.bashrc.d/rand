@@ -1,0 +1,5 @@
+rand_ephemeral_port () {
+	shuf -n1 -i 49152-65535
+}
+
+# vim: ft=bash noet ts=8

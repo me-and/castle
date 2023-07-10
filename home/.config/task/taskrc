@@ -30,7 +30,7 @@ uda.recurAfterModifications.label=Rec. after changes
 # next filter: don't show full annotations, just a count of them, and hide
 # "waitingfor" tasks that I'm still waiting for.
 report.next.columns=id,start.age,entry.age,depends,priority,project,tags,recur,scheduled.countdown,due.relative,until.remaining,description.count,urgency
-report.next.filter=status:pending ( -waitingfor or +OVERDUE or +inbox or due.none: ) -BLOCKED limit:page
+report.next.filter=status:pending ( -waitingfor or +OVERDUE or due.none: or +inbox ) ( -BLOCKED or +inbox ) limit:page
 
 # "Until" behaviour on recurring tasks
 uda.recurTaskUntil.type=duration
