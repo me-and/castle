@@ -21,6 +21,6 @@ if __name__ == '__main__':
     else:
         # Work, meaning I want to tag anything as "inbox" if it
         # doesn't already have a project.
-        hooks.append(h.inbox_if_no_project)
+        hooks.append(h.inbox_if_no_proj)
 
     h.on_add(tw, hooks)
