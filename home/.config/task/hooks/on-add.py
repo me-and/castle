@@ -10,17 +10,15 @@ if __name__ == '__main__':
                                 h.recur_after,
                                 h.due_end_of,
                                 h.reviewed_to_entry,
+                                h.inbox_if_hook_gen(h.missing_project),
                                 ]
-    try:
-        # Work systems have a tickets report set up.
-        tw.get_dom('rc.report.tickets.filter')
-    except subprocess.CalledProcessError:
-        # Not work, meaning I want to tag anything as "inbox" if it doesn't
-        # already have a tag.
-        hooks.append(h.inbox_if_no_tag)
-    else:
-        # Work, meaning I want to tag anything as "inbox" if it
-        # doesn't already have a project.
-        hooks.append(h.inbox_if_no_proj)
+
+    # Work systems have a tickets report set up.
+    tickets_filter = tw.get_dom('rc.report.tickets.filter').strip()
+
+    if not tickets_filter:
+        # Not work, where I want all tags to have both a project and context
+        # tags.
+        hooks.append(h.inbox_if_hook_gen(h.missing_context_tags))
 
     h.on_add(tw, hooks)
