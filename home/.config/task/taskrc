@@ -66,12 +66,19 @@ report.waitingfor.filter=+waitingfor status:pending -BLOCKED
 report.waitingfor.columns=id,start.age,project,tags,due.remaining,until.remaining,description
 report.waitingfor.sort=due
 report.waitingfor.labels=ID,Age,Proj,Tag,Due,Until,Description
+report.waitingfor.context=0
 
 report.waitingfor-full.description=All tasks where I'm waiting on others
 report.waitingfor-full.filter=+waitingfor (status:pending or status:waiting)
 report.waitingfor-full.columns=id,start.age,project,tags,depends,wait.remaining,due.remaining,until.remaining,description
 report.waitingfor-full.sort=due
 report.waitingfor-full.labels=ID,Age,Proj,Tag,Dep,Wait,Due,Until,Description
+report.waitingfor-full.context=0
+
+# Don't use context with the oldest/newest reports, since those are ones where
+# I want to see everything.
+report.oldest.context=0
+report.newest.context=0
 
 # More useful columns for the oldest and newest reports
 report.oldest.columns=id,start.age,entry.age,modified.age,depends.indicator,status.short,priority,project,tags,recur.indicator,wait.remaining,scheduled.relative,due.relative,until.relative,description,urgency
