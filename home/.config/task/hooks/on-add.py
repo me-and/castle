@@ -6,9 +6,9 @@ from asmodeus.taskwarrior import TaskWarrior
 
 if __name__ == '__main__':
     tw = TaskWarrior()
-    hooks: list[h.OnAddHook] = [h.child_until,
+    hooks: list[h.OnAddHook] = [h.due_end_of,
+                                h.child_until,
                                 h.recur_after,
-                                h.due_end_of,
                                 h.reviewed_to_entry,
                                 h.inbox_if_hook_gen(h.missing_project),
                                 ]
