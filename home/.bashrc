@@ -127,7 +127,7 @@ if command -v gls >/dev/null; then
     alias dir='gdir --color=auto -h'
     alias vdir='gvdir --color=auto -h'
 else
-    alias ls='ls --color=auto -h'
+    alias ls='ls --color=auto -h -v'
     alias dir='dir --color=auto -h'
     alias vdir='vdir --color=auto -h'
 fi
