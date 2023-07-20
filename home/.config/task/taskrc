@@ -108,7 +108,7 @@ context.work.rc.urgency.user.tag.business.coefficient=6
 
 # Context: work.  Prioritise things that can only be done at work or in
 # business hours
-context.work.read=-linaker -dadford -enfield -multivac -home -alex
+context.work.read=-linaker -dadford -enfield -multivac -allotment
 context.work.rc.urgency.user.tag.work.coefficient=10
 context.work.rc.urgency.user.tag.business.coefficient=4
 
