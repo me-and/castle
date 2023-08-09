@@ -195,5 +195,9 @@ rule.color.merge=0
 # Don't tell me about not completing the highest priority task; I know!
 nag=
 
+# Don't renumber tasks on every filter/list command, and instead make
+# renumbering a manual step that can happen overnight or similar.
+gc=0
+
 # Stuff Taskwarrior has added itself
 news.version=2.6.0
