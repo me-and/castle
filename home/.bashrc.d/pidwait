@@ -1,15 +1,20 @@
 pidwait () {
-	case "$#" in
-		0)	echo 'No PIDs specified' >&2
-			return 1
-			;;
-		1)	tail -f --pid="$1" /dev/null
-			return "$?"
-			;;
-		*)	echo 'Currently only single PIDs supported' >&2
-			return 1
-			;;
-	esac
+	if command -v waitpid >/dev/null; then
+		# Use the tool that's designed for the job
+		waitpid "$@"
+	else
+		case "$#" in
+			0)	echo 'No PIDs specified' >&2
+				return 1
+				;;
+			1)	tail -f --pid="$1" /dev/null
+				return "$?"
+				;;
+			*)	echo 'Currently only single PIDs supported' >&2
+				return 1
+				;;
+		esac
+	fi
 }
 
 # vim: ft=bash noet ts=8
