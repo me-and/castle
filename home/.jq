@@ -1,2 +1,2 @@
-def stripkeys(ks): reduce ks[] as $k (.;with_entries(select(.key != $k)));
-def fmtdate: strptime("%Y%m%dT%H%M%SZ") | mktime | strftime("%a %d %b %H:%M");
+def stripkeys(ks): with_entries(select([.key] | inside(ks) | not));
+def fmtdate: gsub("[-:]|Z$"; "") | strptime("%Y%m%dT%H%M%S") | mktime | strftime("%a %d %b %Y %H:%M");
