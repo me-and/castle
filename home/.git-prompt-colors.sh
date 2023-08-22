@@ -40,17 +40,32 @@ override_git_prompt_colors() {
 
     esac
 
+    if [[ "$(uname -s)" == CYGWIN* ]]; then
+        # The Git prompt is painfully slow, particularly for larger repos, so
+        # disable it.
+        GIT_PROMPT_DISABLE=1
+
+        # Admin prompts on Cygwin don't have EUID 0, so the built-in Bash
+        # checks don't work.  Check by testing the output of `id` instead.
+        local group_id
+        local prompt='$'
+        for group_id in $(id -G); do
+            if [[ "$group_id" = 544 ]]; then
+                prompt="${Red}#${ResetColor}"
+                break
+            fi
+        done
+
+        GIT_PROMPT_END_USER="\n${TIME_COLOUR}\D{%a %e %b %R}${ResetColor} ${prompt} "
+        GIT_PROMPT_END_ROOT="$GIT_PROMPT_END_USER"
+    else
+        # '\$' means show '#' if we're root, and '$' otherwise.
+        GIT_PROMPT_END_USER="\n${TIME_COLOUR}\D{%a %e %b %R}${ResetColor} \$ "
+        GIT_PROMPT_END_ROOT="\n${TIME_COLOUR}\D{%a %e %b %R} ${Red}\$${ResetColor} "
+    fi
+
     GIT_PROMPT_START_USER="\n_LAST_COMMAND_INDICATOR_ ${HOST_COLOUR}\u@\h ${PWD_COLOUR}\w${ResetColor}"
     GIT_PROMPT_START_ROOT="$GIT_PROMPT_START_USER"
-
-    GIT_PROMPT_END_USER="\n${TIME_COLOUR}\D{%a %e %b %R}${ResetColor} \$ "
-    GIT_PROMPT_END_ROOT="$GIT_PROMPT_END_USER"
-
-
-    # The Git prompt on Cygwin is painfully slow, so disable it.
-    if [[ "$(uname -s)" == CYGWIN* ]]; then
-        GIT_PROMPT_DISABLE=1
-    fi
 }
 
 prompt_callback() {
