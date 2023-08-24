@@ -36,3 +36,19 @@ def task_fmtdates: reduce ("due",
                             then .[$key] |= fmtutcdate
                             else .
                             end);
+
+# Compare two lists of tasks and print out the ones that are different.  Use
+# as, for example:
+#
+#     { task export; ssh user@server task export; } | jq -s 'task_compare("local"; "remote")'
+def task_compare(l_name; r_name):
+        map(group_by(.uuid)
+            | INDEX(.[]; .[0].uuid))
+        as [$l, $r]
+        | reduce ($l + $r | keys)[]
+          as $key ({};
+                   .[$key] = {(l_name): ($l[$key] // []),
+                              (r_name): ($r[$key] // [])})
+        | map_values(select(.[l_name] != .[r_name])
+                     | map_values(if length == 0 then null else if length > 1 then {problem: "multiple tasks", tasks: .} else .[0] end end)
+                     );
