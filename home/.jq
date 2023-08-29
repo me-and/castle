@@ -40,15 +40,33 @@ def task_fmtdates: reduce ("due",
 # Compare two lists of tasks and print out the ones that are different.  Use
 # as, for example:
 #
-#     { task export; ssh user@server task export; } | jq -s 'task_compare("local"; "remote")'
-def task_compare(l_name; r_name):
+#     { task export; ssh user@server task export; } | jq -s 'task_compare'
+def task_compare:
         map(group_by(.uuid)
             | INDEX(.[]; .[0].uuid))
         as [$l, $r]
         | reduce ($l + $r | keys)[]
           as $key ({};
-                   .[$key] = {(l_name): ($l[$key] // []),
-                              (r_name): ($r[$key] // [])})
-        | map_values(select(.[l_name] != .[r_name])
+                   .[$key] = [($l[$key] // []),
+                              ($r[$key] // [])])
+        | map_values(select(.[0] != .[1])
                      | map_values(if length == 0 then null else if length > 1 then {problem: "multiple tasks", tasks: .} else .[0] end end)
                      );
+
+# Compare two objects and print the differences between them.
+#
+# jq 'diffobjs(.[0]; .[1])'
+#    [{"alpha": 123, "beta": 456}, {"alpha": 123, "beta": 567, "gamma": 890}]
+# => {"beta": [456, 567], "gamma": [null, 890]}
+def diffobjs(l; r): [l, r] as [$l, $r]
+                    | reduce ($l + $r | keys | .[])
+                      as $key ({};
+                               if $l[$key] != $r[$key]
+                               then .[$key] = [$l[$key], $r[$key]]
+                               else .
+                               end);
+
+# Compare two lists of tasks and print the differences between them.  Use as, for example:
+#
+#     { task export; ssh user@server task export; } | jq -s 'task_diffs("local", "remote")'
+def task_diffs: task_compare | map_values(diffobjs(.[0]; .[1]));
