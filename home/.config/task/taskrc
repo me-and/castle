@@ -196,6 +196,10 @@ rule.color.merge=0
 # Don't tell me about not completing the highest priority task; I know!
 nag=
 
+# Don't ask if I want to change every instance of a recurring task.  The vast
+# majority of the time I don't, and if I do, I can ask for that.
+recurrence.confirmation=no
+
 # Don't renumber tasks on every filter/list command, and instead make
 # renumbering a manual step that can happen overnight or similar.
 gc=0
