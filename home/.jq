@@ -37,7 +37,11 @@ def task_fmtdates: reduce ("due",
                             if has($key)
                             then .[$key] |= fmtutcdate
                             else .
-                            end);
+                            end)
+                   | if has("annotations")
+                     then .annotations |= map(.entry |= fmtutcdate)
+                     else .
+                     end;
 
 # Compare two lists of tasks and print out the ones that are different.  Use
 # as, for example:
