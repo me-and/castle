@@ -68,5 +68,5 @@ def diffobjs(l; r): [l, r] as [$l, $r]
 
 # Compare two lists of tasks and print the differences between them.  Use as, for example:
 #
-#     { task export; ssh user@server task export; } | jq -s 'task_diffs("local", "remote")'
+#     { task export; ssh user@server task export; } | jq -s 'task_diffs'
 def task_diffs: task_compare | map_values(diffobjs(.[0]; .[1]));
