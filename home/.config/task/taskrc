@@ -118,11 +118,16 @@ context.dadford.read=-home -linaker -enfield -business
 context.dadford.write=+dadford
 context.dadford.rc.urgency.user.tag.dadford.coefficient=10
 
+# Context: linaker.  Prioritise things that can only be done there.
+context.linaker.read=-allotment -enfield -dadford -home
+context.linaker.rc.urgency.user.tag.linaker.coefficient=20
+
 # Default urgency coefficients for things that have context-specific urgencies,
 # otherwise the context-specific ones seem to not take effect.
 urgency.user.tag.work.coefficient=0
 urgency.user.tag.business.coefficient=0
 urgency.user.tag.dadford.coefficient=0
+urgency.user.tag.linaker.coefficient=0
 
 # Tasks in the inbox should be right at the top to get sorted, unless there is
 # something even more burningly urgent.
