@@ -70,3 +70,7 @@ def diffobjs(l; r): [l, r] as [$l, $r]
 #
 #     { task export; ssh user@server task export; } | jq -s 'task_diffs'
 def task_diffs: task_compare | map_values(diffobjs(.[0]; .[1]));
+
+# Compare two tasks, including stripping keys that don't want to be compared.
+# Really just a shortcut for `stripkeys` and `task_diffs`.
+def task_diffs_strip(ks): map(map(stripkeys(ks))) | task_diffs;
