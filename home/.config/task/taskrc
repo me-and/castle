@@ -62,7 +62,7 @@ urgency.inherit=1
 
 # Report on tasks I'm waiting for
 report.waitingfor.description=Tasks where I'm waiting on others
-report.waitingfor.filter=+waitingfor status:pending -BLOCKED
+report.waitingfor.filter=+waitingfor status:pending -BLOCKED limit:page
 report.waitingfor.columns=id,start.age,project,tags,due.relative,until.remaining,description
 report.waitingfor.sort=due+,urgency-
 report.waitingfor.labels=ID,Age,Proj,Tag,Due,Until,Description
