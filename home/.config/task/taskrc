@@ -105,7 +105,7 @@ context.allotment.read=-home -linaker -dadford -enfield -work
 
 # Context: day off.  Prioritise things that can only be done in business hours.
 context.day-off.read=-linaker -dadford -work
-context.work.rc.urgency.user.tag.business.coefficient=6
+context.day-off.rc.urgency.user.tag.business.coefficient=6
 
 # Context: work.  Prioritise things that can only be done at work or in
 # business hours
