@@ -6,10 +6,12 @@
 def stripkeys(ks): reduce ks as $k (.;del(.[$k]));
 
 # Format a UTC date in a more human readable format.  This seems to have some
-# odd handling of timezones that I've never managed (or needed) to unpick.
+# odd handling of timezones that I've never managed (or needed) to unpick, so
+# it enforces the string ending in "Z" to ensure we're really getting something
+# in UTC (or at least we're deliberately lying).
 #
 # jq 'map(fmtutcdate)'
-#    ["2023-08-24T12:47:12Z", "20000101T0000"]
+#    ["2023-08-24T12:47:12Z", "20000101T0000Z"]
 # => ["Thu 24 Aug 2023 13:47:12", "Sat 01 Jan 2000 00:00"]
 def fmtutcdate: gsub("[-:]"; "")
                 | if test("T\\d{6}")
@@ -35,7 +37,11 @@ def task_fmtdates: reduce ("due",
                             if has($key)
                             then .[$key] |= fmtutcdate
                             else .
-                            end);
+                            end)
+                   | if has("annotations")
+                     then .annotations |= map(.entry |= fmtutcdate)
+                     else .
+                     end;
 
 # Compare two lists of tasks and print out the ones that are different.  Use
 # as, for example:
