@@ -36,6 +36,9 @@ report.next.filter=( status:pending or ( -COMPLETED -DELETED +inbox ) ) ( -waiti
 uda.recurTaskUntil.type=duration
 uda.recurTaskUntil.label=Child until
 
+# Field for handling recurAfter rounding.
+uda.recurAfterWaitRoundDown.type=string
+
 # Record where tasks came from
 uda.source.type=string
 uda.source.label=Source
