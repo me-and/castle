@@ -112,7 +112,7 @@ context.day-off.rc.urgency.user.tag.business.coefficient=6
 
 # Context: work.  Prioritise things that can only be done at work or in
 # business hours
-context.work.read=-linaker -dadford -multivac -allotment project.not:relationship.date-night
+context.work.read=-linaker -dadford -multivac -allotment -nsfw
 context.work.rc.urgency.user.tag.work.coefficient=10
 context.work.rc.urgency.user.tag.business.coefficient=4
 
