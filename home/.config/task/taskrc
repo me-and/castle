@@ -125,6 +125,9 @@ context.dadford.rc.urgency.user.tag.dadford.coefficient=10
 context.linaker.read=-allotment -enfield -dadford -home
 context.linaker.rc.urgency.user.tag.linaker.coefficient=20
 
+# Context: bed.
+context.bed.read=-home -linaker -dadford -enfield -daylight -work -pc -multivac -audio -business -alex
+
 # Default urgency coefficients for things that have context-specific urgencies,
 # otherwise the context-specific ones seem to not take effect.
 urgency.user.tag.work.coefficient=0
