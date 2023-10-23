@@ -174,9 +174,17 @@ set_terminal_title () {
     echo -ne '\e]0;'"$*"'\a'
 }
 
-# Use gh completion if available
-if [[ "$BASH_COMPLETION_VERSINFO" ]] && command -v gh >/dev/null; then
-    eval "$(gh completion -s bash)"
+if command -v gh >/dev/null; then
+    if [[ "$OSTYPE" = cygwin ]]; then
+        # Set up GH_PATH so GitHub CLI knows what to do.
+        # https://github.com/cli/cli/issues/6950#issuecomment-1457278881
+        export GH_PATH=gh
+    fi
+
+    if [[ "$BASH_COMPLETION_VERSINFO" ]]; then
+        # Use gh completion.
+        eval "$(gh completion -s bash)"
+    fi
 fi
 
 # Import local .bashrc files if they exist.
