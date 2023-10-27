@@ -8,8 +8,11 @@ if [[ $- != *i* ]]; then
 fi
 
 # Don't add lines that start with a space or which duplicate the previous line
-# to the bash history.
+# to the bash history.  Do store a whole load of history; computer memory is a
+# lot cheaper than my own.
 HISTCONTROL=ignoreboth
+HISTSIZE=1000
+HISTFILESIZE=5000
 
 # Don't use -S automatically when calling `less` from systemctl commands; I
 # find it annoying more often than I find it helpful.
