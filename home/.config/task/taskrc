@@ -170,6 +170,9 @@ report.timesheet.filter=((status:pending or status:waiting) start.after:now-4wks
 report.unblocked.filter=status:pending -BLOCKED
 report.waiting.filter=status:waiting
 
+# Show full project names in the "all" report.
+report.all.columns=id,status.short,uuid.short,start.active,entry.age,end.age,depends.indicator,priority,project,tags.count,recur.indicator,wait.remaining,scheduled.remaining,due,until.remaining,description
+
 # Record problems
 uda.problems.label=Problems
 uda.problems.type=string
