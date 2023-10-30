@@ -38,6 +38,9 @@ uda.recurTaskUntil.label=Child until
 
 # Field for handling recurAfter rounding.
 uda.recurAfterWaitRoundDown.type=string
+uda.recurAfterWaitRoundDown.label=Wait round down
+uda.recurAfterDueRoundDown.type=string
+uda.recurAfterDueRoundDown.label=Due round down
 
 # Record where tasks came from
 uda.source.type=string
