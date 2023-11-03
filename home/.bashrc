@@ -195,7 +195,7 @@ fi
 # before and after code is taken literally and eval'd, so it can do things like
 # access "$@" and indeed change "$@" by using shift or set or similar.
 bashwrap () {
-    local command beforecode aftercode funcname type unset_extglob n
+    local command beforecode aftercode type unset_extglob n
     local innerfuncname innerfunccode
     local -n varname
 
@@ -227,7 +227,6 @@ bashwrap () {
     type="$(type -t "$command")"
     case "$type" in
         alias)
-            # TODO
             printf "bashwrap doesn't (yet) know how to handle aliases\n" >&2
             return 69  # EX_UNAVAILABLE
             ;;
@@ -245,7 +244,7 @@ bashwrap () {
             # _bashwrapped_0_<name>.
             n=0
             innerfuncname="_bashwrapped_${n}_$command"
-            while declare -pF -- "$innerfuncname" 2> /dev/null; do
+            while declare -Fp -- "$innerfuncname" &>/dev/null; do
                 innerfuncname="_bashwrapped_$((++n))_$command"
             done
 
