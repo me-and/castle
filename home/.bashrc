@@ -190,6 +190,85 @@ if command -v gh >/dev/null; then
     fi
 fi
 
+# bashwrap function: given a function name and code to run before and/or after,
+# wrap the existing function with the code that comes before and after.  The
+# before and after code is taken literally and eval'd, so it can do things like
+# access "$@" and indeed change "$@" by using shift or set or similar.
+bashwrap () {
+    local command beforecode aftercode funcname type unset_extglob n
+    local innerfuncname innerfunccode
+    local -n varname
+
+    command="$1"
+    beforecode="$2"
+    aftercode="$3"
+
+    # Check the current state of extglob: this code needs it to be set,
+    # but it should be reset to avoid unexpected changes to the global
+    # envirnoment.
+    if ! shopt -q extglob; then
+        unset_extglob=YesPlease
+        shopt -s extglob
+    fi
+
+    # Tidy the before and after code: trim whitespace from the start and end,
+    # and make sure they end with a single semicolon.
+    for varname in beforecode aftercode; do
+        varname="${varname##+([$'\n\t '])}"
+        varname="${varname%%+([$'\n\t '])}"
+        if [[ "$varname" ]]; then
+            varname="${varname%%+(;)};"
+        fi
+    done
+
+    # Now finished with extglob.
+    if [[ "$unset_extglob" ]]; then shopt -u extglob; fi
+
+    type="$(type -t "$command")"
+    case "$type" in
+        alias)
+            # TODO
+            printf "bashwrap doesn't (yet) know how to handle aliases\n" >&2
+            return 69  # EX_UNAVAILABLE
+            ;;
+        keyword)
+            printf 'bashwrap cannot wrap Bash keywords\n' >&2
+            return 64  # EX_USAGE
+            ;;
+        builtin|file)
+            eval "$command () { $beforecode command $command \"\$@\"; $aftercode }"
+            ;;
+        function)
+            # Keep generating function names until we get to one that doesn't
+            # exist.  This allows a function to be wrapped multiple times; the
+            # original function will always have the name
+            # _bashwrapped_0_<name>.
+            n=0
+            innerfuncname="_bashwrapped_${n}_$command"
+            while declare -pF -- "$innerfuncname" 2> /dev/null; do
+                innerfuncname="_bashwrapped_$((++n))_$command"
+            done
+
+            # Define a new function with the new function name and the old function
+            # code.
+            innerfunccode="$(declare -fp -- "$command")"
+            eval "${innerfunccode/#$command /$innerfuncname }"
+
+            # Redefine the existing function to call the new function, in
+            # between the wrapper code.
+            eval "$command () { $beforecode $innerfuncname \"\$@\"; $aftercode }"
+            ;;
+        '')
+            printf 'Nothing called %q found to wrap\n' "$command" >&2
+            return 64  # EX_USAGE
+            ;;
+        *)
+            printf 'Unexpected object type %s\n' "$type" >&2
+            return 70  # EX_SOFTWARE
+            ;;
+    esac
+}
+
 # Import local .bashrc files if they exist.
 if [[ -d ~/.bashrc.d && -r ~/.bashrc.d && -x ~/.bashrc.d ]]; then
     for file in ~/.bashrc.d/*; do
