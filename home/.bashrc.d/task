@@ -1,0 +1,41 @@
+# I want to do Taskwarrior garbage collection daily, including on systems that
+# don't have systemd.  Check when that was last done, and if it wasn't today,
+# do it now.
+if command -v systemctl >/dev/null; then
+	# Systemctl is present, so assume anything of this ilk will be handled
+	# by systemd.
+	:
+else
+	_TASK_GC_TIMESTAMP_FILE=~/.local/share/task/.gclastrun
+	bashwrap task '
+		for arg; do
+			if [[ "$arg" = rc.gc[:=]1 ]]; then
+				touch "$_TASK_GC_TIMESTAMP_FILE"
+				break
+			fi
+		done'
+
+	if [[ -e "$_TASK_GC_TIMESTAMP_FILE" ]]; then
+		# Check if we have run a garbage collection more recently than
+		# 4am this morning.
+		printf -v _cutoff_dt '%(%F)TT04:00' -1
+		printf -v _now_s '%(%s)T' -1
+		_cutoff_s="$(date -d "$_cutoff_dt" '+%s')"
+		unset _cutoff_dt
+		if (( _cutoff_s >= _now_s )); then
+			# It's between midnight and 4am, so check whether garbage
+			# collection was last run before or after 4am _yesterday_.
+			(( _cutoff_s -= (60*60*24) ))
+		fi
+		unset _now_s
+
+		if (( _cutoff_s >= "$(date -r "$_TASK_GC_TIMESTAMP_FILE" '+%s')" )); then
+			task rc.gc=1 rc.detection=off rc.color=off rc.hooks=off rc.verbose=nothing status:pending count >/dev/null
+		fi
+		unset _cutoff_s
+	else
+		task rc.gc=1 rc.detection=off rc.color=off rc.hooks=off rc.verbose=nothing status:pending count >/dev/null
+	fi
+fi
+
+# vim: ft=bash noet ts=8
