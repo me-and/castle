@@ -39,21 +39,43 @@ else
 fi
 
 # I want to be able to display output, *probably* from task, every time the
-# Bash prompt loads.  This requires function from bash-git-prompt to already be
-# loaded, which I *think* is the case everywhere I care about...
+# Bash prompt loads.
+_fmtwrap () {
+	printf '%s' "$@" | fmt -uw"$((${COLUMNS:-79}>79?79:COLUMNS))"
+}
+
+prompt_display () {
+	if [[ -v TPFILTER ]]; then
+		if [[ "$TPFILTER" ]]; then
+			task "${TPFILTER[@]}"
+		fi
+	else
+		_fmtwrap 'Set $TPFILTER to provide task filter prompts.'
+		_fmtwrap 'Set $TPFILTER to an empty string to suppress this '\
+			'message.'
+		_fmtwrap 'Redefine the prompt_display function to get '\
+			'something completely different here.'
+	fi
+}
+
 _prompt_display_call () {
 	if [[ -z "$SILENCE_PROMPT_DISPLAY" ]]; then
 		if declare -Fp prompt_display &>/dev/null; then
 			prompt_display
 		else
-			echo 'No `prompt_display` function defined.  Either'\
-					'define that function or set'\
-					'SILENCE_PROMPT_DISPLAY=YesPlease to'\
-					'suppress this message.' |
-				fmt -uw"$((${COLUMNS:-99}>79?79:COLUMNS))"
+			_fmtwrap 'No `prompt_display` function defined.  '\
+				'Either define that function or set '\
+				'SILENCE_PROMPT_DISPLAY=YesPlease to suppress '\
+				'this message.'
 		fi
 	fi
 }
-add_to_end_of_prompt_command _prompt_display_call
+
+# This based on the code in bash-git-prompt.
+if (( BASH_VERSINFO[0] > 5 || BASH_VERSINFO[0] == 5 && BASH_VERSINFO[1] >= 1 )); then
+	PROMPT_COMMAND+=(_prompt_display_call)
+else
+	PROMPT_COMMAND+=';_prompt_display_call'
+fi
 
 # vim: ft=bash noet ts=8
