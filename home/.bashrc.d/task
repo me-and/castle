@@ -30,11 +30,11 @@ else
 		unset _now_s
 
 		if (( _cutoff_s >= "$(date -r "$_TASK_GC_TIMESTAMP_FILE" '+%s')" )); then
-			task rc.gc=1 rc.detection=off rc.color=off rc.hooks=off rc.verbose=nothing status:pending count >/dev/null
+			task rc.gc=1 rc.detection=off rc.color=off rc.hooks=off rc.recurrence=off rc.verbose=nothing status:pending count >/dev/null
 		fi
 		unset _cutoff_s
 	else
-		task rc.gc=1 rc.detection=off rc.color=off rc.hooks=off rc.verbose=nothing status:pending count >/dev/null
+		task rc.gc=1 rc.detection=off rc.color=off rc.hooks=off rc.recurrence=off rc.verbose=nothing status:pending count >/dev/null
 	fi
 fi
 
