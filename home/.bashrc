@@ -150,6 +150,13 @@ fi
 # Set up an alias for viewing diffs with columns at screen width.
 alias coldiff='diff -yW$COLUMNS'
 
+# Utility function to make tracing other Bash functions easier.
+tracewrap () {
+    local -
+    set -x
+    "$@"
+}
+
 # When calling cscope, I generally want some useful default arguments: -k
 # ignores the standard include directories (I'm rarely interested in those
 # anyway), -R recurses into directories, -q builds a reverse-lookup indices for
