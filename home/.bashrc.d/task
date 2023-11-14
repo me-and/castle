@@ -7,13 +7,15 @@ if command -v systemctl >/dev/null; then
 	:
 else
 	_TASK_GC_TIMESTAMP_FILE=~/.local/share/task/.gclastrun
-	bashwrap task '
+	_record_taskwarrior_gc () {
 		for arg; do
 			if [[ "$arg" = rc.gc[:=]1 ]]; then
 				touch "$_TASK_GC_TIMESTAMP_FILE"
 				break
 			fi
-		done'
+		done
+	}
+	bashwrap task '_record_taskwarrior_gc "$@"'
 
 	if [[ -e "$_TASK_GC_TIMESTAMP_FILE" ]]; then
 		# Check if we have run a garbage collection more recently than
