@@ -7,35 +7,60 @@ if command -v systemctl >/dev/null; then
 	:
 else
 	_TASK_GC_TIMESTAMP_FILE=~/.local/share/task/.gclastrun
-	bashwrap task '
+	_record_taskwarrior_gc () {
 		for arg; do
 			if [[ "$arg" = rc.gc[:=]1 ]]; then
 				touch "$_TASK_GC_TIMESTAMP_FILE"
 				break
 			fi
-		done'
+		done
+	}
+	bashwrap task '_record_taskwarrior_gc "$@"'
 
-	if [[ -e "$_TASK_GC_TIMESTAMP_FILE" ]]; then
-		# Check if we have run a garbage collection more recently than
-		# 4am this morning.
-		printf -v _cutoff_dt '%(%F)TT04:00' -1
-		printf -v _now_s '%(%s)T' -1
-		_cutoff_s="$(date -d "$_cutoff_dt" '+%s')"
-		unset _cutoff_dt
-		if (( _cutoff_s >= _now_s )); then
+	_taskwarrior_gc () {
+		task rc.gc=1 rc.detection=off rc.color=off rc.hooks=off rc.recurrence=off rc.verbose=nothing status:pending count >/dev/null
+	}
+	_maybe_do_taskwarrior_gc () {
+		local cutoff_dt
+		local -i data_age now_s cutoff_s last_gc_s
+		data_age="$(file-age ~/.local/share/task/undo.data)"
+
+		# Check if the data file has changed in the last 30 minutes.
+		# If it has, assume the user's recently active and we don't
+		# want to do garbage collection under their feet.
+		if (( data_age < (60*30) )); then
+			return
+		fi
+
+		# Always do garbage collection if the timestamp file doesn't
+		# exist.
+		if [[ ! -e "$_TASK_GC_TIMESTAMP_FILE" ]]; then
+			_taskwarrior_gc
+			return
+		fi
+
+		# Check when garbage collection was last run; if it hasn't been
+		# run since 4am this morning, run it now.  This works by
+		# comparing the timestamp now in seconds since epoch to the
+		# timestamp of the most recent 4am.
+		printf -v cutoff_dt '%(%F)TT04:00' -1
+		printf -v now_s '%(%s)T' -1
+		cutoff_s="$(date -d "$_cutoff_dt" '+%s')"
+		if (( cutoff_s >= now_s )); then
 			# It's between midnight and 4am, so check whether garbage
 			# collection was last run before or after 4am _yesterday_.
-			(( _cutoff_s -= (60*60*24) ))
+			(( cutoff_s -= (60*60*24) ))
 		fi
-		unset _now_s
 
-		if (( _cutoff_s >= "$(date -r "$_TASK_GC_TIMESTAMP_FILE" '+%s')" )); then
-			task rc.gc=1 rc.detection=off rc.color=off rc.hooks=off rc.verbose=nothing status:pending count >/dev/null
+		last_gc_s="$(date -r "$_TASK_GC_TIMESTAMP_FILE" '+%s')"
+		if (( cutoff_s >= last_gc_s )); then
+			_taskwarrior_gc
 		fi
-		unset _cutoff_s
-	else
-		task rc.gc=1 rc.detection=off rc.color=off rc.hooks=off rc.verbose=nothing status:pending count >/dev/null
-	fi
+	}
+
+	_maybe_do_taskwarrior_gc
+
+	unset -f _taskwarrior_gc _maybe_do_taskwarrior_gc
 fi
 
 # I want to be able to display output, *probably* from task, every time the
