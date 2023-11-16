@@ -197,6 +197,12 @@ if command -v gh >/dev/null; then
     fi
 fi
 
+if [[ ! -v BROWSER && "$OSTYPE" = cygwin ]]; then
+    # Set BROWSER so programs know how to open websites from Cygwin: delegate
+    # to Windows via cygstart.
+    export BROWSER=cygstart
+fi
+
 # bashwrap function: given a function name and code to run before and/or after,
 # wrap the existing function with the code that comes before and after.  The
 # before and after code is taken literally and eval'd, so it can do things like
