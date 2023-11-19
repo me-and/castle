@@ -125,7 +125,7 @@ context.dadford.write=+dadford
 context.dadford.rc.urgency.user.tag.dadford.coefficient=10
 
 # Context: linaker.  Prioritise things that can only be done there.
-context.linaker.read=-allotment -enfield -dadford -home
+context.linaker.read=-allotment -enfield -dadford -home -work
 context.linaker.rc.urgency.user.tag.linaker.coefficient=20
 
 # Context: bed.
