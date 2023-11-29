@@ -39,7 +39,10 @@ def task_fmtdates: reduce ("due",
                             else .
                             end)
                    | if has("annotations")
-                     then .annotations |= map(.entry |= fmtutcdate)
+                     then .annotations |= map(if has("entry")
+                                              then .entry |= fmtutcdate
+                                              else .
+                                              end)
                      else .
                      end;
 
