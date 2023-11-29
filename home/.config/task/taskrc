@@ -180,6 +180,11 @@ report.all.columns=id,status.short,uuid.short,start.active,entry.age,end.age,dep
 uda.problems.label=Problems
 uda.problems.type=string
 
+# Set dependencies from the blocking tasks as well as the blocked tasks.  This
+# should always be empty at the point a task is written to file, but it needs
+# to be defined as a UDA so the field exists for hooks to use.
+uda.blocks.type=string
+
 # When creating recurring tasks, create two of them so I get at least a couple
 # of days for daily tasks.
 recurrence.limit=2
