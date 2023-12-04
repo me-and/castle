@@ -7,6 +7,24 @@ if [[ $- != *i* ]]; then
 	return
 fi
 
+# Function for neater wrapping of messages various.  Use with a here document
+# or here string.
+MAX_MESSAGE_WIDTH=79
+if command -v fmt >/dev/null; then
+	wrap_message () {
+		local -i target_width screen_width
+		screen_width="${COLUMNS:-79}"
+		target_width="$((screen_width>MAX_MESSAGE_WIDTH ? MAX_MESSAGE_WIDTH : screen_width))"
+		fmt -cuw"$target_width"
+	}
+else
+	wrap_message () {
+		cat
+	}
+	wrap_message <<<'fmt unavailable' >&2
+	(( rc |= 0x10 ))
+fi
+
 # Don't add lines that start with a space or which duplicate the previous line
 # to the bash history.  Do store a whole load of history; computer memory is a
 # lot cheaper than my own.
@@ -50,7 +68,7 @@ if [[ -z "$BASH_COMPLETION" &&
 	done
 
 	if [[ -z $enabled_bash_completion ]]; then
-		echo 'bash_completion unavailable' >&2
+		wrap_message <<<'bash_completion unavailable' >&2
 		(( rc |= 0x1 ))
 	fi
 fi
@@ -66,7 +84,7 @@ if [[ $OSTYPE != "cygwin" ]] && ! type -t fzf-file-widget >/dev/null 2>&1; then
 		# Debian's fzf package, rather than a user-local install.
 		. /usr/share/doc/fzf/examples/key-bindings.bash
 	else
-		echo 'fzf unavailable' >&2
+		wrap_message <<<'fzf unavailable' >&2
 		(( rc |= 0x20 ))
 	fi
 fi
@@ -74,7 +92,7 @@ fi
 # Check for the existance of pgrep, since a bunch of other things rely on it
 # and it's easier to complain once than complain every time.
 if ! command -v pgrep >/dev/null; then
-	echo 'pgrep unavailable' >&2
+	wrap_message <<<'pgrep unavailable' >&2
 	(( rc |= 0x40 ))
 fi
 
@@ -90,7 +108,7 @@ elif [[ "$(uname -s)" = CYGWIN* ]]; then
 	# We know it doesn't exist on Cygwin, so don't bother erroring.
 	:
 else
-	echo 'lesspipe unavailable' >&2
+	wrap_message <<<'lesspipe unavailable' >&2
 	(( rc |= 0x2 ))
 fi
 
@@ -98,7 +116,7 @@ fi
 if [[ -r ~/.homesick/repos/homeshick/homeshick.sh ]]; then
 	. ~/.homesick/repos/homeshick/homeshick.sh
 else
-	echo 'homeshick unavailable' >&2
+	wrap_message <<<'homeshick unavailable' >&2
 	(( rc |= 0x4 ))
 fi
 
@@ -108,7 +126,7 @@ if [[ -f ~/.homesick/repos/bash-git-prompt/gitprompt.sh ]]; then
 elif [[ -f /usr/local/opt/bash-git-prompt/share/gitprompt.sh ]]; then
 	. /usr/local/opt/bash-git-prompt/share/gitprompt.sh
 else
-	echo 'bash-git-prompt unavailable' >&2
+	wrap_message <<<'bash-git-prompt unavailable' >&2
 	PS1='\[\e]0;\h:\w\a\]\n\u@\h \w\n\$ '
 	(( rc |= 0x8 ))
 fi
@@ -240,11 +258,11 @@ bashwrap () {
 	type="$(type -t "$command")"
 	case "$type" in
 		alias)
-			printf "bashwrap doesn't (yet) know how to handle aliases\n" >&2
+			wrap_message <<<"bashwrap doesn't (yet) know how to handle aliases" >&2
 			return 69  # EX_UNAVAILABLE
 			;;
 		keyword)
-			printf 'bashwrap cannot wrap Bash keywords\n' >&2
+			wrap_message <<<'bashwrap cannot wrap Bash keywords' >&2
 			return 64  # EX_USAGE
 			;;
 		builtin|file)
@@ -271,11 +289,11 @@ bashwrap () {
 			eval "$command () { $beforecode $innerfuncname \"\$@\"; $aftercode }"
 			;;
 		'')
-			printf 'Nothing called %q found to wrap\n' "$command" >&2
+			wrap_message <<<"Nothing called ${command@Q} found to wrap" >&2
 			return 64  # EX_USAGE
 			;;
 		*)
-			printf 'Unexpected object type %s\n' "$type" >&2
+			wrap_message <<<"Unexpected object type $type" >&2
 			return 70  # EX_SOFTWARE
 			;;
 	esac

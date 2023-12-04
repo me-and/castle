@@ -2,8 +2,11 @@
 
 # Report any cron output.
 if [[ -r ~/cron.log ]]; then
-	echo '~/cron.log exists' >&2
-	echo 'Run `cat ~/cron.log` to check latest cron output' >&2
+	wrap_message <<-'EOF' >&2
+		~/cron.log exists.
+
+		Run `cat ~/cron.log` to check the latest cron output.
+		EOF
 fi
 
 if [[ -f /usr/sbin/cron && -x /usr/sbin/cron ]] &&

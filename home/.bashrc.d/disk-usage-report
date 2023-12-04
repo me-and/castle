@@ -12,8 +12,8 @@ disk-usage-report () {
 
 if (( "$(file-age -f ~/.config/disk-usage-report/lastrun)" >= 60*60*24*7 )); then
 	# More than a week since this was last checked, so check now.
-	echo 'Running periodic disk usage report'
-	echo 'Up to you whether you need to do anything about this...'
+	wrap_message <<<'Running periodic disk usage report'
+	wrap_message <<<'Up to you whether you need to do anything about this...'
 	disk-usage-report
 fi
 

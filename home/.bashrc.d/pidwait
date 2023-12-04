@@ -4,13 +4,13 @@ pidwait () {
 		waitpid "$@"
 	else
 		case "$#" in
-			0)	echo 'No PIDs specified' >&2
+			0)	wrap_message <<<'No PIDs specified' >&2
 				return 1
 				;;
 			1)	tail -f --pid="$1" /dev/null
 				return "$?"
 				;;
-			*)	echo 'Currently only single PIDs supported' >&2
+			*)	wrap_message <<<'Currently only single PIDs supported' >&2
 				return 1
 				;;
 		esac

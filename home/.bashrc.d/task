@@ -63,12 +63,6 @@ else
 	unset -f _taskwarrior_gc _maybe_do_taskwarrior_gc
 fi
 
-# I want to be able to display output, *probably* from task, every time the
-# Bash prompt loads.
-_fmtwrap () {
-	printf '%s' "$@" | fmt -uw"$((${COLUMNS:-79}>79?79:COLUMNS))"
-}
-
 prompt_display () {
 	if [[ -v TPFILTER ]]; then
 		if [[ "$TPFILTER" ]]; then
@@ -82,10 +76,12 @@ _prompt_display_call () {
 		if declare -Fp prompt_display &>/dev/null; then
 			prompt_display
 		else
-			_fmtwrap 'No `prompt_display` function defined.  '\
-				'Either define that function or set '\
-				'SILENCE_PROMPT_DISPLAY=YesPlease to suppress '\
-				'this message.'
+			wrap_message <<-'EOM'
+				No `prompt_display function defined.  Either
+				define that function or set
+				SILENCE_PROMPT_DISPLAY to a non-empty value to
+				suppress this message.
+				EOM
 		fi
 	fi
 }

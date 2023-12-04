@@ -52,7 +52,7 @@ if [[ ! -v SSH_AUTH_SOCK ]]; then
 
 		ensure_ssh_agent_running
 	else
-		echo 'ssh-agent unavailable' >&2
+		wrap_message <<<'ssh-agent unavailable' >&2
 		(( rc |= 0x10 ))
 	fi
 fi

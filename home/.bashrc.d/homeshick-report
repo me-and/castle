@@ -14,11 +14,11 @@ else
 	}
 
 	if [[ ! -e ~/.homesick/.reportlastrun ]]; then
-		echo "Could not work out when homeshick-report last had a clear run" >&2
+		wrap_message <<<"Could not work out when homeshick-report last had a clear run" >&2
 	elif (( "$(file-age -f ~/.homesick/.reportlastrun)" >= 60*60*24*7 )); then
 		# More than a week since this was last checked and found to be
 		# all up-to-date.
-		echo "homeshick-report hasn't had a clear run for $(file-age -h -- ~/.homesick/.reportlastrun)" >&2
+		wrap_message <<<"homeshick-report hasn't had a clear run for $(file-age -h -- ~/.homesick/.reportlastrun)" >&2
 	fi
 fi
 

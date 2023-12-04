@@ -5,7 +5,7 @@ offlineimap-delete-folder () (
 			h)	_offlineimap-delete-folder-help
 				return 0
 				;;
-			*)	printf 'Unexpected option -%s\n' "$OPTARG" >&2
+			*)	wrap_message <<<"Unexpected option -$OPTARG" >&2
 				help
 				return 64  # EX_USAGE
 				;;
