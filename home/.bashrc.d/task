@@ -74,12 +74,6 @@ prompt_display () {
 		if [[ "$TPFILTER" ]]; then
 			task "${TPFILTER[@]}"
 		fi
-	else
-		_fmtwrap 'Set $TPFILTER to provide task filter prompts.'
-		_fmtwrap 'Set $TPFILTER to an empty string to suppress this '\
-			'message.'
-		_fmtwrap 'Redefine the prompt_display function to get '\
-			'something completely different here.'
 	fi
 }
 
