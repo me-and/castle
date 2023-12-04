@@ -3,9 +3,7 @@
 # Report any cron output.
 if [[ -r ~/cron.log ]]; then
 	wrap_message <<-'EOF' >&2
-		~/cron.log exists.
-
-		Run `cat ~/cron.log` to check the latest cron output.
+		~/cron.log exists.  Run `vim cron.log` to see the output.
 		EOF
 fi
 
