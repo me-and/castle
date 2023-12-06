@@ -1,3 +1,7 @@
+_task_quick_quiet () {
+	command task rc.color=0 rc.detection=0 rc.gc=0 rc.hooks=0 rc.recurrence=0 rc.verbose=0 "$@"
+}
+
 # I want to do Taskwarrior garbage collection daily, including on systems that
 # don't have systemd.  Check when that was last done, and if it wasn't today,
 # do it now.
@@ -63,6 +67,61 @@ else
 
 	unset -f _taskwarrior_gc _maybe_do_taskwarrior_gc
 fi
+
+# Function to enable `task <filter> done-replace <new-task>`, which marks one
+# task as done and creates a new task that has the same properties (including
+# both blocked and blocking tasks) as the completed one.
+_task_done_replace () {
+	[[ -v inside_task_done_replace ]] && return 0
+	local inside_task_done_replace=Yes
+	local old_uuid blocks arg name
+	local -a filter_args description_args params column_names
+	local -i n
+
+	for (( n=1; n<=$#; n++ )); do
+		if [[ "${!n}" = done-replace ]]; then
+			filter_args=("${@:1:n-1}")
+			old_uuid="$(_task_quick_quiet "${filter_args[@]}" _unique uuid)" || return "$?"
+			if [[ -z "$old_uuid" ]]; then
+				wrap_message <<<"No task matching filter ${filter_args[*]}" >&2
+				return 1
+			elif [[ "$old_uuid" != ????????-????-????-????-???????????? ]]; then
+				wrap_message <<<"More than one task matching filter ${filter_args[*]}" >&2
+				return 1
+			fi
+			blocks="$(_task_quick_quiet depends.has:"$old_uuid" _unique uuid)" || return "$?" # Newline separated
+			blocks="${blocks//$'\n'/,}"  # Now it's comma separated
+
+			# Left to its own devices, Taskwarrior will treat
+			# arguments that aren't setting parameters as being
+			# annotation text, where I'd rather they be treated as
+			# the task description, similar to `task add`.  Work
+			# out which arguments are task parameters and which
+			# aren't.
+			column_names=($(_task_quick_quiet _columns)) || "$?"
+			for arg in "${@:n+1}"; do
+				for name in "${column_names[@]}"; do
+					if [[ "$arg" = "$name":* || "$arg" = '-'* || "$arg" = '+'* ]]; then
+						params+=("$arg")
+						continue 2
+					fi
+				done
+				description_args+=("$arg")
+			done
+
+			task "$old_uuid" duplicate blocks:"$blocks" "${params[@]}" description:"${description_args[*]}" || return "$?"
+			task "$old_uuid" done || return "$?"
+			did_done_replace=Yes
+			return 0
+		fi
+	done
+}
+
+bashwrap task '
+	local did_done_replace
+	_task_done_replace "$@" || return "$?"
+	[[ "$did_done_replace" ]] && return 0
+	'
 
 prompt_display () {
 	if [[ -v TPFILTER ]]; then
