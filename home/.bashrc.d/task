@@ -18,7 +18,8 @@ else
 	bashwrap task '_record_taskwarrior_gc "$@"'
 
 	_taskwarrior_gc () {
-		task rc.gc=1 rc.detection=off rc.color=off rc.hooks=off rc.recurrence=off rc.verbose=nothing status:pending count >/dev/null
+		command task rc.gc=1 rc.color=0 rc.detection=0 rc.hooks=0 rc.recurrence=0 rc.verbose=0 status:pending count >/dev/null &&
+		touch "$_TASK_GC_TIMESTAMP_FILE"
 	}
 	_maybe_do_taskwarrior_gc () {
 		local cutoff_dt
@@ -66,7 +67,7 @@ fi
 prompt_display () {
 	if [[ -v TPFILTER ]]; then
 		if [[ "$TPFILTER" ]]; then
-			task "${TPFILTER[@]}"
+			command task "${TPFILTER[@]}"
 		fi
 	fi
 }
