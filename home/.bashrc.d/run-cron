@@ -11,8 +11,17 @@ if [[ -f /usr/sbin/cron && -x /usr/sbin/cron ]] &&
 	command -v pgrep >/dev/null &&
 	! pgrep cron >/dev/null
 then
-	# Cron is installed and isn't running, so run it.
-	/usr/sbin/cron
+	# In an ideal world, I'd always run Cygwin cron as a Windows service.
+	# Sometimes that's not viable, so I can put a file in /etc to record that
+	# fact and start cron here as a job instead.
+	if [[ -e /etc/run-cron-as-job ]]; then
+		/usr/sbin/cron
+	else
+		# Cron is installed and isn't running, so yell.
+		wrap_message <<-'EOF' >&2
+			cron is installed and not running.  You probably want to fix that!
+			EOF
+	fi
 fi
 
 # vim: ft=bash noet ts=4
