@@ -1,18 +1,50 @@
 [[ "$OSTYPE" = 'cygwin' ]] || return 0
 
-# Report any cron output.
-if [[ -r ~/cron.log ]]; then
-	wrap_message <<-'EOF' >&2
-		~/cron.log exists.  Run `vim cron.log` to see the output.
-		EOF
-fi
+if [[ -f /usr/sbin/cron && -x /usr/sbin/cron ]]; then
 
-if [[ -f /usr/sbin/cron && -x /usr/sbin/cron ]] &&
-	command -v pgrep >/dev/null &&
-	! pgrep cron >/dev/null
-then
-	# Cron is installed and isn't running, so run it.
-	/usr/sbin/cron
+	# Report any cron output.
+	_report_cron () {
+		[[ -s ~/cron.log ]] && wrap_message <<-'EOF'
+
+			~/cron.log exists.  You probably want to see what it contains.
+			EOF
+	}
+
+	if (( BASH_VERSINFO[0] > 5 ||
+			( BASH_VERSINFO[0] == 5 && BASH_VERSINFO[1] >= 1 ) )); then
+		PROMPT_COMMAND+=(_report_cron)
+	elif [[ "$PROMPT_COMMAND" ]]; then
+		if [[ "$PROMPT_COMMAND" = *';' ]]; then
+			PROMPT_COMMAND+=_report_cron
+		else
+			PROMPT_COMMAND+=';_report_cron'
+		fi
+	else
+		PROMPT_COMMAND=_report_cron
+	fi
+
+	if command -v pgrep >/dev/null && ! pgrep cron >/dev/null; then
+		# In an ideal world, I'd always run Cygwin cron as a Windows service.
+		# Sometimes that's not viable, so I can put a file in /etc to record
+		# that fact and start cron here as a job instead.
+		if [[ -e /etc/run-cron-as-job ]]; then
+			/usr/sbin/cron
+		else
+			# Cron is installed and isn't running, so yell.
+			wrap_message <<-'EOF' >&2
+				cron is installed and not running.  You probably want to do one
+				of the following:
+
+				- Install
+				  it as a service using cron-config.
+				- Get
+				  bashrc to run it as a job by running `touch
+				  /etc/run-cron-as-job`.
+				- Uninstall
+				  cron if you're not actually going to use it.
+				EOF
+		fi
+	fi
 fi
 
 # vim: ft=bash noet ts=4

@@ -1,17 +1,6 @@
 offlineimap-delete-folder () (
 	set -euxo pipefail
-	while getopts :h opt; do
-		case "$opt" in
-			h)	_offlineimap-delete-folder-help
-				return 0
-				;;
-			*)	wrap_message <<<"Unexpected option -$OPTARG" >&2
-				help
-				return 64  # EX_USAGE
-				;;
-		esac
-	done
-	shift "$(( OPTIND - 1 ))"
+
 	account="$1"
 	folder="$2"
 	folder_imap="${folder//&/&-}"
