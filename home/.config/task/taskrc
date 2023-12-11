@@ -19,6 +19,25 @@ hooks.location=~/.config/task/hooks/
 #include /usr/share/taskwarrior/solarized-light-256.theme
 #include /usr/share/taskwarrior/no-color.theme
 
+# Experimenting with my own colours...
+color.recurring=
+color.tag.next=
+color.tagged=
+color.tag.inbox=blue
+color.tag.problems=green
+color.active=magenta
+color.due=
+color.due.today=red
+color.overdue=bold red
+color.scheduled=
+color.blocked=on rgb100
+color.blocking=on rgb001
+color.uda.priority.H=
+color.uda.priority.M=
+color.uda.priority.L=
+color.deleted=inverse underline
+color.completed=inverse
+
 # Recur after completion fields
 uda.recurAfterDue.type=duration
 uda.recurAfterDue.label=Rec. after due
@@ -219,11 +238,6 @@ urgency.user.tag.daylight.coefficient=1
 
 # I do care about age; I want older tasks to bubble up to the top of my queue.
 urgency.age.coefficient=4
-
-# Don't merge colours.  It makes the text for tasks that are blocking and
-# tagged +next unreadable.  Longer-term I might prefer to improve the colour
-# scheme, but this is good enough for now.
-rule.color.merge=0
 
 # Don't tell me about not completing the highest priority task; I know!
 nag=
