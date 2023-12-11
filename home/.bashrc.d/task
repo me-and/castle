@@ -109,7 +109,13 @@ _task_done_replace () {
 				description_args+=("$arg")
 			done
 
-			task "$old_uuid" duplicate blocks:"$blocks" "${params[@]}" description:"${description_args[*]}" || return "$?"
+			if (( "${#description_args[*]}" == 0 )); then
+				# No new description, so just use the old one.
+				task "$old_uuid" duplicate blocks:"$blocks" "${params[@]}" || return "$?"
+			else
+				task "$old_uuid" duplicate blocks:"$blocks" "${params[@]}" description:"${description_args[*]}" || return "$?"
+			fi
+
 			task "$old_uuid" done || return "$?"
 			did_done_replace=Yes
 			return 0
