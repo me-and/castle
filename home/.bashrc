@@ -180,10 +180,27 @@ tracewrap () {
 # that when I can launch vim directly!?).
 alias cscope='cscope -kRqb'
 
-# Simple random number generator.  Not even vaguely secure.
-function rand {
-	echo $(( (RANDOM % $1) + 1 ))
+# Simple random number generator.
+rand () {
+	local -i lo hi range
+	case "$#" in
+		1)	lo=1
+			hi="$1"
+			;;
+		2)	lo="$1"
+			hi="$2"
+			;;
+		*)	wrap_message >&2 <<-'EOF'
+				Specify either `rand <lo> <hi>` to choose a number between <lo>
+				and <hi>, or `rand <hi>` to choose a number between 1 and <hi>.
+				EOF
+			return 64  # EX_USAGE
+			;;
+	esac
+	(( range = hi - lo + 1 ))
+	echo $(( (SRANDOM % range) + lo ))
 }
+rand_ephemeral_port () { rand 49152 65535; }
 
 # https://twitter.com/chris__martin/status/420992421673988096
 alias such=git
