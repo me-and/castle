@@ -1,5 +1,12 @@
 # This script based in part on the one that was distributed with Debian
 
+# Read in .profile if that hasn't happened yet.  Do that here because this
+# script is read by Bash for things like executing ssh one-line commands, and I
+# want those to have access to the environment defined by the .profile file.
+if [[ -z "$_DOTPROFILE_PROCESSED" && -r ~/.profile ]]; then
+	. ~/.profile
+fi
+
 rc=0
 
 # Bail out if we're not running interactively.
