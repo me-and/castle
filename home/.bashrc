@@ -1,6 +1,11 @@
 # This script based in part on the one that was distributed with Debian
 
-rc=0
+# Read in .profile if that hasn't happened yet.  Do that here because this
+# script is read by Bash for things like executing ssh one-line commands, and I
+# want those to have access to the environment defined by the .profile file.
+if [[ -z "$_DOTPROFILE_PROCESSED" && -r ~/.profile ]]; then
+	. ~/.profile
+fi
 
 # Bail out if we're not running interactively.
 if [[ $- != *i* ]]; then
@@ -22,7 +27,6 @@ else
 		cat
 	}
 	wrap_message <<<'fmt unavailable' >&2
-	(( rc |= 0x10 ))
 fi
 
 # Don't add lines that start with a space or which duplicate the previous line
@@ -69,7 +73,6 @@ if [[ -z "$BASH_COMPLETION" &&
 
 	if [[ -z $enabled_bash_completion ]]; then
 		wrap_message <<<'bash_completion unavailable' >&2
-		(( rc |= 0x1 ))
 	fi
 fi
 unset f
@@ -85,7 +88,6 @@ if [[ $OSTYPE != "cygwin" ]] && ! type -t fzf-file-widget >/dev/null 2>&1; then
 		. /usr/share/doc/fzf/examples/key-bindings.bash
 	else
 		wrap_message <<<'fzf unavailable' >&2
-		(( rc |= 0x20 ))
 	fi
 fi
 
@@ -93,7 +95,6 @@ fi
 # and it's easier to complain once than complain every time.
 if ! command -v pgrep >/dev/null; then
 	wrap_message <<<'pgrep unavailable' >&2
-	(( rc |= 0x40 ))
 fi
 
 # Make less more friendly.
@@ -109,7 +110,6 @@ elif [[ "$(uname -s)" = CYGWIN* ]]; then
 	:
 else
 	wrap_message <<<'lesspipe unavailable' >&2
-	(( rc |= 0x2 ))
 fi
 
 # Set up Homeshick.
@@ -117,7 +117,6 @@ if [[ -r ~/.homesick/repos/homeshick/homeshick.sh ]]; then
 	. ~/.homesick/repos/homeshick/homeshick.sh
 else
 	wrap_message <<<'homeshick unavailable' >&2
-	(( rc |= 0x4 ))
 fi
 
 # Set up PS1.
@@ -128,7 +127,6 @@ elif [[ -f /usr/local/opt/bash-git-prompt/share/gitprompt.sh ]]; then
 else
 	wrap_message <<<'bash-git-prompt unavailable' >&2
 	PS1='\[\e]0;\h:\w\a\]\n\u@\h \w\n\$ '
-	(( rc |= 0x8 ))
 fi
 
 # Colours for ls
@@ -182,10 +180,27 @@ tracewrap () {
 # that when I can launch vim directly!?).
 alias cscope='cscope -kRqb'
 
-# Simple random number generator.  Not even vaguely secure.
-function rand {
-	echo $(( (RANDOM % $1) + 1 ))
+# Simple random number generator.
+rand () {
+	local -i lo hi range
+	case "$#" in
+		1)	lo=1
+			hi="$1"
+			;;
+		2)	lo="$1"
+			hi="$2"
+			;;
+		*)	wrap_message >&2 <<-'EOF'
+				Specify either `rand <lo> <hi>` to choose a number between <lo>
+				and <hi>, or `rand <hi>` to choose a number between 1 and <hi>.
+				EOF
+			return 64  # EX_USAGE
+			;;
+	esac
+	(( range = hi - lo + 1 ))
+	echo $(( (SRANDOM % range) + lo ))
 }
+rand_ephemeral_port () { rand 49152 65535; }
 
 # https://twitter.com/chris__martin/status/420992421673988096
 alias such=git
@@ -202,23 +217,9 @@ set_terminal_title () {
 	echo -ne '\e]0;'"$*"'\a'
 }
 
-if command -v gh >/dev/null; then
-	if [[ "$OSTYPE" = cygwin ]]; then
-		# Set up GH_PATH so GitHub CLI knows what to do.
-		# https://github.com/cli/cli/issues/6950#issuecomment-1457278881
-		export GH_PATH=gh
-	fi
-
-	if [[ "$BASH_COMPLETION_VERSINFO" ]]; then
-		# Use gh completion.
-		eval "$(gh completion -s bash)"
-	fi
-fi
-
-if [[ ! -v BROWSER && "$OSTYPE" = cygwin ]]; then
-	# Set BROWSER so programs know how to open websites from Cygwin: delegate
-	# to Windows via cygstart.
-	export BROWSER=cygstart
+if command -v gh >/dev/null && [[ "$BASH_COMPLETION_VERSINFO" ]]; then
+	# Use gh completion.
+	eval "$(gh completion -s bash)"
 fi
 
 # bashwrap function: given a function name and code to run before and/or after,
@@ -307,7 +308,5 @@ if [[ -d ~/.bashrc.d && -r ~/.bashrc.d && -x ~/.bashrc.d ]]; then
 		fi
 	done
 fi
-
-return "$rc"
 
 # vim: ft=bash noet ts=4
