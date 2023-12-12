@@ -7,8 +7,6 @@ if [[ -z "$_DOTPROFILE_PROCESSED" && -r ~/.profile ]]; then
 	. ~/.profile
 fi
 
-rc=0
-
 # Bail out if we're not running interactively.
 if [[ $- != *i* ]]; then
 	return
@@ -29,7 +27,6 @@ else
 		cat
 	}
 	wrap_message <<<'fmt unavailable' >&2
-	(( rc |= 0x10 ))
 fi
 
 # Don't add lines that start with a space or which duplicate the previous line
@@ -76,7 +73,6 @@ if [[ -z "$BASH_COMPLETION" &&
 
 	if [[ -z $enabled_bash_completion ]]; then
 		wrap_message <<<'bash_completion unavailable' >&2
-		(( rc |= 0x1 ))
 	fi
 fi
 unset f
@@ -92,7 +88,6 @@ if [[ $OSTYPE != "cygwin" ]] && ! type -t fzf-file-widget >/dev/null 2>&1; then
 		. /usr/share/doc/fzf/examples/key-bindings.bash
 	else
 		wrap_message <<<'fzf unavailable' >&2
-		(( rc |= 0x20 ))
 	fi
 fi
 
@@ -100,7 +95,6 @@ fi
 # and it's easier to complain once than complain every time.
 if ! command -v pgrep >/dev/null; then
 	wrap_message <<<'pgrep unavailable' >&2
-	(( rc |= 0x40 ))
 fi
 
 # Make less more friendly.
@@ -116,7 +110,6 @@ elif [[ "$(uname -s)" = CYGWIN* ]]; then
 	:
 else
 	wrap_message <<<'lesspipe unavailable' >&2
-	(( rc |= 0x2 ))
 fi
 
 # Set up Homeshick.
@@ -124,7 +117,6 @@ if [[ -r ~/.homesick/repos/homeshick/homeshick.sh ]]; then
 	. ~/.homesick/repos/homeshick/homeshick.sh
 else
 	wrap_message <<<'homeshick unavailable' >&2
-	(( rc |= 0x4 ))
 fi
 
 # Set up PS1.
@@ -135,7 +127,6 @@ elif [[ -f /usr/local/opt/bash-git-prompt/share/gitprompt.sh ]]; then
 else
 	wrap_message <<<'bash-git-prompt unavailable' >&2
 	PS1='\[\e]0;\h:\w\a\]\n\u@\h \w\n\$ '
-	(( rc |= 0x8 ))
 fi
 
 # Colours for ls
@@ -314,7 +305,5 @@ if [[ -d ~/.bashrc.d && -r ~/.bashrc.d && -x ~/.bashrc.d ]]; then
 		fi
 	done
 fi
-
-return "$rc"
 
 # vim: ft=bash noet ts=4
