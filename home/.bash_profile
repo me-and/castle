@@ -3,7 +3,7 @@ if [[ -r ~/.profile ]]; then
 fi
 
 if [[ -r ~/.bashrc ]]; then
-    . ~/.bashrc
+	. ~/.bashrc
 fi
 
-# vim: ft=bash et ts=4
+# vim: ft=bash noet ts=8
