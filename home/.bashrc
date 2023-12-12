@@ -200,23 +200,9 @@ set_terminal_title () {
 	echo -ne '\e]0;'"$*"'\a'
 }
 
-if command -v gh >/dev/null; then
-	if [[ "$OSTYPE" = cygwin ]]; then
-		# Set up GH_PATH so GitHub CLI knows what to do.
-		# https://github.com/cli/cli/issues/6950#issuecomment-1457278881
-		export GH_PATH=gh
-	fi
-
-	if [[ "$BASH_COMPLETION_VERSINFO" ]]; then
-		# Use gh completion.
-		eval "$(gh completion -s bash)"
-	fi
-fi
-
-if [[ ! -v BROWSER && "$OSTYPE" = cygwin ]]; then
-	# Set BROWSER so programs know how to open websites from Cygwin: delegate
-	# to Windows via cygstart.
-	export BROWSER=cygstart
+if command -v gh >/dev/null && [[ "$BASH_COMPLETION_VERSINFO" ]]; then
+	# Use gh completion.
+	eval "$(gh completion -s bash)"
 fi
 
 # bashwrap function: given a function name and code to run before and/or after,
