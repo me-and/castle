@@ -75,43 +75,42 @@ shopt -s globstar
 # Don't exit if there are running jobs.
 shopt -s checkjobs
 
+# Source the first file of a list.  Return the return code of the sourced file
+# if one was found, or 69 otherwise.
+_bashrc_source_first () {
+	local f rc
+	for f; do
+		if [[ -r "$f" ]]; then
+			. "$f"
+			rc="$?"
+			if (( rc != 0 )); then
+				wrap_message <<<"$f returned $rc" >&2
+			fi
+			return "$rc"
+		fi
+	done
+	return 69  # EX_UNAVAILABLE
+}
+
 # Enable bash completion, but only if it hasn't been enabled already -- it's
 # done automatically in Cygwin and is slow, so we don't want it twice!
 if [[ -z "$BASH_COMPLETION" &&
 			-z "$BASH_COMPLETION_COMPAT_DIR" &&
 			-z "$BASH_COMPLETION_VERSINFO" ]] &&
 		! shopt -oq posix; then
-	enabled_bash_completion=
-	for f in /etc/bash_completion \
-		/usr/local/share/bash-completion/bash_completion \
-		/usr/local/etc/bash_completion \
-		/usr/share/bash-completion/bash_completion
-	do
-		if [[ -r "$f" ]]; then
-			. "$f"
-			enabled_bash_completion=yes
-			break
-		fi
-	done
-
-	if [[ -z $enabled_bash_completion ]]; then
+	_bashrc_source_first /etc/bash_completion \
+			/usr/local/share/bash-completion/bash_completion \
+			/usr/local/etc/bash_completion \
+			/usr/share/bash-completion/bash_completion ||
 		wrap_message <<<'bash_completion unavailable' >&2
-	fi
 fi
-unset f
-unset enabled_bash_completion
 
 # Enable fzf, but only if it hasn't been enabled already, and this isn't Cygwin
 # (where support is sufficiently limited that I'd rather not have it).
-if [[ $OSTYPE != "cygwin" ]] && ! type -t fzf-file-widget >/dev/null 2>&1; then
-	if [[ -r ~/.fzf.bash ]]; then
-		. ~/.fzf.bash
-	elif [[ -r /usr/share/doc/fzf/examples/key-bindings.bash ]]; then
-		# Debian's fzf package, rather than a user-local install.
-		. /usr/share/doc/fzf/examples/key-bindings.bash
-	else
+if [[ "$OSTYPE" != cygwin ]] && ! type -t fzf-file-widget >/dev/null 2>&1; then
+	_bashrc_source_first \
+			~/.fzf.bash /usr/share/doc/fzf/examples/key-bindings.bash ||
 		wrap_message <<<'fzf unavailable' >&2
-	fi
 fi
 
 # Make less more friendly.
