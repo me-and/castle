@@ -155,20 +155,8 @@ if command -v dircolors >/dev/null; then
 fi
 
 # Set up aliases to use colours.
-if command -v gls >/dev/null; then
-	# On macOS with coreutils installed with "g" prefix (as is the default for
-	# Brew's coreutils package), default to using that.
-	alias ls='gls --color=auto -h'
-	alias dir='gdir --color=auto -h'
-	alias vdir='gvdir --color=auto -h'
-else
-	alias ls='ls --color=auto -h -v'
-	alias dir='dir --color=auto -h'
-	alias vdir='vdir --color=auto -h'
-fi
+alias ls='ls --color=auto -hv'
 alias grep='grep --color=auto'
-alias egrep='egrep --color=auto'
-alias fgrep='fgrep --color=auto'
 
 # Editors.
 if command -v vim >/dev/null; then
@@ -180,7 +168,7 @@ else
 fi
 
 # Set up an alias for viewing diffs with columns at screen width.
-alias coldiff='diff -yW$COLUMNS'
+alias coldiff='diff -yw"$COLUMNS"'
 
 # Utility function to make tracing other Bash functions easier.
 tracewrap () {
