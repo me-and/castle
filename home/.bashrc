@@ -1,14 +1,37 @@
-# This script based in part on the one that was distributed with Debian
+# Normally this is run only for non-login interactive shells, but this script
+# is also called from .bash_profile, which is run for all login shells, so it
+# should be ready to handle all scenarios.  There's more in common than there
+# is different!
 
-# Read in .profile if that hasn't happened yet.  Do that here because this
-# script is read by Bash for things like executing ssh one-line commands, and I
-# want those to have access to the environment defined by the .profile file.
-if [[ -z "$_DOTPROFILE_PROCESSED" && -r ~/.profile ]]; then
-	. ~/.profile
+# Set up standard paths and language information that I want regardless of
+# whether this is an interactive session or not.
+if [[ :"$PATH": != *:"$HOME/.local/bin":* ]]; then
+	PATH="$HOME/.local/bin${PATH:+:$PATH}"
 fi
 
-# Bail out if we're not running interactively.
-if [[ $- != *i* ]]; then
+if [[ :"$PYTHONPATH": != *:"$HOME/.local/lib/python3/my-packages":* ]]; then
+	PYTHONPATH="$HOME/.local/lib/python3/my-packages${PYTHONPATH:+:$PYTHONPATH}"
+fi
+
+: "${LANG:=en_GB.UTF-8}"
+: "${LANGUAGE:=en_GB:en}"
+: "${TIME_STYLE:=$'+%a %_d %b  %Y\n%a %_d %b %R'}"  # see ls(1)
+
+if [[ "$OSTYPE" = cygwin ]]; then
+	# Set up GH_PATH so GitHub CLI knows what to do.
+	# https://github.com/cli/cli/issues/6950#issuecomment-1457278881
+	: "${GH_PATH:=gh}"
+
+	# Set BROWSER so programs know how to open websites from Cygwin: delegate
+	# to Windows via cygstart.
+	: "${BROWSER:=cygstart}"
+fi
+
+export PATH PYTHONPATH LANG LANGUAGE TIME_STYLE GH_PATH BROWSER
+
+# If this isn't an interactive session, bail out before doing anything more
+# expensive.
+if [[ "$-" != *i* ]]; then
 	return
 fi
 
