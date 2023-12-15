@@ -122,7 +122,7 @@ elif command -v lesspipe.sh >/dev/null; then
 	# Seen on CentOS.
 	LESSOPEN="| $(command -v lesspipe.sh) %s"
 	export LESSOPEN
-elif [[ "$(uname -s)" = CYGWIN* ]]; then
+elif [[ "$OSTYPE" = cygwin ]]; then
 	# We know it doesn't exist on Cygwin, so don't bother erroring.
 	:
 else

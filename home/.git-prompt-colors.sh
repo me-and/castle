@@ -3,7 +3,7 @@ override_git_prompt_colors() {
 
 	case "$(hostname)" in
 		PC5819)
-			if [[ "$(uname -s)" = CYGWIN* ]]; then
+			if [[ "$OSTYPE" = cygwin ]]; then
 				# Cygwin gets one colour scheme...
 				HOST_COLOUR="${Green}"
 				PWD_COLOUR="${Yellow}"
