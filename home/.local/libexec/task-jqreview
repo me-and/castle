@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+declare -i count
+count="$1"
+
+task \( reviewed.none: or reviewed.before:now-6days or problems.any: \) \
+			-COMPLETED -DELETED \
+		export |
+	jq --argjson count "$count" \
+		'sort_by(if(.tags != null and (.tags | contains(["problems"])))
+			 then "00000000T000000Z"
+			 else .reviewed
+			 end)
+		 | .[:$count]
+		 | map(.reviewed = (now | todateiso8601))' |
+	vipe --suffix json | task import
+
+# vim: ft=bash noet ts=8

@@ -239,6 +239,9 @@ urgency.user.tag.daylight.coefficient=1
 # I do care about age; I want older tasks to bubble up to the top of my queue.
 urgency.age.coefficient=3
 
+# Use jqreview to do a tasksh-like review of some tasks.
+alias.jqreview=execute $HOME\/.local\/libexec\/task-jqreview
+
 # Don't tell me about not completing the highest priority task; I know!
 nag=
 
