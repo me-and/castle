@@ -114,12 +114,6 @@ if [[ $OSTYPE != "cygwin" ]] && ! type -t fzf-file-widget >/dev/null 2>&1; then
 	fi
 fi
 
-# Check for the existance of pgrep, since a bunch of other things rely on it
-# and it's easier to complain once than complain every time.
-if ! command -v pgrep >/dev/null; then
-	wrap_message <<<'pgrep unavailable' >&2
-fi
-
 # Make less more friendly.
 if command -v lesspipe >/dev/null; then
 	# Seen on Debian.
