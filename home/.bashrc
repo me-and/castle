@@ -37,7 +37,7 @@ fi
 
 # Function for neater wrapping of messages various.  Use with a here document
 # or here string.
-MAX_MESSAGE_WIDTH=79
+: "${MAX_MESSAGE_WIDTH:=79}"
 if command -v fmt >/dev/null; then
 	wrap_message () {
 		local -i target_width screen_width
