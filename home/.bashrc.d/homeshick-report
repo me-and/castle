@@ -3,22 +3,30 @@ if systemctl --user --quiet is-active homeshick-report.timer 2>/dev/null; then
 	# anything nasty and manual here.
 	:
 else
-	homeshick-report () {
-		command homeshick-report "$@" || return "$?"
-		if (( $# == 0 )) || { (( $# == 1 )) && [[ "$1" = '-c' ]]; }; then
-			# This was a full report, and we didn't hit the return
-			# statement above, so everything was up-to-date.  Touch
-			# the flag file to record the current time.
-			touch ~/.homesick/.reportlastrun
-		fi
+	_bashrc_homeshick_checking () {
+		local arg checking
+		for arg; do
+			if [[ "$arg" = -* ]]; then
+				continue
+			elif [[ "$arg" = check ]]; then
+				checking=Yes
+			else
+				return 1
+			fi
+		done
+		# Have processed all the arguments, and if checking is set and we
+		# haven't returned, the only other arguments are options, so we'll
+		# check all the repos.
+		[[ "$checking" ]]
 	}
+	bashwrap homeshick 'local checking; _bashrc_homeshick_checking "$@" && checking=Yes' 'rc="$?"; if [[ "$checking" ]] && (( rc == 0 )); then touch ~/.homesick/.reportlastrun; fi; return "$rc"'
 
 	if [[ ! -e ~/.homesick/.reportlastrun ]]; then
-		wrap_message <<<"Could not work out when homeshick-report last had a clear run" >&2
+		wrap_message <<<"Could not work out when homeshick check last had a clear run" >&2
 	elif (( "$(file-age -f ~/.homesick/.reportlastrun)" >= 60*60*24*7 )); then
 		# More than a week since this was last checked and found to be
 		# all up-to-date.
-		wrap_message <<<"homeshick-report hasn't had a clear run for $(file-age -h -- ~/.homesick/.reportlastrun)" >&2
+		wrap_message <<<"homeshick check hasn't had a clear run for $(file-age -h -- ~/.homesick/.reportlastrun)" >&2
 	fi
 fi
 
