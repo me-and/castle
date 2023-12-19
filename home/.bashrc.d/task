@@ -71,6 +71,10 @@ fi
 # Function to enable `task <filter> done-replace <new-task>`, which marks one
 # task as done and creates a new task that has the same properties (including
 # both blocked and blocking tasks) as the completed one.
+#
+# I'd prefer this to be a script with a Taskwarrior alias pointing to it, but
+# that approach doesn't allow using the normal Taskwarrior interface of having
+# filter arguments before the command and command arguments after it.
 _task_done_replace () {
 	[[ -v inside_task_done_replace ]] && return 0
 	local inside_task_done_replace=Yes
@@ -83,10 +87,10 @@ _task_done_replace () {
 			filter_args=("${@:1:n-1}")
 			old_uuid="$(_task_quick_quiet "${filter_args[@]}" _unique uuid)" || return "$?"
 			if [[ -z "$old_uuid" ]]; then
-				wrap_message <<<"No task matching filter ${filter_args[*]}" >&2
+				wrap_message <<<"No task matching filter ${filter_args[*]@Q}" >&2
 				return 1
 			elif [[ "$old_uuid" != ????????-????-????-????-???????????? ]]; then
-				wrap_message <<<"More than one task matching filter ${filter_args[*]}" >&2
+				wrap_message <<<"More than one task matching filter ${filter_args[*]@Q}" >&2
 				return 1
 			fi
 			blocks="$(_task_quick_quiet depends.has:"$old_uuid" _unique uuid)" || return "$?" # Newline separated
