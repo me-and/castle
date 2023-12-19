@@ -129,34 +129,24 @@ bashwrap task '
 	[[ "$did_done_replace" ]] && return 0
 	'
 
+declare TPREPORT
+declare -a TPFILTER
 prompt_display () {
-	if [[ -v TPFILTER ]]; then
-		if [[ "$TPFILTER" ]]; then
-			command task "${TPFILTER[@]}"
-		fi
+	if [[ "$TPREPORT" ]]; then
+		command task "${TPFILTER[@]}" "$TPREPORT"
 	fi
 }
 
-_prompt_display_call () {
-	if [[ -z "$SILENCE_PROMPT_DISPLAY" ]]; then
-		if declare -Fp prompt_display &>/dev/null; then
-			prompt_display
-		else
-			wrap_message <<-'EOM'
-				No `prompt_display function defined.  Either
-				define that function or set
-				SILENCE_PROMPT_DISPLAY to a non-empty value to
-				suppress this message.
-				EOM
-		fi
-	fi
+pnl () {
+	TPREPORT=next
+	TPFILTER=(limit:"$1")
 }
 
 # This based on the code in bash-git-prompt.
 if (( BASH_VERSINFO[0] > 5 || BASH_VERSINFO[0] == 5 && BASH_VERSINFO[1] >= 1 )); then
-	PROMPT_COMMAND+=(_prompt_display_call)
+	PROMPT_COMMAND+=(prompt_display)
 else
-	PROMPT_COMMAND+=';_prompt_display_call'
+	PROMPT_COMMAND+=';prompt_display'
 fi
 
 # vim: ft=bash noet ts=8
