@@ -133,6 +133,19 @@ bashwrap task '
 	[[ "$did_done_replace" ]] && return 0
 	'
 
+fo () {
+	local uuid
+	local -a uuids
+	uuids=($(_task_quick_quiet "$@" _unique uuid)) || return "$?"
+	if (( ${#uuids[*]} == 0 )); then
+		echo 'No matched tasks' >&2
+		return 1
+	fi
+	for uuid in "${uuids[@]}"; do
+		TPFILTER+=(uuid.not:"$uuid")
+	done
+}
+
 declare TPREPORT
 declare -a TPFILTER
 prompt_display () {
