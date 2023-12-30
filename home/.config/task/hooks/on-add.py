@@ -11,6 +11,7 @@ if __name__ == '__main__':
                                 h.waitingfor_adds_due,
                                 h.recur_after,
                                 h.reviewed_to_entry,
+                                h.fix_weekday_due,
                                 h.inbox_if_hook_gen(h.missing_project),
                                 ]
 
