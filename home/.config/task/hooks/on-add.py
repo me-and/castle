@@ -1,6 +1,4 @@
 #!/usr/bin/env python3
-import subprocess
-
 import asmodeus.hook as h
 from asmodeus.taskwarrior import TaskWarrior
 
