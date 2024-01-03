@@ -135,7 +135,7 @@ context.day-off.rc.urgency.user.tag.business.coefficient=6
 # Context: work.  Prioritise things that can only be done at work or in
 # business hours
 context.work.read=-southport -dadford -multivac -allotment -nsfw -alex
-context.work.rc.urgency.user.tag.work.coefficient=10
+context.work.rc.urgency.user.tag.work.coefficient=6
 context.work.rc.urgency.user.tag.business.coefficient=4
 
 # Context: dadford.  Prioritise things that can only be done on site.
@@ -153,7 +153,7 @@ context.bed.read=-home -southport -dadford -enfield -daylight -work -pc -multiva
 # Context: office.
 context.office.read=-southport -dadford -multivac -nsfw -alex -home
 context.office.rc.urgency.user.tag.business.coefficient=2
-context.office.rc.urgency.user.tag.work.coefficient=10
+context.office.rc.urgency.user.tag.work.coefficient=6
 
 # Default urgency coefficients for things that have context-specific urgencies,
 # otherwise the context-specific ones seem to not take effect.
