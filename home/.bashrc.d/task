@@ -68,9 +68,10 @@ else
 	unset -f _taskwarrior_gc _maybe_do_taskwarrior_gc
 fi
 
-# Function to enable `task <filter> done-replace <new-task>`, which marks one
-# task as done and creates a new task that has the same properties (including
-# both blocked and blocking tasks) as the completed one.
+# Function to enable `task <filter> (done-replace|del-replace) <new-task>`,
+# which marks one task as done or deleted and creates a new task that has the
+# same properties (including both blocked and blocking tasks) as the previous
+# one.
 #
 # I'd prefer this to be a script with a Taskwarrior alias pointing to it, but
 # that approach doesn't allow using the normal Taskwarrior interface of having
@@ -83,7 +84,7 @@ _task_done_replace () {
 	local -i n
 
 	for (( n=1; n<=$#; n++ )); do
-		if [[ "${!n}" = done-replace ]]; then
+		if [[ "${!n}" = done-replace || "${!n}" = del-replace ]]; then
 			filter_args=("${@:1:n-1}")
 			old_uuid="$(_task_quick_quiet "${filter_args[@]}" _unique uuid)" || return "$?"
 			if [[ -z "$old_uuid" ]]; then
@@ -120,7 +121,11 @@ _task_done_replace () {
 				task "$old_uuid" duplicate blocks:"$blocks" "${params[@]}" description:"${description_args[*]}" || return "$?"
 			fi
 
-			task "$old_uuid" done || return "$?"
+			if [[ "${!n}" = done-replace ]]; then
+				task "$old_uuid" done || return "$?"
+			else
+				task "$old_uuid" delete || return "$?"
+			fi
 			did_done_replace=Yes
 			return 0
 		fi
