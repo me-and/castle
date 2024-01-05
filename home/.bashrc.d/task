@@ -160,8 +160,10 @@ prompt_display () {
 }
 
 pnl () {
+	local limit="$1"
+	shift
 	TPREPORT=next
-	TPFILTER=(limit:"$1")
+	TPFILTER=(limit:"$limit" "$@")
 }
 
 # This based on the code in bash-git-prompt.
