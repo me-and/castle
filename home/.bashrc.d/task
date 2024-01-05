@@ -155,6 +155,12 @@ declare TPREPORT
 declare -a TPFILTER
 prompt_display () {
 	if [[ "$TPREPORT" ]]; then
+		if (( "${#TPFILTER[*]}" > 0 )); then
+			local msg
+			printf -v msg '%q ' "${TPFILTER[@]}"
+			msg="filter: ${msg% }"
+			cut_message "$msg"
+		fi
 		command task "${TPFILTER[@]}" "$TPREPORT"
 	fi
 }

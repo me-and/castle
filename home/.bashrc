@@ -52,6 +52,15 @@ else
 	wrap_message <<<'fmt unavailable' >&2
 fi
 
+# Function for truncating a message so it fits on one line.
+cut_message () {
+	if (( "${#1}" > COLUMNS )); then
+		printf '%s\n' "${1::COLUMNS-3}..."
+	else
+		printf '%s\n' "$1"
+	fi
+}
+
 # Don't add lines that start with a space or which duplicate the previous line
 # to the bash history.  Do store a whole load of history; computer memory is a
 # lot cheaper than my own.
