@@ -232,6 +232,10 @@ urgency.project.coefficient=0
 urgency.tags.coefficient=0
 urgency.annotations.coefficient=0
 
+# Reduce the impact of due dates.  This value puts a task that's due now as
+# having an urgency of 6, the same as having a priority of H.
+urgency.due.coefficient=8.2
+
 # If a task can only be done during daylight, bump the priority slightly so I
 # get to it when it's available
 urgency.user.tag.daylight.coefficient=1
