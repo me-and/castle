@@ -178,6 +178,10 @@ report.completed.labels=ID,UUID,Done,P,Proj,Tags,Due,Description
 report.completed.filter=status:completed limit:page
 report.completed.sort=end-
 
+# Remove "special" from the set of verbose values, since I know what "next"
+# does and don't use any of the other tags.
+verbose=affected,blank,context,edit,header,footnote,label,new-id,project,sync,override,recur
+
 # Taskwarrior seems confused about whether tasks that are waiting should be
 # included in status:pending or not.  The default report definitions seem to
 # assume they will be, but the behaviour assumes they won't be.  Change the
