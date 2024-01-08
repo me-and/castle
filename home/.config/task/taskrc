@@ -148,7 +148,7 @@ context.southport.read=-allotment -enfield -dadford -home -work
 context.southport.rc.urgency.user.tag.southport.coefficient=20
 
 # Context: bed.
-context.bed.read=-home -southport -dadford -enfield -daylight -work -pc -multivac -audio -business -alex -car
+context.bed.read=-home -southport -dadford -enfield -daylight -work -pc -multivac -audio -business -alex -car -cornwall
 
 # Context: office.
 context.office.read=-southport -dadford -multivac -nsfw -alex -home -car
