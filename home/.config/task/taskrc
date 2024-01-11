@@ -49,7 +49,7 @@ uda.recurAfterModifications.label=Rec. after changes
 # next filter: don't show full annotations, just a count of them, and hide
 # "waitingfor" tasks that I'm still waiting for.
 report.next.columns=id,start.age,entry.age,depends,priority,project,tags,recur,scheduled.countdown,due.relative,until.remaining,description.count,urgency
-report.next.filter=( status:pending or ( -COMPLETED -DELETED +inbox ) ) ( -waitingfor or +OVERDUE or due.none: or +inbox ) ( -BLOCKED or +OVERDUE or +inbox ) limit:page
+report.next.filter=( status:pending or ( -COMPLETED -DELETED +inbox ) ) ( -waitingfor or +OVERDUE or due.none: or +inbox ) ( -BLOCKED or +OVERDUE or +inbox )
 
 # "Until" behaviour on recurring tasks
 uda.recurTaskUntil.type=duration
@@ -87,7 +87,7 @@ urgency.inherit=1
 
 # Report on tasks I'm waiting for
 report.waitingfor.description=Tasks where I'm waiting on others
-report.waitingfor.filter=+waitingfor status:pending -BLOCKED limit:page
+report.waitingfor.filter=+waitingfor status:pending -BLOCKED
 report.waitingfor.columns=id,start.age,project,tags,due.relative,until.remaining,description.count
 report.waitingfor.sort=due+,id+
 report.waitingfor.labels=ID,Age,Proj,Tag,Due,Until,Description
@@ -175,7 +175,7 @@ urgency.user.tag.later.coefficient=-10
 # number of most recently completed tasks.
 report.completed.columns=id,uuid.short,end.age,priority,project,tags,due,description
 report.completed.labels=ID,UUID,Done,P,Proj,Tags,Due,Description
-report.completed.filter=status:completed limit:page
+report.completed.filter=status:completed
 report.completed.sort=end-
 
 # Remove "special" from the set of verbose values, since I know what "next"
