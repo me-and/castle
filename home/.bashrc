@@ -25,6 +25,12 @@ if [[ "$OSTYPE" = cygwin ]]; then
 	# Set BROWSER so programs know how to open websites from Cygwin: delegate
 	# to Windows via cygstart.
 	: "${BROWSER:=cygstart}"
+elif [[ -e /proc/sys/fs/binfmt_misc/WSLInterop || -e /proc/sys/fs/binfmt_misc/WSLInterop-late ]]; then
+	# If BROWSER hasn't already been set somehow, check wslview is available,
+	# and set BROWSER to delegate to that.
+	if [[ ! -v BROWSER ]] && command -v wslview >/dev/null; then
+		BROWSER=wslview
+	fi
 fi
 
 export PATH PYTHONPATH LANG LANGUAGE TIME_STYLE GH_PATH BROWSER
