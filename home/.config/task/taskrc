@@ -85,6 +85,10 @@ urgency.blocking.coefficient=0.1
 urgency.blocked.coefficient=0
 urgency.inherit=1
 
+# Reduce the urgency of tasks that are waiting, to reduce the extent to which
+# they boost tasks that block them but which aren't waiting.
+urgency.waiting.coefficient=-4
+
 # Report on tasks I'm waiting for
 report.waitingfor.description=Tasks where I'm waiting on others
 report.waitingfor.filter=+waitingfor status:pending -BLOCKED
