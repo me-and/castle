@@ -173,6 +173,14 @@ pnl () {
 	TPFILTER=(limit:"$limit" "$@")
 }
 
+pwl () {
+	local limit="$1"
+	[[ "$limit" ]] || limit=page
+	shift
+	TPREPORT=waitingfor
+	TPFILTER=(limit:"$limit" "$@")
+}
+
 # This based on the code in bash-git-prompt.
 if (( BASH_VERSINFO[0] > 5 || BASH_VERSINFO[0] == 5 && BASH_VERSINFO[1] >= 1 )); then
 	PROMPT_COMMAND+=(prompt_display)
