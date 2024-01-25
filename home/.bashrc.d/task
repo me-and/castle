@@ -167,6 +167,7 @@ prompt_display () {
 
 pnl () {
 	local limit="$1"
+	[[ "$limit" ]] || limit=page
 	shift
 	TPREPORT=next
 	TPFILTER=(limit:"$limit" "$@")
