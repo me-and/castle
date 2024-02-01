@@ -68,6 +68,21 @@ else
 	unset -f _taskwarrior_gc _maybe_do_taskwarrior_gc
 fi
 
+# Configure taskwarrior-tui as `tt`, as suggested by its own documentation.
+# Still not sure I want to keep using this tool, but while I am regularly using
+# it...
+#
+# I see strange behaviour with taskwarrior-tui's terminal handling, so the
+# function wrapper makes sure to reset things to an appropriate state before
+# and after calling.
+tt () {
+	clear || return "$?"
+	taskwarrior-tui "$@"
+	local rc="$?"
+	reset || return "$?"
+	return "$rc"
+}
+
 # Function to enable `task <filter> (done-replace|del-replace) <new-task>`,
 # which marks one task as done or deleted and creates a new task that has the
 # same properties (including both blocked and blocking tasks) as the previous
@@ -132,25 +147,42 @@ _task_done_replace () {
 	done
 }
 
-# Configure taskwarrior-tui as `tt`, as suggested by its own documentation.
-# Still not sure I want to keep using this tool, but while I am regularly using
-# it...
-#
-# I see strange behaviour with taskwarrior-tui's terminal handling, so the
-# function wrapper makes sure to reset things to an appropriate state before
-# and after calling.
-tt () {
-	clear || return "$?"
-	taskwarrior-tui "$@"
-	local rc="$?"
-	reset || return "$?"
-	return "$rc"
-}
-
 bashwrap task '
 	local did_done_replace
 	_task_done_replace "$@" || return "$?"
 	[[ "$did_done_replace" ]] && return 0
+	'
+
+# Wrapper to allow the filter "project.sub:x" to be converted to
+# "( project.is:x or project:x. )", i.e. excluding tasks with a project like
+# "xx" which a simple "project:x" would pick up.
+_task_project_sub_fixargs () {
+	local -n newargs="$1"
+	shift
+	local arg val
+	newargs=()
+	for arg; do
+		if [[ "$arg" = project.sub:* ]]; then
+			val="${arg#project.sub:}"
+			newargs+=(\( project.is:"$val" or project:"$val". \))
+		else
+			newargs+=("$arg")
+		fi
+	done
+}
+
+bashwrap task '
+	local -a newargs
+	local arg val
+	for arg; do
+		if [[ "$arg" = project.sub:* ]]; then
+			val="${arg#project.sub:}"
+			newargs+=(\( project.is:"$val" or project:"$val". \))
+		else
+			newargs+=("$arg")
+		fi
+	done
+	set -- "${newargs[@]}"
 	'
 
 fo () {
