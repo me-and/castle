@@ -197,7 +197,7 @@ prompt_display () {
 			msg="filter: ${msg% }"
 			cut_message "$msg"
 		fi
-		command task "${TPFILTER[@]}" "$TPREPORT"
+		task "${TPFILTER[@]}" "$TPREPORT"
 	fi
 }
 
