@@ -155,22 +155,8 @@ bashwrap task '
 
 # Wrapper to allow the filter "project.sub:x" to be converted to
 # "( project.is:x or project:x. )", i.e. excluding tasks with a project like
-# "xx" which a simple "project:x" would pick up.
-_task_project_sub_fixargs () {
-	local -n newargs="$1"
-	shift
-	local arg val
-	newargs=()
-	for arg; do
-		if [[ "$arg" = project.sub:* ]]; then
-			val="${arg#project.sub:}"
-			newargs+=(\( project.is:"$val" or project:"$val". \))
-		else
-			newargs+=("$arg")
-		fi
-	done
-}
-
+# "xx" which a simple "project:x" would pick up, and a similar rule for
+# "project.nsub:".
 bashwrap task '
 	local -a newargs
 	local arg val
@@ -178,6 +164,9 @@ bashwrap task '
 		if [[ "$arg" = project.sub:* ]]; then
 			val="${arg#project.sub:}"
 			newargs+=(\( project.is:"$val" or project:"$val". \))
+		elif [[ "$arg" = project.nsub:* ]]; then
+			val="${arg#project.nsub:}"
+			newargs+=(\( project.isnt:"$val" project.not:"$val". \))
 		else
 			newargs+=("$arg")
 		fi
