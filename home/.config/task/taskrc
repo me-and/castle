@@ -126,35 +126,35 @@ urgency.uda.priority.L.coefficient=-1.8
 reserved.lines=3
 
 # Context: evening and weekend
-context.evening-weekend.read=-business -southport -dadford -work
+context.evening-weekend.read=( -business -southport -dadford -work ) or +inbox
 
 # Context: allotment
-context.allotment.read=-home -southport -dadford -enfield -work
+context.allotment.read=( -home -southport -dadford -enfield -work ) or +inbox
 
 # Context: day off.  Prioritise things that can only be done in business hours.
-context.day-off.read=-southport -dadford -work
+context.day-off.read=( -southport -dadford -work ) or +inbox
 context.day-off.rc.urgency.user.tag.business.coefficient=6
 
 # Context: work.  Prioritise things that can only be done at work or in
 # business hours
-context.work.read=-southport -dadford -multivac -allotment -nsfw -alex
+context.work.read=( -southport -dadford -multivac -allotment -nsfw -alex ) or +inbox
 context.work.rc.urgency.user.tag.work.coefficient=6
 context.work.rc.urgency.user.tag.business.coefficient=4
 
 # Context: dadford.  Prioritise things that can only be done on site.
-context.dadford.read=-home -southport -enfield -business
+context.dadford.read=( -home -southport -enfield -business ) or +inbox
 context.dadford.write=+dadford
 context.dadford.rc.urgency.user.tag.dadford.coefficient=10
 
 # Context: southport.  Prioritise things that can only be done there.
-context.southport.read=-allotment -enfield -dadford -home -work
+context.southport.read=( -allotment -enfield -dadford -home -work ) or +inbox
 context.southport.rc.urgency.user.tag.southport.coefficient=20
 
 # Context: bed.
-context.bed.read=-home -southport -dadford -enfield -daylight -work -pc -multivac -audio -business -alex -car -cornwall
+context.bed.read=( -home -southport -dadford -enfield -daylight -work -pc -multivac -audio -business -alex -car -cornwall ) or +inbox
 
 # Context: office.
-context.office.read=-southport -dadford -multivac -nsfw -alex -home -car
+context.office.read=( -southport -dadford -multivac -nsfw -alex -home -car ) or +inbox
 context.office.rc.urgency.user.tag.business.coefficient=2
 context.office.rc.urgency.user.tag.work.coefficient=6
 
