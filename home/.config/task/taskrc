@@ -49,6 +49,7 @@ uda.recurAfterModifications.label=Rec. after changes
 # next filter: don't show full annotations, just a count of them, and hide
 # "waitingfor" tasks that I'm still waiting for.
 report.next.columns=id,start.age,entry.age,depends,priority,project,tags,recur,scheduled.countdown,due.relative,until.remaining,description.count,urgency
+report.next.labels=ID,Act,Age,Deps,P,Project,Tag,Rec,S,Due,Until,Description,Urg
 report.next.filter=( status:pending or ( -COMPLETED -DELETED +inbox ) ) ( -waitingfor or +OVERDUE or due.none: or +inbox ) ( -BLOCKED or +OVERDUE or +inbox )
 
 # "Until" behaviour on recurring tasks
@@ -92,9 +93,9 @@ urgency.waiting.coefficient=-4
 # Report on tasks I'm waiting for
 report.waitingfor.description=Tasks where I'm waiting on others
 report.waitingfor.filter=+waitingfor status:pending -BLOCKED
-report.waitingfor.columns=id,start.age,project,tags,due.relative,until.remaining,description.count
+report.waitingfor.columns=id,project,due.relative,until.remaining,description.count
 report.waitingfor.sort=due+,entry+
-report.waitingfor.labels=ID,Age,Proj,Tag,Due,Until,Description
+report.waitingfor.labels=ID,Proj,Due,Until,Description
 
 report.waitingfor-full.description=All tasks where I'm waiting on others
 report.waitingfor-full.filter=+waitingfor (status:pending or status:waiting)
