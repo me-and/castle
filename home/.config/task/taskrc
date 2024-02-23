@@ -96,6 +96,7 @@ report.waitingfor.filter=+waitingfor status:pending -BLOCKED
 report.waitingfor.columns=id,project,due.relative,until.remaining,description.count
 report.waitingfor.sort=due+,entry+
 report.waitingfor.labels=ID,Proj,Due,Until,Description
+report.waitingfor.context=0
 
 report.waitingfor-full.description=All tasks where I'm waiting on others
 report.waitingfor-full.filter=+waitingfor (status:pending or status:waiting)
