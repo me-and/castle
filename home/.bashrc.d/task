@@ -217,6 +217,36 @@ pwl () {
 	TPFILTER=(limit:"$limit" "$@")
 }
 
+_taskloop_any_newer () {
+	local file
+	local target="$1"
+	shift
+	for file; do
+		if [[ "$file" -nt "$target" ]]; then
+			return 0
+		fi
+	done
+	return 1
+}
+
+taskloop () {
+	local -a files=(~/.local/share/task/*.data ~/.config/task/taskrc)
+	local flagfile
+	flagfile="$(mktemp -t "taskloop.$*.$$.XXXXX")" || return "$?"
+	while :; do
+		touch "$flagfile" || return "$?"
+		task rc.reserved.lines=0 rc.verbose=header,footnote,label,affected,context rc.gc=0 rc.recurrence=0 limit:page "$@" || return "$?"
+		while _taskloop_any_newer "$flagfile" "${files[@]}"; do
+			touch "$flagfile" || return "$?"
+			echo Updating... || return "$?"
+			task rc.reserved.lines=0 rc.verbose=header,footnote,label,affected,context rc.gc=0 rc.recurrence=0 limit:page "$@" || return "$?"
+		done
+		inotifywait -qq -e modify "${files[@]}" || return "$?"
+		echo Updating... || return "$?"
+		mtimewait 1 "${files[@]}" || return "$?"
+	done
+}
+
 # This based on the code in bash-git-prompt.
 if (( BASH_VERSINFO[0] > 5 || BASH_VERSINFO[0] == 5 && BASH_VERSINFO[1] >= 1 )); then
 	PROMPT_COMMAND+=(prompt_display)
