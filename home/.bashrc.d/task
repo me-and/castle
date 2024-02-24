@@ -50,7 +50,7 @@ else
 		# timestamp of the most recent 4am.
 		printf -v cutoff_dt '%(%F)TT04:00' -1
 		printf -v now_s '%(%s)T' -1
-		cutoff_s="$(date -d "$_cutoff_dt" '+%s')"
+		cutoff_s="$(date -d "$cutoff_dt" '+%s')"
 		if (( cutoff_s >= now_s )); then
 			# It's between midnight and 4am, so check whether garbage
 			# collection was last run before or after 4am _yesterday_.
