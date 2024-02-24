@@ -229,21 +229,27 @@ _taskloop_any_newer () {
 	return 1
 }
 
+# TODO add handling of SIGWINCH to redraw when the terminal size changes
 taskloop () {
-	local -a files=(~/.local/share/task/*.data ~/.config/task/taskrc)
-	local flagfile
-	flagfile="$(mktemp -t "taskloop.$*.$$.XXXXX")" || return "$?"
+	local flagdir
+	flagdir="$(mktemp -dt "taskloop.$*.$$.XXXXX")" || return "$?"
+	trap 'rm -rf "$flagdir"; trap - ERR RETURN; return' ERR RETURN
+	local commandfile="$flagdir"/command updatefile="$flagdir"/lastupdated
+	local -a files=(~/.local/share/task/*.data ~/.config/task/taskrc "$commandfile")
+	printf '%s\n' task rc.reserved.lines=0 rc.verbose=header,footnote,label,affected,context rc.gc=0 rc.recurrence=0 limit:page "$@" >"$commandfile"
+	local -a command
 	while :; do
-		touch "$flagfile" || return "$?"
-		task rc.reserved.lines=0 rc.verbose=header,footnote,label,affected,context rc.gc=0 rc.recurrence=0 limit:page "$@" || return "$?"
-		while _taskloop_any_newer "$flagfile" "${files[@]}"; do
-			touch "$flagfile" || return "$?"
-			echo Updating... || return "$?"
-			task rc.reserved.lines=0 rc.verbose=header,footnote,label,affected,context rc.gc=0 rc.recurrence=0 limit:page "$@" || return "$?"
+		touch "$updatefile"
+		mapfile -t command <"$commandfile"
+		"${command[@]}"
+		while _taskloop_any_newer "$updatefile" "${files[@]}"; do
+			touch "$updatefile"
+			echo Updating...
+			"${command[@]}"
 		done
-		inotifywait -qq -e modify "${files[@]}" || return "$?"
-		echo Updating... || return "$?"
-		mtimewait 2 "${files[@]}" || return "$?"
+		inotifywait -qq -e modify "${files[@]}"
+		echo Updating...
+		mtimewait 2 "${files[@]}"
 	done
 }
 
