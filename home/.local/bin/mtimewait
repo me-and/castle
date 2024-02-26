@@ -54,6 +54,20 @@ shift
 
 declare -ar files=("$@")
 
+if [[ "$verbose" ]]; then
+	if command -v pv >/dev/null; then
+		sleep () {
+			echo "Sleeping for $1 seconds" >&2
+			command sleep "$1" | pv -t
+		}
+	else
+		sleep () {
+			echo "Sleeping for $1 seconds" >&2
+			command sleep "$1"
+		}
+	fi
+fi
+
 declare -i mtime max_mtime now age sleep
 while :; do
 	max_mtime=0
@@ -77,12 +91,7 @@ while :; do
 		exit 1
 	else
 		sleep="$((target_age - age))"
-		if [[ "$verbose" ]]; then
-			echo "Sleeping for $sleep seconds" >&2
-			sleep "$sleep" | pv -t
-		else
-			sleep "$sleep"
-		fi
+		sleep "$sleep"
 	fi
 done
 
