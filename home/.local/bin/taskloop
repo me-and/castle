@@ -5,7 +5,11 @@ set -euo pipefail
 declare -- flagdir commandfile inotifywaitpid waitrc
 declare -a monitor_files command
 
-flagdir="$(mktemp -dt "taskloop.${*@Q}.$$.XXXXX")"
+if (( $# >= 1 )); then
+	flagdir="$(mktemp -dt "taskloop.${*//\//-}.$$.XXXXX")"
+else
+	flagdir="$(mktemp -dt "taskloop.$$.XXXXX")"
+fi
 
 cleanup () {
 	rm -rf "$flagdir"
