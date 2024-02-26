@@ -15,15 +15,32 @@ trap cleanup EXIT
 trap : SIGWINCH
 
 commandfile="$flagdir"/command
+timestamp="$flagdir"/timestamp
 
 monitor_files=(~/.local/share/task/*.data ~/.config/task/taskrc "$commandfile")
 
 printf '%s\n' task rc.reserved.lines=0 rc.verbose=header,footnote,label,affected,context rc.gc=0 rc.recurrence=0 limit:page "$@" >"$commandfile"
 
+watchforchanges () {
+	touch "$timestamp"
+	while :; do
+		for f; do
+			if [[ "$f" -nt "$timestamp" ]]; then
+				return 0
+			fi
+		done
+		sleep 1
+	done
+}
+
 inotifywaitpid=
 while :; do
 	if [[ -z "$inotifywaitpid" ]]; then
-		inotifywait -qq -e modify "${monitor_files[@]}" &
+		# Disabled inotifywait as it can't be used on Cygwin;
+		# watchforchanges does essentially the same job just with a bit
+		# more overhead.
+		#inotifywait -qq -e modify "${monitor_files[@]}" &
+		watchforchanges "${monitor_files[@]}" &
 		inotifywaitpid="$!"
 	fi
 	mapfile -t command <"$commandfile"
