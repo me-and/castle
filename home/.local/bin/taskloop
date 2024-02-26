@@ -1,0 +1,52 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+declare -- flagdir commandfile inotifywaitpid waitrc
+declare -a monitor_files command
+
+flagdir="$(mktemp -dt "taskloop.${*@Q}.$$.XXXXX")"
+
+cleanup () {
+	rm -rf "$flagdir"
+}
+trap cleanup EXIT
+
+trap : SIGWINCH
+
+commandfile="$flagdir"/command
+
+monitor_files=(~/.local/share/task/*.data ~/.config/task/taskrc "$commandfile")
+
+printf '%s\n' task rc.reserved.lines=0 rc.verbose=header,footnote,label,affected,context rc.gc=0 rc.recurrence=0 limit:page "$@" >"$commandfile"
+
+inotifywaitpid=
+while :; do
+	if [[ -z "$inotifywaitpid" ]]; then
+		inotifywait -qq -e modify "${monitor_files[@]}" &
+		inotifywaitpid="$!"
+	fi
+	mapfile -t command <"$commandfile"
+	"${command[@]}"
+	if wait "$inotifywaitpid"; then
+		# inotifywait returned success, i.e. it detected a file change.
+		inotifywaitpid=
+	else
+		waitrc="$?"
+		if (( waitrc == 156 )); then
+			# wait ended with SIGWINCH, i.e. the terminal window
+			# size changed.  That means we need to re-run the
+			# command to fit the new terminal size.
+			:
+		else
+			# Non-zero return code from inotifywait, so exit with
+			# that return code.
+			exit "$waitrc"
+		fi
+	fi
+
+	echo Updating...
+	mtimewait 2 "${monitor_files[@]}"
+done
+
+# vim: ft=bash noet ts=8

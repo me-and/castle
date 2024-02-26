@@ -217,42 +217,6 @@ pwl () {
 	TPFILTER=(limit:"$limit" "$@")
 }
 
-_taskloop_any_newer () {
-	local file
-	local target="$1"
-	shift
-	for file; do
-		if [[ "$file" -nt "$target" ]]; then
-			return 0
-		fi
-	done
-	return 1
-}
-
-# TODO add handling of SIGWINCH to redraw when the terminal size changes
-taskloop () {
-	local flagdir
-	flagdir="$(mktemp -dt "taskloop.$*.$$.XXXXX")" || return "$?"
-	trap 'rm -rf "$flagdir"; trap - ERR RETURN; return' ERR RETURN
-	local commandfile="$flagdir"/command updatefile="$flagdir"/lastupdated
-	local -a files=(~/.local/share/task/*.data ~/.config/task/taskrc "$commandfile")
-	printf '%s\n' task rc.reserved.lines=0 rc.verbose=header,footnote,label,affected,context rc.gc=0 rc.recurrence=0 limit:page "$@" >"$commandfile"
-	local -a command
-	while :; do
-		touch "$updatefile"
-		mapfile -t command <"$commandfile"
-		"${command[@]}"
-		while _taskloop_any_newer "$updatefile" "${files[@]}"; do
-			touch "$updatefile"
-			echo Updating...
-			"${command[@]}"
-		done
-		inotifywait -qq -e modify "${files[@]}"
-		echo Updating...
-		mtimewait 2 "${files[@]}"
-	done
-}
-
 # This based on the code in bash-git-prompt.
 if (( BASH_VERSINFO[0] > 5 || BASH_VERSINFO[0] == 5 && BASH_VERSINFO[1] >= 1 )); then
 	PROMPT_COMMAND+=(prompt_display)
