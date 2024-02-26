@@ -49,7 +49,7 @@ done
 declare -r force
 shift "$((OPTIND-1))"
 
-declare -ir target_age="$1"
+declare -ir target_age="$1"000000000
 shift
 
 declare -ar files=("$@")
@@ -73,7 +73,7 @@ while :; do
 	max_mtime=0
 	for file in "${files[@]}"; do
 		if [[ -e "$file" ]]; then
-			mtime="$(date -r "$file" '+%s')"
+			mtime="$(date -r "$file" '+%s%N')"
 		elif [[ "$force" ]]; then
 			mtime=0
 		else
@@ -83,7 +83,7 @@ while :; do
 		(( mtime > max_mtime )) && max_mtime="$mtime"
 	done
 
-	now="$(date '+%s')"
+	now="$(date '+%s%N')"
 	age="$((now - max_mtime))"
 	if (( age >= target_age )); then
 		exit 0
@@ -91,7 +91,8 @@ while :; do
 		exit 1
 	else
 		sleep="$((target_age - age))"
-		sleep "$sleep"
+		printf -v sleep_s '%d.%09d' "${sleep::-9}" "${sleep: -9}"
+		sleep "$sleep_s"
 	fi
 done
 
