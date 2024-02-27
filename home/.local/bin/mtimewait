@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
+shopt -s extglob
 
 help () {
 	printf '%q [-fq] <age> <file>...\n' "$0"
@@ -63,13 +64,15 @@ declare -ar files=("$@")
 if [[ "$verbose" ]]; then
 	if command -v pv >/dev/null; then
 		sleep () {
-			echo "Sleeping for $1 seconds" >&2
-			command sleep "$1" | pv -t
+			local t="${1%%*(0)}"
+			echo "Sleeping for $t seconds" >&2
+			command sleep "$t" | pv -t
 		}
 	else
 		sleep () {
-			echo "Sleeping for $1 seconds" >&2
-			command sleep "$1"
+			local t="${1%%*(0)}"
+			echo "Sleeping for $t seconds" >&2
+			command sleep "$t"
 		}
 	fi
 fi
