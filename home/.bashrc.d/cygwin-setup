@@ -95,4 +95,30 @@ function cygwin_whatprovides {
 	cygcheck -p '\/'"$1"'\( -> \|$\|\.exe\)'
 }
 
+function cygwin_setup_clean {
+	find "$CYGWIN_DOWNLOAD_DIR"/http*%3a%2f%2f* -type f -printf '%h\0' |
+		sort -z | uniq -zd |
+		xargs -r0 bash -exuo pipefail -c '
+			for d; do
+				files=()
+				for f in "$d"/*; do
+					if [[ -f "$f" ]]; then
+						files+=("$f")
+					fi
+				done
+				if (( "${#files[*]}" < 2 )); then
+					continue
+				fi
+				newest="${files[0]}"
+				for f in "${files[@]:1}"; do
+					if [[ "$f" -nt "$newest" ]]; then
+						rm -v "$newest"
+						newest="$f"
+					else
+						rm -v "$f"
+					fi
+				done
+			done' -
+}
+
 # vim: ft=bash noet ts=4
