@@ -97,7 +97,11 @@ while :; do
 		exit 1
 	else
 		sleep="$((target_age - age))"
-		printf -v sleep_s '%d.%09d' "${sleep::-9}" "${sleep: -9}"
+		if (( sleep < 1000000000 )); then
+			printf -v sleep_s '0.%09d' "$sleep"
+		else
+			printf -v sleep_s '%d.%09d' "${sleep::-9}" "${sleep: -9}"
+		fi
 		sleep "$sleep_s"
 	fi
 done
