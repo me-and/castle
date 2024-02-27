@@ -175,6 +175,10 @@ bashwrap task '
 	'
 
 fo () {
+	if (( $# == 0 )); then
+		echo 'No filter specified' >&2
+		return 1
+	fi
 	local uuid
 	local -a uuids
 	uuids=($(_task_quick_quiet "$@" _unique uuid)) || return "$?"
