@@ -175,6 +175,10 @@ bashwrap task '
 	'
 
 fo () {
+	if (( $# == 0 )); then
+		echo 'No filter specified' >&2
+		return 1
+	fi
 	local uuid
 	local -a uuids
 	uuids=($(_task_quick_quiet "$@" _unique uuid)) || return "$?"
@@ -184,6 +188,25 @@ fo () {
 	fi
 	for uuid in "${uuids[@]}"; do
 		TPFILTER+=(uuid.not:"$uuid")
+	done
+}
+
+# Version of fo for use with the taskloop script...
+tlo () {
+	if (( $# == 0 )); then
+		echo 'No filter specified' >&2
+		return 1
+	fi
+	trap 'trap - RETURN ERR; return' RETURN ERR
+	local f
+	local -a uuids
+	uuids=($(_task_quick_quiet "$@" _unique uuid))
+	if (( ${#uuids[*]} == 0 )); then
+		echo 'No matched tasks' >&2
+		return 1
+	fi
+	for f in /tmp/taskloop.*/command; do
+		printf 'uuid.not:%s\n' "${uuids[@]}" >>"$f"
 	done
 }
 
