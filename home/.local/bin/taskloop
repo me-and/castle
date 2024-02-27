@@ -23,7 +23,7 @@ timestamp="$flagdir"/timestamp
 
 monitor_files=(~/.local/share/task/*.data ~/.config/task/taskrc "$commandfile")
 
-printf '%s\n' task rc.reserved.lines=0 rc.verbose=header,footnote,label,affected,context rc.gc=0 rc.recurrence=0 limit:page "$@" >"$commandfile"
+printf '%s\n' task rc.reserved.lines=0 rc.verbose=blank,header,footnote,label,affected,context rc.gc=0 rc.recurrence=0 limit:page "$@" >"$commandfile"
 
 watchforchanges () {
 	touch "$timestamp"
@@ -66,7 +66,7 @@ while :; do
 		fi
 	fi
 
-	echo Updating...
+	echo -n Updating...
 	mtimewait 2 "${monitor_files[@]}"
 done
 
