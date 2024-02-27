@@ -3,17 +3,6 @@
 
 set -euo pipefail
 
-# Returns 0 for true, 1 for false.
-executable_available () {
-	local path
-	for path in "${EXECUTABLE_PATHS[@]}"; do
-		if [[ -x "$path/$1" ]]; then
-			return 0
-		fi
-	done
-	return 1
-}
-
 string_to_array () {
 	local string="$1"
 	local sep="$2"
@@ -27,6 +16,13 @@ string_to_array () {
 # Will return 0 if all executables are available, 1 if there are one or more
 # missing.
 check_executables_available () {
+	local abort_on_missing=
+	if [[ "$1" = -x ]]; then
+		# If there's a problem, exit the script, as it indicates we
+		# can't carry on.
+		abort_on_missing=YesPlease
+	fi
+
 	local -a missing_executables=()
 	local -a search_paths
 	local arg path
@@ -44,22 +40,49 @@ check_executables_available () {
 
 	if (( "${#missing_executables[*]}" != 0 )); then
 		echo "Missing executables:"
-		for arg in "${missing_executables[@]}"; do
-			printf '%s\n' "- $arg"
-		done
-		return 1
+		printf -- '- %s\n' "${missing_executables[@]}"
+		if [[ "$abort_on_missing" ]]; then
+			exit 69  # EX_UNAVAILABLE
+		else
+			problems=Yes
+		fi
 	fi
 }
 
 check_cygwin_registry () {
 	local key="$1"
-	local hex_value="$2"
-	if [[ -e "$key" ]] && cmp -s "$key" <(xxd -r -p <<<"$hex_value"); then
-		return 0
-	else
-		printf 'Registry %s not set to %s\n' "$key" "$hex_value"
-		return 1
+	local type="$2"
+	local value="$3"
+
+	local key_file=/proc/registry/"$key"
+	if [[ ! -e "$key_file" ]]; then
+		printf 'Registry %s not set to %s %s\n' "$key" "$type" "$value"
+		problems=Yes
 	fi
+
+	case "$type" in
+		DWORD)
+			local value_hex value_hex_le
+			# Via https://unix.stackexchange.com/a/321866/2134
+			if ! printf -v value_hex '%08x' "$value"; then
+				printf 'Cannot convert %s from decimal to hex\n' "$value" >&2
+				exit 70  # EX_SOFTWARE
+			fi
+			value_hex_le="$(dd conv=swab status=none <<<"$value_hex" | rev)"
+			if [[ ! "$value_hex_le" =~ ^[0-9a-f]{8}$ ]]; then
+				printf 'Cannot convert %q to a valid DWORD (got %q)\n' "$value" "$value_hex_le" >&2
+				exit 70  # EX_SOFTWARE
+			fi
+			if ! cmp -s "$key_file" <(xxd -r -p <<<"$value_hex_le"); then
+				printf 'Registry %s not set to %s %s\n' "$key" "$type" "$value"
+				problems=Yes
+			fi
+			;;
+		*)
+			printf 'Unable to check %s registry values!\n' "$type" >&2
+			exit 70  # EX_SOFTWARE
+			;;
+	esac
 }
 
 check_onedrive_excludes () {
@@ -74,25 +97,26 @@ check_onedrive_excludes () {
 		# whole lines.
 		if ! dos2unix -q -e -O -- "$onedrive_excludes_file" | grep -qxF "$exclude"; then
 			printf '%s missing from OneDrive excludes %s\n' "$exclude" "$onedrive_excludes_file"
-			rc=1
+			problems=Yes
 		fi
 	done
-
-	return "$rc"
 }
 
-rc=0
+problems=
 
-check_executables_available jq vipe task less vim curl git fmt gh python3 ssh || rc="$?"
+check_executables_available jq vipe task less vim curl git fmt gh python3 ssh
 
 if [[ "$OSTYPE" = cygwin ]]; then
 	check_executables_available cygpath cmp dos2unix || exit 69  # EX_UNAVAILABLE
 
 	# Want this because it ensures Start Menu searches are much quicker.
-	check_cygwin_registry /proc/registry/HKEY_CURRENT_USER/Software/Policies/Microsoft/Windows/Explorer/DisableSearchBoxSuggestions 01000000 || rc="$?"
+	check_cygwin_registry HKEY_CURRENT_USER/Software/Policies/Microsoft/Windows/Explorer/DisableSearchBoxSuggestions DWORD 1
+
+	# Disable the taskbar search box.
+	check_cygwin_registry HKEY_CURRENT_USER/Software/Microsoft/Windows/CurrentVersion/Search/SearchboxTaskbarMode DWORD 0
 
 	# Ensure OneDrive is configured to skip files I want it to skip.
-	check_onedrive_excludes '*.crdownload' '*.aux' '*.fls' '*.fdb_latexmk' || rc="$?"
+	check_onedrive_excludes '*.crdownload' '*.aux' '*.fls' '*.fdb_latexmk'
 fi
 
-exit "$rc"
+[[ -z "$problems" ]]
