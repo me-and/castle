@@ -97,7 +97,10 @@ while :; do
 		exit 1
 	else
 		sleep="$((target_age - age))"
-		printf -v sleep_s '%d.%09d' "${sleep::-9}" "${sleep: -9}"
+		sleep_s="${sleep::-9}"  # Whole seconds, i.e. everything before the final nine digits
+		sleep_ns="${sleep: -9}"  # Nanoseconds, i.e. the final nine digits
+		sleep_ns="${sleep_ns##*(0)}"  # Needed to avoid "invalid octal number" errors
+		printf -v sleep_s '%d.%09d' "$sleep_s" "$sleep_ns"
 		sleep "$sleep_s"
 	fi
 done
