@@ -85,26 +85,14 @@ while :; do
 				# The timeout for doing a refresh has expired.
 				refreshwaitpid=
 				;;
-			*)
-				# This shouldn't happen AFAIK: wait shouldn't
-				# return success unless a waited-for process
-				# has exited with success.
-				exit 70  # EX_SOFTWARE
-				;;
 		esac
 	else
 		waitrc="$?"
-		if (( waitrc == 156 )); then
+		if (( waitrc == 156 )) && [[ ! -v waitedpid ]]; then
 			# wait ended with SIGWINCH, i.e. the terminal window
 			# size changed.  That means we need to re-run the
 			# command to fit the new terminal size.
-			#
-			# Check this wasn't emitted by one of the waited-for
-			# processes, which shouldn't happen; if it does, pass
-			# the exit code on.
-			if [[ "$waitedpid" ]]; then
-				exit "$waitrc"
-			fi
+			:
 		else
 			# Non-zero return code or unexpected signal, so exit
 			# with that return code.
