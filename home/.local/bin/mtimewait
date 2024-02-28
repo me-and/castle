@@ -36,6 +36,7 @@ help () {
 force=
 quick=
 verbose=
+have_negative=
 while getopts :fhqv opt; do
 	case "$opt" in
 		f)	force=YesPlease;;
@@ -44,22 +45,34 @@ while getopts :fhqv opt; do
 			;;
 		q)	quick=YesPlease;;
 		v)	verbose=YesPlease;;
-		*)	printf 'Unexpected option -%s\n\n' "$OPTARG" >&2
-			help >&2
-			exit 64  # EX_USAGE
+		*)	if [[ "$OPTARG" =~ [0-9] ]]; then
+				# Fine, it's not an option, it's a negative number
+				have_negative=Yes
+			else
+				printf 'Unexpected option -%s\n\n' "$OPTARG" >&2
+				help >&2
+				exit 64  # EX_USAGE
+			fi
 			;;
 	esac
 done
 declare -r force
-shift "$((OPTIND-1))"
+if [[ "$have_negative" ]]; then
+	# Don't strip the last option, as it's not an option but a negative
+	# number (or the command line is completely bogus, in which case it'll
+	# get thrown out by the check for an integer number of seconds).
+	shift "$((OPTIND-2))"
+else
+	shift "$((OPTIND-1))"
+fi
 
-if [[ ! "$1" =~ ^[0-9]+$ ]]; then
-	echo 'First argument must be an integer number of seconds' >&2
+if [[ "$1" != 0 && ! "$1" =~ ^[+-]?[1-9][0-9]*$ ]]; then
+	printf 'First argument must be an integer number of seconds\n\n' >&2
 	help >&2
 	exit 64  # EX_USAGE
 fi
 
-declare -ir target_age="$1"000000000
+declare -ir target_age="$(( $1 * 1000000000 ))"
 shift
 
 declare -ar files=("$@")
