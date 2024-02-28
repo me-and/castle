@@ -2,28 +2,43 @@
 
 set -euo pipefail
 
-declare -- flagdir commandfile inotifywaitpid waitrc
-declare -a monitor_files command
-
-if (( $# >= 1 )); then
-	flagdir="$(mktemp -dt "taskloop.${*//\//-}.$$.XXXXX")"
+if (( $# != 1 )); then
+	exit 64  # EX_USAGE
 else
-	flagdir="$(mktemp -dt "taskloop.$$.XXXXX")"
+	report="$1"
 fi
 
+inotifywaitpid=
+refreshwaitpid=
+
+flagdir="$(mktemp -dt "taskloop.$report.$$.XXXXX")"
+
 cleanup () {
+	trap - SIGWINCH
 	rm -rf "$flagdir"
+	local -a kill=()
+	[[ "$inotifywaitpid" ]] && kill+=("$inotifywaitpid")
+	[[ "$refreshwaitpid" ]] && kill+=("$refreshwaitpid")
+	if (( "${#kill[*]}" > 0 )); then
+		# kill is allowed to return non-zero because it's fairly likely
+		# one or both sleep commands will have exited already.
+		kill "${kill[@]}" 2>/dev/null || :
+		wait "${kill[@]}"
+	fi
 }
 trap cleanup EXIT
 
 trap : SIGWINCH
 
-commandfile="$flagdir"/command
+configfile="$flagdir"/config
+filterfile="$flagdir"/filter
 timestamp="$flagdir"/timestamp
 
-monitor_files=(~/.local/share/task/*.data ~/.config/task/taskrc "$commandfile")
+immediate_update_files=("$configfile" "$filterfile" ~/.config/task/taskrc)
+delay_update_files=(~/.local/share/task/*.data)
 
-printf '%s\n' task rc.reserved.lines=0 rc.verbose=blank,header,footnote,label,affected,context rc.gc=0 limit:page "$@" >"$commandfile"
+printf '%s\n' reserved.lines=0 verbose=blank,header,footnote,label,affected,context gc=0 >"$configfile"
+>"$filterfile"
 
 watchforchanges () {
 	touch "$timestamp"
@@ -38,36 +53,67 @@ watchforchanges () {
 }
 
 inotifywaitpid=
+refreshwaitpid=
 while :; do
 	if [[ -z "$inotifywaitpid" ]]; then
 		# Disabled inotifywait as it can't be used on Cygwin;
 		# watchforchanges does essentially the same job just with a bit
 		# more overhead.
 		#inotifywait -qq -e modify "${monitor_files[@]}" &
-		watchforchanges "${monitor_files[@]}" &
+		watchforchanges "${immediate_update_files[@]}" "${delay_update_files[@]}" &
 		inotifywaitpid="$!"
 	fi
-	mapfile -t command <"$commandfile"
-	"${command[@]}"
-	if wait "$inotifywaitpid"; then
-		# inotifywait returned success, i.e. it detected a file change.
-		inotifywaitpid=
+	if [[ "$refreshwaitpid" ]]; then
+		# Always restart the refresh timer when redrawing the table.
+		kill "$refreshwaitpid"
+		refreshwaitpid=
+	fi
+	sleep 15m &
+	refreshwaitpid="$!"
+	mapfile -t config <"$configfile"
+	mapfile -t filter <"$filterfile"
+	task "${config[@]/#/rc.}" "${filter[@]}" limit:page "$report"
+	printf '%(%A %d %B %T %Z)T ' -1
+	if wait -np waitedpid "$inotifywaitpid" "$refreshwaitpid"; then
+		# One of the two processes return success.
+		case "$waitedpid" in
+			"$inotifywaitpid")
+				# A file change was detected.
+				inotifywaitpid=
+				;;
+			"$refreshwaitpid")
+				# The timeout for doing a refresh has expired.
+				refreshwaitpid=
+				;;
+			*)
+				# This shouldn't happen AFAIK: wait shouldn't
+				# return success unless a waited-for process
+				# has exited with success.
+				exit 70  # EX_SOFTWARE
+				;;
+		esac
 	else
 		waitrc="$?"
 		if (( waitrc == 156 )); then
 			# wait ended with SIGWINCH, i.e. the terminal window
 			# size changed.  That means we need to re-run the
 			# command to fit the new terminal size.
-			:
+			#
+			# Check this wasn't emitted by one of the waited-for
+			# processes, which shouldn't happen; if it does, pass
+			# the exit code on.
+			if [[ "$waitedpid" ]]; then
+				exit "$waitrc"
+			fi
 		else
-			# Non-zero return code from inotifywait, so exit with
-			# that return code.
+			# Non-zero return code or unexpected signal, so exit
+			# with that return code.
 			exit "$waitrc"
 		fi
 	fi
 
 	echo -n Updating...
-	mtimewait 2 "${monitor_files[@]}"
+	mtimewait 2 "${delay_update_files[@]}"
 done
 
 # vim: ft=bash noet ts=8

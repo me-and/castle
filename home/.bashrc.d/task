@@ -193,21 +193,87 @@ fo () {
 
 # Version of fo for use with the taskloop script...
 tlo () {
+	trap 'trap - RETURN ERR; return' RETURN ERR
+	local report f
+	local -a uuids files
+	if [[ "$1" = -r ]]; then
+		report="$2"
+		shift 2
+	elif [[ "$1" = -r* ]]; then
+		report="${1#-r}"
+		shift
+	else
+		report=
+	fi
+	if [[ "$1" = -- ]]; then
+		shift
+	fi
 	if (( $# == 0 )); then
 		echo 'No filter specified' >&2
 		return 1
 	fi
-	trap 'trap - RETURN ERR; return' RETURN ERR
-	local f
-	local -a uuids
 	uuids=($(_task_quick_quiet "$@" _unique uuid))
 	if (( ${#uuids[*]} == 0 )); then
 		echo 'No matched tasks' >&2
 		return 1
 	fi
-	for f in /tmp/taskloop.*/command; do
+	if [[ "$report" ]]; then
+		files=(/tmp/taskloop."$report".*/filter)
+	else
+		files=(/tmp/taskloop.*/filter)
+	fi
+	for f in "${files[@]}"; do
 		printf 'uuid.not:%s\n' "${uuids[@]}" >>"$f"
 	done
+}
+
+# Just add the specified filters to all current taskloop instances.
+tlf () {
+	trap 'trap - ERR RETURN; return' ERR RETURN
+	local report f
+	local -a files
+	if [[ "$1" = -r ]]; then
+		report="$2"
+		shift 2
+	elif [[ "$1" = -r* ]]; then
+		report="${1#-r}"
+		shift
+	else
+		report=
+	fi
+	if [[ "$1" = -- ]]; then
+		shift
+	fi
+	if (( $# == 0 )); then
+		echo 'No filter specified' >&2
+		return 1
+	fi
+	if [[ "$report" ]]; then
+		files=(/tmp/taskloop."$report".*/filter)
+	else
+		files=(/tmp/taskloop.*/filter)
+	fi
+	for f in "${files[@]}"; do
+		printf '%s\n' "$@" >>"$f"
+	done
+}
+
+tlef () {
+	local ed="${EDITOR:-vim}"
+	if [[ "$1" ]]; then
+		"$ed" /tmp/taskloop."$1".*/filter
+	else
+		"$ed" /tmp/taskloop.*/filter
+	fi
+}
+
+tlec () {
+	local ed="${EDITOR:-vim}"
+	if [[ "$1" ]]; then
+		"$ed" /tmp/taskloop."$1".*/config
+	else
+		"$ed" /tmp/taskloop.*/config
+	fi
 }
 
 declare TPREPORT
