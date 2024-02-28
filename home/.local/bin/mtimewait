@@ -80,13 +80,13 @@ declare -ar files=("$@")
 if [[ "$verbose" ]]; then
 	if command -v pv >/dev/null; then
 		sleep () {
-			local t="${1%%@(.000000000|*(0))}"
+			local t="${1%%?(.)*(0)}"
 			echo "Sleeping for $t seconds" >&2
 			command sleep "$t" | pv -t
 		}
 	else
 		sleep () {
-			local t="${1%%@(.000000000|*(0))}"
+			local t="${1%%?(.)*(0)}"
 			echo "Sleeping for $t seconds" >&2
 			command sleep "$t"
 		}
