@@ -3,13 +3,15 @@ set -euo pipefail
 shopt -s extglob
 
 help () {
-	printf '%q [-fq] <age> <file>...\n' "$0"
+	printf '%q [-fhq] <age> <file>...\n' "$0"
 	printf '\n'
 	printf 'Wait for the specified files to have not been modified\n'
 	printf 'recently.\n'
 	printf '\n'
 	printf -- '-f: Treat non-existant files as having been created at Unix\n'
 	printf '    epoch, rather than erroring out.\n'
+	printf '\n'
+	printf -- '-h: Show this help message\n'
 	printf '\n'
 	printf -- '-q: Rather than waiting for files to have not been modified\n'
 	printf '    within the specified time limit, just exit with a return\n'
@@ -26,6 +28,7 @@ help () {
 	printf '0: All files were last modified at least <age> seconds ago.\n'
 	printf '1: All files were last modified within the last <age>\n'
 	printf '    seconds, and -q was specified.\n'
+	printf '64: An invalid option was selected.\n'
 	printf '66: At least one specified file does not exist, and -f was\n'
 	printf '    not specified.\n'
 }
