@@ -135,7 +135,7 @@ if [[ "$OSTYPE" = cygwin ]]; then
 	# Don't combine taskbar buttons unnecessarily, on either the main taskbar or on other displays.
 	check_cygwin_registry HKEY_CURRENT_USER/Software/Microsoft/Windows/CurrentVersion/Explorer/Advanced/TaskbarGlomLevel DWORD 1
 	check_cygwin_registry HKEY_CURRENT_USER/Software/Microsoft/Windows/CurrentVersion/Explorer/Advanced/MMTaskbarGlomLevel DWORD 1
-	
+
 	# Ensure OneDrive is configured to skip files I want it to skip.
 	check_onedrive_excludes '*.crdownload' '*.aux' '*.fls' '*.fdb_latexmk'
 fi
