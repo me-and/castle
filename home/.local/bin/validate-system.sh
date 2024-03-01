@@ -58,6 +58,7 @@ check_cygwin_registry () {
 	if [[ ! -e "$key_file" ]]; then
 		printf 'Registry %s not set to %s %s\n' "$key" "$type" "$value"
 		problems=Yes
+		return
 	fi
 
 	case "$type" in
