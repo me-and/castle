@@ -21,6 +21,7 @@ check_executables_available () {
 		# If there's a problem, exit the script, as it indicates we
 		# can't carry on.
 		abort_on_missing=YesPlease
+		shift
 	fi
 
 	local -a missing_executables=()
