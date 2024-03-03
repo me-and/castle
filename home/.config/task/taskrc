@@ -258,9 +258,6 @@ urgency.age.coefficient=3
 # Small bump to urgency of decluttering.
 urgency.user.project.household.declutter.coefficient=1
 
-# Use jqreview to do a tasksh-like review of some tasks.
-alias.jqreview=execute $HOME\/.local\/libexec\/task-jqreview
-
 # Don't tell me about not completing the highest priority task; I know!
 nag=
 

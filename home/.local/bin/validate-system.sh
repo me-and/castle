@@ -21,6 +21,7 @@ check_executables_available () {
 		# If there's a problem, exit the script, as it indicates we
 		# can't carry on.
 		abort_on_missing=YesPlease
+		shift
 	fi
 
 	local -a missing_executables=()
@@ -58,6 +59,7 @@ check_cygwin_registry () {
 	if [[ ! -e "$key_file" ]]; then
 		printf 'Registry %s not set to %s %s\n' "$key" "$type" "$value"
 		problems=Yes
+		return
 	fi
 
 	case "$type" in
@@ -107,13 +109,32 @@ problems=
 check_executables_available jq vipe task less vim curl git fmt gh python3 ssh
 
 if [[ "$OSTYPE" = cygwin ]]; then
-	check_executables_available cygpath cmp dos2unix || exit 69  # EX_UNAVAILABLE
+	check_executables_available -x cygpath cmp dos2unix
 
 	# Want this because it ensures Start Menu searches are much quicker.
 	check_cygwin_registry HKEY_CURRENT_USER/Software/Policies/Microsoft/Windows/Explorer/DisableSearchBoxSuggestions DWORD 1
 
 	# Disable the taskbar search box.
 	check_cygwin_registry HKEY_CURRENT_USER/Software/Microsoft/Windows/CurrentVersion/Search/SearchboxTaskbarMode DWORD 0
+
+	# Disable the taskbar Copilot button.
+	check_cygwin_registry HKEY_CURRENT_USER/Software/Microsoft/Windows/CurrentVersion/Explorer/Advanced/ShowCopilotButton DWORD 0
+
+	# Disable the taskbar task view button.
+	check_cygwin_registry HKEY_CURRENT_USER/Software/Microsoft/Windows/CurrentVersion/Explorer/Advanced/ShowTaskViewButton DWORD 0
+
+	# Align the taskbar to the left.
+	check_cygwin_registry HKEY_CURRENT_USER/Software/Microsoft/Windows/CurrentVersion/Explorer/Advanced/ShowTaskViewButton DWORD 0
+
+	# Disable the taskbar widget button.
+	check_cygwin_registry HKEY_CURRENT_USER/Software/Microsoft/Windows/CurrentVersion/Explorer/Advanced/TaskbarDa DWORD 0
+
+	# Only show windows on the taskbar of the display they're open on.
+	check_cygwin_registry HKEY_CURRENT_USER/Software/Microsoft/Windows/CurrentVersion/Explorer/Advanced/MMTaskbarMode DWORD 2
+
+	# Don't combine taskbar buttons unnecessarily, on either the main taskbar or on other displays.
+	check_cygwin_registry HKEY_CURRENT_USER/Software/Microsoft/Windows/CurrentVersion/Explorer/Advanced/TaskbarGlomLevel DWORD 1
+	check_cygwin_registry HKEY_CURRENT_USER/Software/Microsoft/Windows/CurrentVersion/Explorer/Advanced/MMTaskbarGlomLevel DWORD 1
 
 	# Ensure OneDrive is configured to skip files I want it to skip.
 	check_onedrive_excludes '*.crdownload' '*.aux' '*.fls' '*.fdb_latexmk'
