@@ -11,6 +11,11 @@
 #include <stdlib.h>
 #include <fcntl.h>
 #include <unistd.h>
+#include <sys/stat.h>
+
+#ifndef O_BINARY
+#define O_BINARY 0
+#endif
 
 struct file_info {
 	int fd;
