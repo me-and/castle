@@ -80,9 +80,11 @@ void wait_for_change(int num_files, struct file_info *files)
 int main (int argc, char **argv)
 {
 	struct file_info *files;
+	int num_files = argc - 1;
+	char **file_names = argv + 1;
 
 	files = malloc(argc * sizeof *files);
 
-	record_starting_state(argc, argv, files);
-	wait_for_change(argc, files);
+	record_starting_state(num_files, file_names, files);
+	wait_for_change(num_files, files);
 }
