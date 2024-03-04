@@ -34,7 +34,7 @@ configfile="$flagdir"/config
 filterfile="$flagdir"/filter
 
 immediate_update_files=("$configfile" "$filterfile" ~/.config/task/taskrc)
-delay_update_files=(~/.local/share/task/*.data)
+delay_update_files=(~/.local/share/task/{pending,completed}.data)
 
 printf '%s\n' reserved.lines=0 verbose=blank,header,footnote,label,affected,context gc=0 >"$configfile"
 >"$filterfile"
