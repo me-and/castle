@@ -80,6 +80,12 @@ check_cygwin_registry () {
 				problems=Yes
 			fi
 			;;
+		SZ)  # String
+			if ! cmp -s "$key_file" <(printf '%s\0' "$value"); then
+				printf 'Registry %s not set to %s %s\n' "$key" "$type" "$value"
+				problems=Yes
+			fi
+			;;
 		*)
 			printf 'Unable to check %s registry values!\n' "$type" >&2
 			exit 70  # EX_SOFTWARE
