@@ -89,6 +89,12 @@ check_cygwin_registry () {
 
 check_onedrive_excludes () {
 	local local_app_data="$(cygpath "$LOCALAPPDATA")"
+	if [[ ! -d "$local_app_data/Microsoft/OneDrive/settings/Personal" ]]; then
+		# If OneDrive Personal isn't set up, don't treat that as an
+		# error, but do let the user know.
+		printf 'OneDrive Personal not installed\n' >&2
+		return
+	fi
 	local onedrive_excludes_file="$local_app_data/Microsoft/OneDrive/settings/Personal/odignore.txt"
 	local exclude
 	local rc=0
