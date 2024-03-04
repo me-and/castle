@@ -8,8 +8,8 @@ else
 	report="$1"
 fi
 
-inotifywaitpid=
-refreshwaitpid=
+toilpid=
+sleeppid=
 
 flagdir="$(mktemp -dt "taskloop.$report.$$.XXXXX")"
 
@@ -17,8 +17,8 @@ cleanup () {
 	trap - SIGWINCH
 	rm -rf "$flagdir"
 	local -a kill=()
-	[[ "$inotifywaitpid" ]] && kill+=("$inotifywaitpid")
-	[[ "$refreshwaitpid" ]] && kill+=("$refreshwaitpid")
+	[[ "$toilpid" ]] && kill+=("$toilpid")
+	[[ "$sleeppid" ]] && kill+=("$sleeppid")
 	if (( "${#kill[*]}" > 0 )); then
 		# kill is allowed to return non-zero because it's fairly likely
 		# one or both sleep commands will have exited already.
@@ -32,7 +32,6 @@ trap : SIGWINCH
 
 configfile="$flagdir"/config
 filterfile="$flagdir"/filter
-timestamp="$flagdir"/timestamp
 
 immediate_update_files=("$configfile" "$filterfile" ~/.config/task/taskrc)
 delay_update_files=(~/.local/share/task/*.data)
@@ -40,50 +39,31 @@ delay_update_files=(~/.local/share/task/*.data)
 printf '%s\n' reserved.lines=0 verbose=blank,header,footnote,label,affected,context gc=0 >"$configfile"
 >"$filterfile"
 
-watchforchanges () {
-	touch "$timestamp"
-	while :; do
-		for f; do
-			if [[ "$f" -nt "$timestamp" ]]; then
-				return 0
-			fi
-		done
-		sleep 1
-	done
-}
-
-inotifywaitpid=
-refreshwaitpid=
 while :; do
-	if [[ -z "$inotifywaitpid" ]]; then
-		# Disabled inotifywait as it can't be used on Cygwin;
-		# watchforchanges does essentially the same job just with a bit
-		# more overhead.
-		#inotifywait -qq -e modify "${monitor_files[@]}" &
-		watchforchanges "${immediate_update_files[@]}" "${delay_update_files[@]}" &
-		inotifywaitpid="$!"
+	if [[ -z "$toilpid" ]]; then
+		toil "${immediate_update_files[@]}" "${delay_update_files[@]}" &
+		toilpid="$!"
 	fi
-	if [[ "$refreshwaitpid" ]]; then
+	if [[ "$sleeppid" ]]; then
 		# Always restart the refresh timer when redrawing the table.
-		kill "$refreshwaitpid"
-		refreshwaitpid=
+		kill "$sleeppid"
 	fi
 	sleep 15m &
-	refreshwaitpid="$!"
+	sleeppid="$!"
 	mapfile -t config <"$configfile"
 	mapfile -t filter <"$filterfile"
 	task "${config[@]/#/rc.}" "${filter[@]}" limit:page "$report"
 	printf '%(%A %d %B %T %Z)T ' -1
-	if wait -np waitedpid "$inotifywaitpid" "$refreshwaitpid"; then
+	if wait -np waitedpid "$toilpid" "$sleeppid"; then
 		# One of the two processes return success.
 		case "$waitedpid" in
-			"$inotifywaitpid")
+			"$toilpid")
 				# A file change was detected.
-				inotifywaitpid=
+				toilpid=
 				;;
-			"$refreshwaitpid")
+			"$sleeppid")
 				# The timeout for doing a refresh has expired.
-				refreshwaitpid=
+				sleeppid=
 				;;
 		esac
 	else
