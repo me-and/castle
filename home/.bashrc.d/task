@@ -131,9 +131,9 @@ _task_done_replace () {
 
 			if (( "${#description_args[*]}" == 0 )); then
 				# No new description, so just use the old one.
-				task "$old_uuid" duplicate blocks:"$blocks" "${params[@]}" || return "$?"
+				task "$old_uuid" duplicate blocks:"$blocks" rtype: "${params[@]}" || return "$?"
 			else
-				task "$old_uuid" duplicate blocks:"$blocks" "${params[@]}" description:"${description_args[*]}" || return "$?"
+				task "$old_uuid" duplicate blocks:"$blocks" rtype: "${params[@]}" description:"${description_args[*]}" || return "$?"
 			fi
 
 			if [[ "${!n}" = done-replace ]]; then
