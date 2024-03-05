@@ -53,13 +53,13 @@ immediate_update_files=("$configfile" "$filterfile" ~/.config/task/taskrc)
 delay_update_files=(~/.local/share/task/{pending,completed}.data)
 
 printf '%s\n' reserved.lines=0 verbose=blank,header,footnote,label,affected,context gc=0 >"$configfile"
->"$filterfile"
+: >"$filterfile"
 
 while :; do
 	if [[ -z "$readpid" ]]; then
 		{
-			read -r cmd
-			printf '%s\n' "$cmd"
+			read -r lcmd
+			printf '%s\n' "$lcmd"
 		} </dev/stdin >"$cmdfile" &
 		readpid="$!"
 	fi
