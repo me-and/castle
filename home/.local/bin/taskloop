@@ -8,8 +8,22 @@ else
 	report="$1"
 fi
 
+# https://stackoverflow.com/a/31485948/220155
+shlex_file_to_array () {
+	local -n array="$1"
+	local file="$2"
+	local arg
+	array=()
+	while IFS= read -r -d '' arg; do
+		array+=("$arg")
+	done < <(xargs printf '%s\0' <"$file")
+}
+
+umask 0077
+
 toilpid=
 sleeppid=
+readpid=
 
 flagdir="$(mktemp -dt "taskloop.$report.$$.XXXXX")"
 
@@ -19,6 +33,7 @@ cleanup () {
 	local -a kill=()
 	[[ "$toilpid" ]] && kill+=("$toilpid")
 	[[ "$sleeppid" ]] && kill+=("$sleeppid")
+	[[ "$readpid" ]] && kill+=("$readpid")
 	if (( "${#kill[*]}" > 0 )); then
 		# kill is allowed to return non-zero because it's fairly likely
 		# one or both sleep commands will have exited already.
@@ -32,6 +47,7 @@ trap : SIGWINCH
 
 configfile="$flagdir"/config
 filterfile="$flagdir"/filter
+cmdfile="$flagdir"/cmd
 
 immediate_update_files=("$configfile" "$filterfile" ~/.config/task/taskrc)
 delay_update_files=(~/.local/share/task/{pending,completed}.data)
@@ -40,6 +56,13 @@ printf '%s\n' reserved.lines=0 verbose=blank,header,footnote,label,affected,cont
 >"$filterfile"
 
 while :; do
+	if [[ -z "$readpid" ]]; then
+		{
+			read -r cmd
+			printf '%s\n' "$cmd"
+		} </dev/stdin >"$cmdfile" &
+		readpid="$!"
+	fi
 	if [[ -z "$toilpid" ]]; then
 		toil "${immediate_update_files[@]}" "${delay_update_files[@]}" &
 		toilpid="$!"
@@ -54,8 +77,8 @@ while :; do
 	mapfile -t filter <"$filterfile"
 	task "${config[@]/#/rc.}" "${filter[@]}" limit:page "$report"
 	printf '%(%A %d %B %T %Z)T ' -1
-	if wait -np waitedpid "$toilpid" "$sleeppid"; then
-		# One of the two processes return success.
+	if wait -np waitedpid "$toilpid" "$sleeppid" "$readpid"; then
+		# One of the processes returned success.
 		case "$waitedpid" in
 			"$toilpid")
 				# A file change was detected.
@@ -64,6 +87,22 @@ while :; do
 			"$sleeppid")
 				# The timeout for doing a refresh has expired.
 				sleeppid=
+				;;
+			"$readpid")
+				# The user has typed a command.
+				readpid=
+				shlex_file_to_array cmd "$cmdfile"
+				if [[ -z "${cmd[*]}" ]]; then
+					# No command specified, so just
+					# refresh.
+					:
+				elif [[ "${cmd[0]}" = task ]]; then
+					# First argument of the command is
+					# "task", so just run the command.
+					"${cmd[@]}"
+				else
+					task "${cmd[@]}"
+				fi
 				;;
 		esac
 	else
