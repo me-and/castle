@@ -80,6 +80,12 @@ check_cygwin_registry () {
 				problems=Yes
 			fi
 			;;
+		SZ)  # String
+			if ! cmp -s "$key_file" <(printf '%s\0' "$value"); then
+				printf 'Registry %s not set to %s %s\n' "$key" "$type" "$value"
+				problems=Yes
+			fi
+			;;
 		*)
 			printf 'Unable to check %s registry values!\n' "$type" >&2
 			exit 70  # EX_SOFTWARE
@@ -141,6 +147,9 @@ if [[ "$OSTYPE" = cygwin ]]; then
 	# Don't combine taskbar buttons unnecessarily, on either the main taskbar or on other displays.
 	check_cygwin_registry HKEY_CURRENT_USER/Software/Microsoft/Windows/CurrentVersion/Explorer/Advanced/TaskbarGlomLevel DWORD 1
 	check_cygwin_registry HKEY_CURRENT_USER/Software/Microsoft/Windows/CurrentVersion/Explorer/Advanced/MMTaskbarGlomLevel DWORD 1
+
+	# Only show windows, not tabs within windows, in Alt+Tab.
+	check_cygwin_registry HKEY_CURRENT_USER/Software/Microsoft/Windows/CurrentVersion/Explorer/Advanced/MultiTaskingAltTabFilter DWORD 3
 
 	# Ensure OneDrive is configured to skip files I want it to skip.
 	check_onedrive_excludes '*.crdownload' '*.aux' '*.fls' '*.fdb_latexmk'
