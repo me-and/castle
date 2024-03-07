@@ -88,20 +88,20 @@ printf '%s\n' reserved.lines=0 verbose=blank,header,footnote,label,affected,cont
 printf '%s\n' "${filter[@]}" >"$filterfile"
 
 while :; do
-	if [[ -z "$readpid" ]]; then
+	if [[ -z "$readpid" ]] || ! kill -0 "$readpid" 2>/dev/null; then
 		{
 			read -r lcmd
 			printf '%s\n' "$lcmd"
 		} </dev/stdin >"$cmdfile" &
 		readpid="$!"
 	fi
-	if [[ -z "$toilpid" ]]; then
+	if [[ -z "$toilpid" ]] || ! kill -0 "$toilpid" 2>/dev/null; then
 		toil "${immediate_update_files[@]}" "${delay_update_files[@]}" &
 		toilpid="$!"
 	fi
 	if [[ "$sleeppid" ]]; then
 		# Always restart the refresh timer when redrawing the table.
-		kill "$sleeppid"
+		kill "$sleeppid" 2>/dev/null || :
 	fi
 	sleep 15m &
 	sleeppid="$!"
