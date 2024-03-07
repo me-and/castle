@@ -65,8 +65,24 @@ configfile="$flagdir"/config
 filterfile="$flagdir"/filter
 cmdfile="$flagdir"/cmd
 
-immediate_update_files=("$configfile" "$filterfile" ~/.config/task/taskrc)
-delay_update_files=(~/.local/share/task/{pending,completed}.data)
+data_path="$(task _get rc.data.location)"
+data_path="${data_path%/}"
+
+if [[ -v TASKRC ]]; then
+	config_path="$TASKRC"
+elif [[ -r "$HOME"/.taskrc ]]; then
+	config_path="$HOME"/.taskrc
+elif [[ -v XDG_CONFIG_HOME && -r "$XDG_CONFIG_HOME"/task/taskrc ]]; then
+	config_path="$XDG_CONFIG_HOME"/task/taskrc
+elif [[ -r "$HOME"/.config/task/taskrc ]]; then
+	config_path="$HOME"/.config/task/taskrc
+else
+	echo 'Could not find a taskrc file' >&2
+	exit 66  # EX_NOINPUT
+fi
+
+immediate_update_files=("$configfile" "$filterfile" "$config_path")
+delay_update_files=("$data_path"/{completed,pending}.data)
 
 printf '%s\n' reserved.lines=0 verbose=blank,header,footnote,label,affected,context gc=0 >"$configfile"
 printf '%s\n' "${filter[@]}" >"$filterfile"
