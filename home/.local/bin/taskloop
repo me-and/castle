@@ -2,10 +2,12 @@
 
 set -euo pipefail
 
-if (( $# != 1 )); then
-	exit 64  # EX_USAGE
+if (( $# == 0 )); then
+	report=next
+	filter=()
 else
 	report="$1"
+	filter=("${@:2}")
 fi
 
 # https://stackoverflow.com/a/31485948/220155
@@ -53,7 +55,7 @@ immediate_update_files=("$configfile" "$filterfile" ~/.config/task/taskrc)
 delay_update_files=(~/.local/share/task/{pending,completed}.data)
 
 printf '%s\n' reserved.lines=0 verbose=blank,header,footnote,label,affected,context gc=0 >"$configfile"
-: >"$filterfile"
+printf '%s\n' "${filter[@]}" >"$filterfile"
 
 while :; do
 	if [[ -z "$readpid" ]]; then
