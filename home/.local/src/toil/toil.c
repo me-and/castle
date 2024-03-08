@@ -9,16 +9,10 @@
  */
 
 #include <stdlib.h>
-#include <fcntl.h>
 #include <unistd.h>
 #include <sys/stat.h>
 
-#ifndef O_BINARY
-#define O_BINARY 0
-#endif
-
 struct file_info {
-	int fd;
 	off_t size;
 	struct timespec mtime;
 	mode_t mode;
@@ -33,13 +27,7 @@ void record_starting_state(
 	int ii;
 
 	for (ii = 0; ii < num_files; ii++) {
-		files[ii].fd = open(filenames[ii], O_RDONLY | O_BINARY);
-
-		if (files[ii].fd == -1) {
-			exit(43);
-		}
-
-		if (fstat(files[ii].fd, &stats) != 0) {
+		if (stat(filenames[ii], &stats) != 0) {
 			exit(44);
 		}
 
@@ -53,7 +41,9 @@ void record_starting_state(
 	}
 }
 
-void wait_for_change(int num_files, struct file_info *files)
+void wait_for_change(int num_files,
+		     char **filenames,
+		     struct file_info *files)
 {
 	struct stat stats;
 	int ii;
@@ -62,7 +52,7 @@ void wait_for_change(int num_files, struct file_info *files)
 		sleep(1);
 
 		for (ii = 0; ii < num_files; ii++) {
-			if (fstat(files[ii].fd, &stats) != 0) {
+			if (stat(filenames[ii], &stats) != 0) {
 				exit(42);
 			}
 
@@ -86,5 +76,5 @@ int main (int argc, char **argv)
 	files = malloc(argc * sizeof *files);
 
 	record_starting_state(num_files, file_names, files);
-	wait_for_change(num_files, files);
+	wait_for_change(num_files, file_names, files);
 }
