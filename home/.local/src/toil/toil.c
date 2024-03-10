@@ -11,8 +11,10 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <sys/stat.h>
+#include <stdbool.h>
 
 struct file_info {
+	bool exists;
 	off_t size;
 	struct timespec mtime;
 	mode_t mode;
@@ -28,16 +30,17 @@ void record_starting_state(
 
 	for (ii = 0; ii < num_files; ii++) {
 		if (stat(filenames[ii], &stats) != 0) {
-			exit(44);
+			files[ii].exists = false;
 		}
-
-		if (!S_ISREG(stats.st_mode)) {
-			exit(45);
+		else {
+			if (!S_ISREG(stats.st_mode)) {
+				exit(45);
+			}
+			files[ii].exists = true;
+			files[ii].mtime = stats.st_mtim;
+			files[ii].mode = stats.st_mode;
+			files[ii].size = stats.st_size;
 		}
-
-		files[ii].mtime = stats.st_mtim;
-		files[ii].mode = stats.st_mode;
-		files[ii].size = stats.st_size;
 	}
 }
 
@@ -53,13 +56,15 @@ void wait_for_change(int num_files,
 
 		for (ii = 0; ii < num_files; ii++) {
 			if (stat(filenames[ii], &stats) != 0) {
-				exit(42);
+				if (files[ii].exists) {
+					return;
+				}
 			}
-
-			if (files[ii].mode != stats.st_mode
-			    || files[ii].size != stats.st_size
-			    || files[ii].mtime.tv_sec != stats.st_mtim.tv_sec
-			    || files[ii].mtime.tv_nsec != stats.st_mtim.tv_nsec)
+			else if (!files[ii].exists
+				 || files[ii].mode != stats.st_mode
+				 || files[ii].size != stats.st_size
+				 || files[ii].mtime.tv_sec != stats.st_mtim.tv_sec
+				 || files[ii].mtime.tv_nsec != stats.st_mtim.tv_nsec)
 			{
 				return;
 			}
