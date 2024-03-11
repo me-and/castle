@@ -16,10 +16,6 @@ if [[ -r ~/.bashrc ]]; then
 	. ~/.bashrc
 fi
 
-# In case it already exists, remove any flag indicating that the user is in the
-# middle of doing things.
-rm -f "$bash_in_use_flag_file"
-
 # Catch SIGTERM and exit; by default Bash will ignore SIGTERM in interactive
 # sessions, but we need it to kill the session so the parent process can
 # restart the session.
@@ -32,6 +28,10 @@ trap -- 'builtin exit' SIGTERM
 # starts, and I haven't found any way to avoid that while still getting the
 # file created before processes run.
 trap -- 'builtin exit' SIGWINCH
+
+# On exit, remove any flag indicating that the user is in the middle of doing
+# things.
+trap -- 'rm -f "$bash_in_use_flag_file"' EXIT
 
 # On a successful command run, exit so the table can be redrawn.
 first_prompt=Yes
