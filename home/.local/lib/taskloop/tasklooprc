@@ -20,6 +20,12 @@ fi
 # middle of doing things.
 rm -f "$bash_in_use_flag_file"
 
+# Catch SIGTERM and exit; by default Bash will ignore SIGTERM in interactive
+# sessions, but we need it to kill the session so the parent process can
+# restart the session.
+trap -- 'builtin exit' SIGTERM
+: > "$sigterm_set_flag_file"
+
 # Detect when the window changes size, and exit so the table can be redrawn for
 # the current window size.  Ideally this would check for the existence of
 # $bash_in_use_flag_file, but that file is created when the signal processing
@@ -67,11 +73,6 @@ PROMPT_COMMAND=(
 	# action or as part of PROMPT_COMMAND processing.
 	'trap -- debug DEBUG'
 )
-
-# Catch SIGTERM and exit; by default Bash will ignore SIGTERM in interactive
-# sessions, but we need it to kill the session so the parent process can
-# restart the session.
-trap -- 'builtin exit' SIGTERM
 
 # Set the Bash prompt, based broadly on my normal Bash prompt.
 #
