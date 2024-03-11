@@ -159,9 +159,20 @@ while :; do
 				;;
 		esac
 	else
-		# Non-zero return code or unexpected signal, so exit with that
-		# return code.
-		exit "$?"
+		waitrc="$?"
+		if [[ -v waited_pid && "$waited_pid" = "$bash_pid" ]]; then
+			# Bash can exit with non-zero return codes if the
+			# previous command was unsuccessful.  Don't take that
+			# as an indicator to exit unless the file signalling
+			# that we should really exit exists.
+			if [[ -e "$explicit_exit_flag_file" ]]; then
+				exit "$waitrc"
+			fi
+		else
+			# Non-zero return code or unexpected signal, so exit
+			# with that return code.
+			exit "$waitrc"
+		fi
 	fi
 
 	if [[ "$bash_pid" ]] && kill -0 "$bash_pid" 2>/dev/null; then
