@@ -2,6 +2,8 @@
 
 set -euo pipefail
 
+umask 0077
+
 if (( $# == 0 )); then
 	report=next
 else
@@ -9,28 +11,11 @@ else
 	shift
 fi
 
-make_toil () {
-	echo 'Rebuilding toil...' >&2
-	~/.local/src/toil/install.sh
-	echo 'Done' >&2
-}
-
-if toil_path="$(command -v toil)"; then
-	if [[ ~/.local/src/toil/toil.c -nt "$toil_path"
-		|| ~/.local/src/toil/install.sh -nt "$toil_path" ]]; then
-			make_toil
-	fi
-else
-	make_toil
-fi
-
-umask 0077
-
 toil_pid=
 sleep_pid=
 bash_pid=
 
-tmpdir="$(mktemp -dt "taskloop.$report.$$.XXXXX")"
+tmpdir="$(mktemp -dt "taskloop.$report.$EPOCHSECONDS.$$.XXXXX")"
 
 cleanup () {
 	rm -rf "$tmpdir"
@@ -46,6 +31,21 @@ cleanup () {
 	fi
 }
 trap cleanup EXIT
+
+make_toil () {
+	echo 'Rebuilding toil...' >&2
+	~/.local/src/toil/install.sh
+	echo 'Done' >&2
+}
+
+if toil_path="$(command -v toil)"; then
+	if [[ ~/.local/src/toil/toil.c -nt "$toil_path"
+		|| ~/.local/src/toil/install.sh -nt "$toil_path" ]]; then
+			make_toil
+	fi
+else
+	make_toil
+fi
 
 filter=()
 config=()
