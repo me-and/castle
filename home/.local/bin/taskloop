@@ -92,7 +92,7 @@ task_config_file="$tmpdir"/config
 task_filter_file="$tmpdir"/filter
 #bash_in_use_flag_file="$tmpdir"/doingthings
 explicit_exit_flag_file="$tmpdir"/explicitexit
-sigterm_set_flag_file="$tmpdir"/bash-sigterm-set
+sigterm_set_flag_file="$tmpdir"/sigtermset
 
 data_path="$(task _get rc.data.location)"
 data_path="${data_path%/}"
