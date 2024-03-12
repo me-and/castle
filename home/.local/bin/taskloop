@@ -32,6 +32,10 @@ cleanup () {
 }
 trap cleanup EXIT
 
+export PS4='+\t $BASH_SOURCE:${FUNCNAME:-}:$LINENO: '
+exec {BASH_XTRACEFD}>"$tmpdir"/outertrace
+set -x
+
 make_toil () {
 	echo 'Rebuilding toil...' >&2
 	~/.local/src/toil/install.sh
@@ -86,7 +90,7 @@ done
 
 task_config_file="$tmpdir"/config
 task_filter_file="$tmpdir"/filter
-bash_in_use_flag_file="$tmpdir"/doingthings
+#bash_in_use_flag_file="$tmpdir"/doingthings
 explicit_exit_flag_file="$tmpdir"/explicitexit
 sigterm_set_flag_file="$tmpdir"/bash-sigterm-set
 
@@ -112,6 +116,7 @@ delay_update_files=("$data_path"/{completed,pending}.data)
 printf '%s\n' "${filter[@]}" >"$task_filter_file"
 printf '%s\n' "${config[@]}" >"$task_config_file"
 
+declare -i n=0
 while :; do
 	# If toil isn't already running, start it to monitor for changes to
 	# files that should trigger the task list to be redrawn if they change.
@@ -140,12 +145,17 @@ while :; do
 
 	# Start an interactive Bash shell so the user can enter task commands.
 	rm -f "$sigterm_set_flag_file"
+	bash_in_use_flag_file="$tmpdir"/doingthings."$n"
 	bash_in_use_flag_file="$bash_in_use_flag_file" \
 		explicit_exit_flag_file="$explicit_exit_flag_file" \
 		sigterm_set_flag_file="$sigterm_set_flag_file" \
 		tmpdir="$tmpdir" \
-		bash --rcfile ~/.local/lib/taskloop/tasklooprc -i </dev/stdin &
+		n="$n" \
+		BASH_XTRACEFD=3 \
+		bash --rcfile ~/.local/lib/taskloop/tasklooprc -ix \
+		<&0 3>"$tmpdir"/innertrace."$n" &
 	bash_pid="$!"
+	n="$((n+1))"
 
 	# Wait for one of the three background processes to exit.
 	if wait -np waited_pid "$toil_pid" "$sleep_pid" "$bash_pid"; then

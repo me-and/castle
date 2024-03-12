@@ -52,9 +52,7 @@ exit () {
 	builtin exit "$@"
 }
 
-debug () {
-	: >"$bash_in_use_flag_file"
-}
+m=0
 
 PROMPT_COMMAND=(
 	# Use the Bash Git Prompt commands for the actual prompt creation, in
@@ -71,7 +69,7 @@ PROMPT_COMMAND=(
 	# fire as soon as the user tries something, but not before, and a DEBUG
 	# trap will fire as soon as the next command is run whether by user
 	# action or as part of PROMPT_COMMAND processing.
-	'trap -- debug DEBUG'
+	'trap -- '\'': >"$bash_in_use_flag_file"; { declare -p; caller; } >"$tmpdir"/debug."$n"."$m"; m="$((m+1))"'\'' DEBUG'
 )
 
 # Set the Bash prompt, based broadly on my normal Bash prompt.
