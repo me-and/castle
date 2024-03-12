@@ -4,10 +4,9 @@ set -euo pipefail
 
 if (( $# == 0 )); then
 	report=next
-	filter=()
 else
 	report="$1"
-	filter=("${@:2}")
+	shift
 fi
 
 make_toil () {
@@ -48,6 +47,43 @@ cleanup () {
 }
 trap cleanup EXIT
 
+filter=()
+config=()
+have_reserved_lines=
+have_verbose=
+have_gc=
+have_limit=
+for arg; do
+	case "$arg" in
+		rc.reserved.lines[:=]*)
+			have_reserved_lines=Yes
+			config+=("${arg#rc.}")
+			;;
+		rc.verbose[:=]*)
+			have_verbose=Yes
+			config+=("${arg#rc.}")
+			;;
+		rc.gc[:=]*)
+			have_gc=Yes
+			config+=("${arg#rc.}")
+			;;
+		rc.*[:=]*)
+			config+=("${arg#rc.}")
+			;;
+		limit:*)
+			have_limit=Yes
+			filter+=("$arg")
+			;;
+		*)
+			filter+=("$arg")
+			;;
+	esac
+done
+[[ "$have_reserved_lines" ]] || config+=(reserved.lines=0)
+[[ "$have_verbose" ]] || config+=(verbose=blank,header,footnote,label,affected,context)
+[[ "$have_gc" ]] || config+=(gc=0)
+[[ "$have_limit" ]] || filter+=(limit:page)
+
 task_config_file="$tmpdir"/config
 task_filter_file="$tmpdir"/filter
 bash_in_use_flag_file="$tmpdir"/doingthings
@@ -73,22 +109,8 @@ fi
 immediate_update_files=("$task_config_file" "$task_filter_file" "$config_path")
 delay_update_files=("$data_path"/{completed,pending}.data)
 
-have_limit=
-for f in "${filter[@]}"; do
-	if [[ "$f" = limit:* ]]; then
-		have_limit=Yes
-	fi
-done
-if [[ -z "$have_limit" ]]; then
-	filter+=(limit:page)
-fi
 printf '%s\n' "${filter[@]}" >"$task_filter_file"
-
-printf '%s\n' \
-	reserved.lines=0 \
-	verbose=blank,header,footnote,label,affected,context \
-	gc=0 \
-	>"$task_config_file"
+printf '%s\n' "${config[@]}" >"$task_config_file"
 
 while :; do
 	# If toil isn't already running, start it to monitor for changes to
