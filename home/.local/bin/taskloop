@@ -32,7 +32,7 @@ cleanup () {
 }
 trap cleanup EXIT
 
-export PS4='+\t $BASH_SOURCE:${FUNCNAME:-}:$LINENO: '
+export PS4='+$EPOCHREALTIME \t $BASH_SOURCE:${FUNCNAME:-}:$LINENO: '
 exec {BASH_XTRACEFD}>"$tmpdir"/outertrace
 set -x
 
