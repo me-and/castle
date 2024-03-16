@@ -151,9 +151,8 @@ while :; do
 		sigterm_set_flag_file="$sigterm_set_flag_file" \
 		tmpdir="$tmpdir" \
 		n="$n" \
-		BASH_XTRACEFD=3 \
-		bash --rcfile ~/.local/lib/taskloop/tasklooprc -ix \
-		<&0 3>"$tmpdir"/innertrace."$n" &
+		bash --rcfile ~/.local/lib/taskloop/tasklooprc -i \
+		<&0 &
 	bash_pid="$!"
 	n="$((n+1))"
 
