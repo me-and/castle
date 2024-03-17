@@ -83,3 +83,19 @@ def task_diffs: task_compare | map_values(diffobjs(.[0]; .[1]));
 # Compare two tasks, including stripping keys that don't want to be compared.
 # Really just a shortcut for `stripkeys` and `task_diffs`.
 def task_diffs_strip(ks): map(map(stripkeys(ks))) | task_diffs;
+
+# Group by some particular function.
+#
+# jq 'index_by(.key)'
+#    [{"key": "alpha", "value": 1},
+#     {"key": "alpha", "value": 2},
+#     {"key": "beta", "value": 2}]
+# => {"alpha": [{"key": "alpha", "value": 1},
+#               {"key": "beta", "value": 2}],
+#     "beta": [{"key": "beta", "value": 2}]}
+def index_by(f): group_by(f) | reduce .[] as $a ({}; .[$a[0] | f] = $a);
+
+# Pad a string on the left so it is at least the given number of characters.
+# If specified, use the given padding character; if not, use space.
+def lpad(n; s): s * (n - length) + .;
+def lpad(n): lpad(n; " ");
