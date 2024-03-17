@@ -4,6 +4,6 @@ I don't expect anyone other than me to want to use this repo as-is, although you
 
     git clone https://github.com/andsens/homeshick ~/.homesick/repos/homeshick
     . ~/.homesick/repos/homeshick/homeshick.sh
-    homeshick clone me-and/castle me-and/asmodeus magicmonty/bash-git-prompt junegunn/vim-plug mileszs/ack.vim junegunn/fzf.vim luochen1990/rainbow sirtaj/vim-openscad lervag/vimtex aklt/plantuml-syntax
+    homeshick clone me-and/castle me-and/asmodeus magicmonty/bash-git-prompt junegunn/vim-plug mileszs/ack.vim junegunn/fzf.vim luochen1990/rainbow sirtaj/vim-openscad lervag/vimtex aklt/plantuml-syntax vito-c/jq.vim
 
 [Homeshick]: https://github.com/andsens/homeshick
