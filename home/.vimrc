@@ -120,5 +120,8 @@ Plug '~/.vim/bundle/vimtex'
 " PlantUML syntax
 Plug '~/.vim/bundle/plantuml-syntax'
 
+" jq syntax
+Plug '~/.vim/bundle/jq.vim'
+
 " Finished adding plugins
 call plug#end()

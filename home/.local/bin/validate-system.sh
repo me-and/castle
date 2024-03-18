@@ -156,6 +156,13 @@ if [[ "$OSTYPE" = cygwin ]]; then
 	# Only show windows, not tabs within windows, in Alt+Tab.
 	check_cygwin_registry HKEY_CURRENT_USER/Software/Microsoft/Windows/CurrentVersion/Explorer/Advanced/MultiTaskingAltTabFilter DWORD 3
 
+	# Make cursors a bit easier to see.  CAUTION: I *think* just changing
+	# this registry entry is insufficient, and the config needs to be
+	# changed through the control panel, because there are a bunch of other
+	# clearly related changes that happen when this config is set and which
+	# aren't checked here.
+	check_cygwin-registry HKEY_CURRENT_USER/Software/Microsoft/Accessibility/CursorSize DWORD 2
+
 	# Ensure OneDrive is configured to skip files I want it to skip.
 	check_onedrive_excludes '*.crdownload' '*.aux' '*.fls' '*.fdb_latexmk'
 fi

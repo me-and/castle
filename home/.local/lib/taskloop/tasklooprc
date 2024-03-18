@@ -7,6 +7,8 @@
 # - Exits after running a successful command, so the parent process can redraw
 #   the task table.
 
+exec {BASH_XTRACEFD}>"$tmpdir"/innertrace."$n"
+set -x
 
 # Load regular bashrc commands, so the user has access to their normal
 # shortcuts etc.
