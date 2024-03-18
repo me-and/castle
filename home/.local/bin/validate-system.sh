@@ -51,13 +51,18 @@ check_executables_available () {
 }
 
 check_cygwin_registry () {
-	local key="$1"
+	local path="$1"
 	local type="$2"
-	local value="$3"
+	local data="$3"
 
-	local key_file=/proc/registry/"$key"
-	if [[ ! -e "$key_file" ]]; then
-		printf 'Registry %s not set to %s %s\n' "$key" "$type" "$value"
+	local key
+	key="${path%/*}"
+	key="${key//\//\\}"
+	local value="${path##*/}"
+
+	local cyg_reg_path=/proc/registry/"$path"
+	if [[ ! -e "$cyg_reg_path" ]]; then
+		printf 'Registry key %s value %s not set to %s %s\n' "$key" "$value" "$type" "$data"
 		problems=Yes
 		return
 	fi
@@ -66,23 +71,23 @@ check_cygwin_registry () {
 		DWORD)
 			local value_hex value_hex_le
 			# Via https://unix.stackexchange.com/a/321866/2134
-			if ! printf -v value_hex '%08x' "$value"; then
-				printf 'Cannot convert %s from decimal to hex\n' "$value" >&2
+			if ! printf -v value_hex '%08x' "$data"; then
+				printf 'Cannot convert %s from decimal to hex\n' "$data" >&2
 				exit 70  # EX_SOFTWARE
 			fi
 			value_hex_le="$(dd conv=swab status=none <<<"$value_hex" | rev)"
 			if [[ ! "$value_hex_le" =~ ^[0-9a-f]{8}$ ]]; then
-				printf 'Cannot convert %q to a valid DWORD (got %q)\n' "$value" "$value_hex_le" >&2
+				printf 'Cannot convert %q to a valid DWORD (got %q)\n' "$data" "$value_hex_le" >&2
 				exit 70  # EX_SOFTWARE
 			fi
-			if ! cmp -s "$key_file" <(xxd -r -p <<<"$value_hex_le"); then
-				printf 'Registry %s not set to %s %s\n' "$key" "$type" "$value"
+			if ! cmp -s "$cyg_reg_path" <(xxd -r -p <<<"$value_hex_le"); then
+				printf 'Registry key %s value %s not set to %s %s\n' "$key" "$value" "$type" "$data"
 				problems=Yes
 			fi
 			;;
 		SZ)  # String
-			if ! cmp -s "$key_file" <(printf '%s\0' "$value"); then
-				printf 'Registry %s not set to %s %s\n' "$key" "$type" "$value"
+			if ! cmp -s "$cyg_reg_path" <(printf '%s\0' "$data"); then
+				printf 'Registry key %s value %s not set to %s %s\n' "$key" "$value" "$type" "$data"
 				problems=Yes
 			fi
 			;;
