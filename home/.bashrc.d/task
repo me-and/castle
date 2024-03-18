@@ -109,7 +109,7 @@ _task_done_replace () {
 				wrap_message <<<"More than one task matching filter ${filter_args[*]@Q}" >&2
 				return 1
 			fi
-			blocks="$(_task_quick_quiet depends.has:"$old_uuid" _unique uuid)" || return "$?" # Newline separated
+			blocks="$(_task_quick_quiet depends.has:"$old_uuid" -COMPLETED -DELETED _unique uuid)" || return "$?" # Newline separated
 			blocks="${blocks//$'\n'/,}"  # Now it's comma separated
 
 			# Left to its own devices, Taskwarrior will treat
