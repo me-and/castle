@@ -16,12 +16,11 @@ def task_ident:
 
 def parse_date: strptime("%Y%m%dT%H%M%SZ");
 
-# Not sure why this works, but it seems to...
-def fix_dst: mktime | gmtime;
+def fix_dst: mktime | localtime;
 def fix_dst_and_round_up_end_of_day:
-        (mktime | gmtime) as $fixed
+        (mktime | localtime) as $fixed
         | if $fixed[3:6] == [23, 59, 59]
-          then mktime + 1 | gmtime
+          then mktime + 1 | localtime
           else $fixed
           end;
 
