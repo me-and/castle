@@ -5,6 +5,8 @@ def red: colour(31);
 def green: colour(32);
 def yellow: colour(33);
 def blue: colour(34);
+def magenta: colour(35);
+def cyan: colour(36);
 def bwhite: colour(97);
 def bold: colour(1);
 
@@ -29,12 +31,19 @@ def format_date:
         then strftime("%a %-d %b %Y")
         else strftime("%a %-d %b %Y %R")
         end;
+def format_urgency:
+        ((.urgency * 10) | round) / 10
+        | tostring
+        | if contains(".") | not
+          then . + ".0"
+          end
+        | lpad(4);
 def format_tags:
         if has("tags")
         then .tags
              | map("+" + .)
              | join(" ")
-             | yellow
+             | cyan
         else ""
         end;
 def format_due:
@@ -91,7 +100,11 @@ def format_deps(by_uuid):
              + "]"
         else ""
         end;
-def format_ident: .ident | lpad(10) | green;
+def format_ident:
+        if .tags | contains(["project"])
+        then .ident | lpad(10) | bwhite
+        else .ident | lpad(10) | green
+        end;
 def format_description:
         if .priority == null
         then .
@@ -104,10 +117,9 @@ def format_description:
         else error("Unexpected priority \(.priority)")
         end
         | if .tags // [] | contains(["next"])
-          then .description |= bold
-          else .
-          end
-        | .description;
+          then .description | bold
+          else .description
+          end;
 
 map(.ident = task_ident)
 | INDEX(.[]; .uuid) as $by_uuid
@@ -115,7 +127,10 @@ map(.ident = task_ident)
              and .status != "deleted"
              and .status != "recurring")
       | {project: (.project // "No project"),
+         project_task: (.tags // []) | contains(["project"]),
+         ident_length: .ident | length,
          description: [format_ident,
+                       format_urgency,
                        format_description,
                        format_annotations,
                        format_tags,
@@ -127,10 +142,18 @@ map(.ident = task_ident)
                       | join(" ")
         }
       )
-| index_by(.project)
-| map_values(map(.description) | join("\n"))
-| to_entries[]
-| .key |= bwhite
-| "\(.key)\n\(.value)\n"
-
-# vim: set et
+| group_by(.project)
+| .[]
+| [(.[0].project | bwhite),
+   (map(select(.project_task))
+    | if length > 1
+      then error("Too many project tasks")
+      elif length == 1
+      then .[0].description
+      else ""
+      end
+    )
+   ]
+   + map(select(.project_task | not).description)
+| map(select(length > 0) | . + "\n")
+| join("")
