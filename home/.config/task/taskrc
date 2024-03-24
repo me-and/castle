@@ -94,14 +94,14 @@ urgency.waiting.coefficient=-4
 report.waitingfor.description=Tasks where I'm waiting on others
 report.waitingfor.filter=+waitingfor status:pending -BLOCKED
 report.waitingfor.columns=id,project,due.relative,until.remaining,description.count
-report.waitingfor.sort=due+,entry+
+report.waitingfor.sort=due+
 report.waitingfor.labels=ID,Proj,Due,Until,Description
 report.waitingfor.context=0
 
 report.waitingfor-full.description=All tasks where I'm waiting on others
 report.waitingfor-full.filter=+waitingfor (status:pending or status:waiting)
 report.waitingfor-full.columns=id,start.age,project,tags,depends,wait.remaining,due.relative,until.remaining,description
-report.waitingfor-full.sort=due+,entry+
+report.waitingfor-full.sort=due+
 report.waitingfor-full.labels=ID,Age,Proj,Tag,Dep,Wait,Due,Until,Description
 report.waitingfor-full.context=0
 
@@ -208,9 +208,6 @@ report.recurring.filter=((status:pending or status:waiting) +CHILD) or (status:r
 report.timesheet.filter=((status:pending or status:waiting) start.after:now-4wks) or (status:completed end.after:now-4wks)
 report.unblocked.filter=status:pending -BLOCKED
 report.waiting.filter=status:waiting
-
-# Order next tasks by entry date after urgency.
-report.next.sort=urgency-,entry+
 
 # Show full project names in the "all" report.
 report.all.columns=id,status.short,uuid.short,start.age,entry.age,end.age,depends.indicator,priority,project,tags,recur.indicator,wait.relative,scheduled.relative,due.relative,until.relative,description
