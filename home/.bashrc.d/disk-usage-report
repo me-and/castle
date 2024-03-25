@@ -10,11 +10,13 @@ disk-usage-report () {
 	touch ~/.config/disk-usage-report/lastrun
 }
 
-if (( "$(file-age -f ~/.config/disk-usage-report/lastrun)" >= 60*60*24*7 )); then
-	# More than a week since this was last checked, so check now.
-	wrap_message <<<'Running periodic disk usage report'
-	wrap_message <<<'Up to you whether you need to do anything about this...'
-	disk-usage-report
+if [[ ! -v TASKLOOP ]]; then
+	if (( "$(file-age -f ~/.config/disk-usage-report/lastrun)" >= 60*60*24*7 )); then
+		# More than a week since this was last checked, so check now.
+		wrap_message <<<'Running periodic disk usage report'
+		wrap_message <<<'Up to you whether you need to do anything about this...'
+		disk-usage-report
+	fi
 fi
 
 # vim: ft=bash noet ts=8

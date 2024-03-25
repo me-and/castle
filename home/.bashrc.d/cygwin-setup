@@ -64,10 +64,12 @@ if [[ -n "$cygwin_setup_executable" ]]; then
 		cygwin_setup_run "$@"
 	}
 
-	if [[ ! -r /var/log/setup.log ]]; then
-		wrap_message <<<"Couldn't find /var/log/setup.log to check age" >&2
-	elif (( $(file-age -- /var/log/setup.log) >= (60*60*24*7) )); then
-		wrap_message <<<"Cygwin setup hasn't been run for $(file-age -h -- /var/log/setup.log)" >&2
+	if [[ ! -v TASKLOOP ]]; then
+		if [[ ! -r /var/log/setup.log ]]; then
+			wrap_message <<<"Couldn't find /var/log/setup.log to check age" >&2
+		elif (( $(file-age -- /var/log/setup.log) >= (60*60*24*7) )); then
+			wrap_message <<<"Cygwin setup hasn't been run for $(file-age -h -- /var/log/setup.log)" >&2
+		fi
 	fi
 else
 	wrap_message <<-'EOM' >&2
