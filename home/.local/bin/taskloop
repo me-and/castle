@@ -86,7 +86,7 @@ done
 [[ "$have_reserved_lines" ]] || config+=(reserved.lines=0)
 [[ "$have_verbose" ]] || config+=(verbose=blank,header,footnote,label,affected,context)
 [[ "$have_gc" ]] || config+=(gc=0)
-[[ "$have_limit" ]] || filter+=(limit:page)
+[[ "$have_limit" ]] || filter=(limit:page "${filter[@]}")
 
 task_config_file="$tmpdir"/config
 task_filter_file="$tmpdir"/filter
