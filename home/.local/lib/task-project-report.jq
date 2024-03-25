@@ -104,7 +104,7 @@ def format_deps(by_uuid):
         else ""
         end;
 def format_ident:
-        if .tags | contains(["project"])
+        if .tags // [] | contains(["project"])
         then .ident | lpad(10) | bwhite
         else .ident | lpad(10) | green
         end;
