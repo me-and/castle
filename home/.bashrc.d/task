@@ -70,21 +70,6 @@ else
 	fi
 fi
 
-# Configure taskwarrior-tui as `tt`, as suggested by its own documentation.
-# Still not sure I want to keep using this tool, but while I am regularly using
-# it...
-#
-# I see strange behaviour with taskwarrior-tui's terminal handling, so the
-# function wrapper makes sure to reset things to an appropriate state before
-# and after calling.
-tt () {
-	clear || return "$?"
-	taskwarrior-tui "$@"
-	local rc="$?"
-	reset || return "$?"
-	return "$rc"
-}
-
 # Function to enable `task <filter> (done-replace|del-replace) <new-task>`,
 # which marks one task as done or deleted and creates a new task that has the
 # same properties (including both blocked and blocking tasks) as the previous
