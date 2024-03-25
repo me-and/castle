@@ -5,6 +5,8 @@ def red: colour(31);
 def green: colour(32);
 def yellow: colour(33);
 def blue: colour(34);
+def magenta: colour(35);
+def cyan: colour(36);
 def bwhite: colour(97);
 def bold: colour(1);
 
@@ -16,26 +18,35 @@ def task_ident:
 
 def parse_date: strptime("%Y%m%dT%H%M%SZ");
 
-# Not sure why this works, but it seems to...
-def fix_dst: mktime | gmtime;
+def fix_dst: mktime | localtime;
 def fix_dst_and_round_up_end_of_day:
-        (mktime | gmtime) as $fixed
+        (mktime | localtime) as $fixed
         | if $fixed[3:6] == [23, 59, 59]
-          then mktime + 1 | gmtime
+          then mktime + 1 | localtime
           else $fixed
           end;
 
+# The sub("  "; " ") avoids the double-space that using %e can leave.  Ideally
+# we'd use %-d or %-e, but Cygwin's strftime doesn't support that.
 def format_date:
         if .[3:6] == [0, 0, 0]
-        then strftime("%a %-d %b %Y")
-        else strftime("%a %-d %b %Y %R")
-        end;
+        then strftime("%a %e %b %Y")
+        else strftime("%a %e %b %Y %R")
+        end | sub("  "; " ");
+
+def format_urgency:
+        ((.urgency * 10) | round) / 10
+        | tostring
+        | if contains(".") | not
+          then . + ".0"
+          end
+        | lpad(4);
 def format_tags:
         if has("tags")
         then .tags
              | map("+" + .)
              | join(" ")
-             | yellow
+             | cyan
         else ""
         end;
 def format_due:
@@ -92,7 +103,11 @@ def format_deps(by_uuid):
              + "]"
         else ""
         end;
-def format_ident: .ident | lpad(10) | green;
+def format_ident:
+        if .tags // [] | contains(["project"])
+        then .ident | lpad(10) | bwhite
+        else .ident | lpad(10) | green
+        end;
 def format_description:
         if .priority == null
         then .
@@ -105,18 +120,21 @@ def format_description:
         else error("Unexpected priority \(.priority)")
         end
         | if .tags // [] | contains(["next"])
-          then .description |= bold
-          else .
-          end
-        | .description;
+          then .description | bold
+          else .description
+          end;
 
-map(.ident = task_ident)
-| INDEX(.[]; .uuid) as $by_uuid
-| map(select(.status != "completed"
-             and .status != "deleted"
-             and .status != "recurring")
+
+(. / "\u0000")
+| (.[1] | fromjson | map(.ident = task_ident) | INDEX(.[]; .uuid)) as $by_uuid
+| .[0] / "\n"
+| map(select(length > 0)
+      | $by_uuid[.]
       | {project: (.project // "No project"),
+         project_task: (.tags // []) | contains(["project"]),
+         ident_length: .ident | length,
          description: [format_ident,
+                       format_urgency,
                        format_description,
                        format_annotations,
                        format_tags,
@@ -125,13 +143,25 @@ map(.ident = task_ident)
                        format_deps($by_uuid)
                        ]
                       | map(select(length > 0))
-                      | join(" ")
+                      | join(" "),
+         sort: (if (.id // 0) != 0 then .id else .uuid end)
         }
       )
-| index_by(.project)
-| map_values(map(.description) | join("\n"))
-| to_entries[]
-| .key |= bwhite
-| "\(.key)\n\(.value)\n"
+| group_by(.project)
+| .[]
+| sort_by(.sort)
+| [(.[0].project | bwhite),
+   (map(select(.project_task))
+    | if length > 1
+      then error("Too many project tasks")
+      elif length == 1
+      then .[0].description
+      else ""
+      end
+    )
+   ]
+   + map(select(.project_task | not).description)
+| map(select(length > 0) | . + "\n")
+| join("")
 
-# vim: set et
+# vim: et

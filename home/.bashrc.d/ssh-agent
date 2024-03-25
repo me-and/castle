@@ -1,3 +1,7 @@
+if [[ -v TASKLOOP ]]; then
+	return 0
+fi
+
 if [[ ! -v SSH_AUTH_SOCK ]] &&
 		command -v systemctl &>/dev/null; then
 	# This system is governed by systemctl, so we can hopefully use systemctl
