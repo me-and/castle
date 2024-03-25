@@ -134,4 +134,4 @@ map(.ident = task_ident)
 | .key |= bwhite
 | "\(.key)\n\(.value)\n"
 
-# vim: set et
+# vim: et
