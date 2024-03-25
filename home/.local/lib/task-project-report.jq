@@ -25,11 +25,14 @@ def fix_dst_and_round_up_end_of_day:
           else $fixed
           end;
 
+# The sub("  "; " ") avoids the double-space that using %e can leave.  Ideally
+# we'd use %-d or %-e, but Cygwin's strftime doesn't support that.
 def format_date:
         if .[3:6] == [0, 0, 0]
-        then strftime("%a %-d %b %Y")
-        else strftime("%a %-d %b %Y %R")
-        end;
+        then strftime("%a %e %b %Y")
+        else strftime("%a %e %b %Y %R")
+        end | sub("  "; " ");
+
 def format_tags:
         if has("tags")
         then .tags
