@@ -2,11 +2,14 @@
 set -euo pipefail
 
 help () {
-	printf '%q [-Pph] [-l <lessoptions>]... [<filter>...]\n' "$0"
+	printf '%q [-aPph] [-l <lessoptions>]... [<filter>...]\n' "$0"
 	printf '\n'
 	printf 'Provide a report of open tasks in TaskWarrior, displayed by\n'
 	printf 'project.\n'
 	printf '\n'
+	printf -- '-a: List all tasks; normally if no filter is specified,\n'
+	printf '    filter `-COMPLETED -DELETED -PARENT` is applied\n'
+	printf '    automatically.'
 	printf -- '-P: Disable pagination using less.'
 	printf '\n'
 	printf -- '-p: Force pagination using less regardless of whether\n'
@@ -22,8 +25,10 @@ help () {
 less_opts=()
 forbid_pagination=
 force_pagination=
-while getopts Ppl:h opt; do
+include_all=
+while getopts aPpl:h opt; do
 	case "$opt" in
+		a)	include_all=Yes;;
 		P)	forbid_pagination=Yes;;
 		p)	force_pagination=Yes;;
 		l)	less_opts="$OPTARG";;
@@ -43,6 +48,10 @@ elif [[ "$forbid_pagination" ]] && (( "${#less_opts[*]}" > 0 )); then
 	printf 'Cannot specify both -P and -l\n\n'
 	help
 	exit 64  # EX_USAGE
+elif (( $# > 0 )) && [[ "$include_all" ]]; then
+	printf 'Cannot specify a filter while using -a\n\n'
+	help
+	exit 64  # EX_USAGE
 fi >&2
 
 if [[ "$force_pagination" || ( -t 0 && ! "$forbid_pagination" ) ]]; then
@@ -54,11 +63,18 @@ else
 	paginate=
 fi
 
-if [[ "$paginate" ]]; then
-	task "$@" export |
-		jq -rf ~/.local/lib/task-project-report.jq |
-		less "${less_opts[@]}"
+if [[ "$include_all" ]]; then
+	filter=()
+elif (( $# > 0 )); then
+	filter=("$@")
 else
-	task "$@" export |
-		jq -rf ~/.local/lib/task-project-report.jq
+	filter=(-COMPLETED -DELETED -PARENT)
 fi
+
+{ task "${filter[@]}" _unique uuid; printf '\0'; task export; } |
+	if [[ "$paginate" ]]; then
+		jq -Rsrf ~/.local/lib/task-project-report.jq |
+			less "${less_opts[@]}"
+	else
+		jq -Rsrf ~/.local/lib/task-project-report.jq
+	fi

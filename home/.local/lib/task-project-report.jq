@@ -124,11 +124,12 @@ def format_description:
           else .description
           end;
 
-map(.ident = task_ident)
-| INDEX(.[]; .uuid) as $by_uuid
-| map(select(.status != "completed"
-             and .status != "deleted"
-             and .status != "recurring")
+
+(. / "\u0000")
+| (.[1] | fromjson | map(.ident = task_ident) | INDEX(.[]; .uuid)) as $by_uuid
+| .[0] / "\n"
+| map(select(length > 0)
+      | $by_uuid[.]
       | {project: (.project // "No project"),
          project_task: (.tags // []) | contains(["project"]),
          ident_length: .ident | length,
@@ -142,11 +143,13 @@ map(.ident = task_ident)
                        format_deps($by_uuid)
                        ]
                       | map(select(length > 0))
-                      | join(" ")
+                      | join(" "),
+         sort: (if (.id // 0) != 0 then .id else .uuid end)
         }
       )
 | group_by(.project)
 | .[]
+| sort_by(.sort)
 | [(.[0].project | bwhite),
    (map(select(.project_task))
     | if length > 1
