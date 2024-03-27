@@ -101,3 +101,5 @@ fi
 	else
 		jq -Rsrf ~/.local/lib/task-project-report.jq
 	fi
+
+# vim: ft=bash noet ts=8
