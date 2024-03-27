@@ -9,9 +9,9 @@ help () {
 	printf 'Provide a report of open tasks in TaskWarrior, displayed by\n'
 	printf 'project.\n'
 	printf '\n'
-	printf -- '-a: List all tasks; normally if no filter is specified,\n'
-	printf '    filter `-COMPLETED -DELETED -PARENT` is applied\n'
-	printf '    automatically.'
+	printf -- '-a: List all tasks; normally the filter `-COMPLETED\n'
+	printf '    -DELETED -PARENT` is applied in addition to any command-\n'
+	printf '    line filter.\n'
 	printf -- '-P: Disable pagination using less.'
 	printf '\n'
 	printf -- '-p: Force pagination using less regardless of whether\n'
@@ -23,24 +23,53 @@ help () {
 	printf -- '-h: Print this help message.\n'
 }
 
-
+# Parse arguments manually; we can't use getopts because Taskwarrior's filters
+# (e.g. `-PARENT`) make that decidedly non-trivial.
 less_opts=()
 forbid_pagination=
 force_pagination=
 include_all=
-while getopts aPpl:h opt; do
-	case "$opt" in
-		a)	include_all=Yes;;
-		P)	forbid_pagination=Yes;;
-		p)	force_pagination=Yes;;
-		l)	less_opts="$OPTARG";;
-		h)	help
-			exit 0
-			;;
-	esac
+next_is_less_opts=
+remainder_is_all_filter=
+filter=()
+for arg in "$@"; do
+	if [[ "$next_is_less_opts" ]]; then
+		less_opts+=("$arg")
+		next_is_less_opts=
+	elif [[ "$remainder_is_all_filter" ]]; then
+		filter+=("$arg")
+	elif [[ "$arg" =~ ^-[aPph]+$ ]]; then
+		case "$arg" in
+			*a*)	include_all=Yes;;&
+			*P*)	forbid_pagination=Yes;;&
+			*p*)	force_pagination=Yes;;&
+			*h*)	help
+				exit 0
+				;;
+		esac
+	elif [[ "$arg" =~ ^-[aPph]l ]]; then
+		# Note this is only anchored at the start.
+		pre_l_arg="${arg%%l*}"
+		post_l_arg="${arg#*l}"
+		case "$pre_l_arg" in
+			*a*)	include_all=Yes;;&
+			*P*)	forbid_pagination=Yes;;&
+			*p*)	force_pagination=Yes;;&
+			*h*)	help
+				exit 0
+				;;
+		esac
+		if [[ "$post_l_arg" ]]; then
+			less_opts+=("$post_l_arg")
+		else
+			next_is_less_opts=Yes
+		fi
+	elif [[ "$arg" = -- ]]; then
+		remainder_is_all_filter=Yes
+	else
+		filter+=("$arg")
+	fi
 done
-shift "$((OPTIND - 1))"
-
 
 if [[ "$forbid_pagination" && "$force_pagination" ]]; then
 	printf 'Cannot specify both -p and -P\n\n'
@@ -48,10 +77,6 @@ if [[ "$forbid_pagination" && "$force_pagination" ]]; then
 	exit "$EX_USAGE"
 elif [[ "$forbid_pagination" ]] && (( "${#less_opts[*]}" > 0 )); then
 	printf 'Cannot specify both -P and -l\n\n'
-	help
-	exit "$EX_USAGE"
-elif (( $# > 0 )) && [[ "$include_all" ]]; then
-	printf 'Cannot specify a filter while using -a\n\n'
 	help
 	exit "$EX_USAGE"
 fi >&2
@@ -65,12 +90,8 @@ else
 	paginate=
 fi
 
-if [[ "$include_all" ]]; then
-	filter=()
-elif (( $# > 0 )); then
-	filter=("$@")
-else
-	filter=(-COMPLETED -DELETED -PARENT)
+if [[ -z "$include_all" ]]; then
+	filter+=(-COMPLETED -DELETED -PARENT)
 fi
 
 { task "${filter[@]}" _unique uuid; printf '\0'; task export; } |
