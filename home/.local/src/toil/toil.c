@@ -7,6 +7,7 @@
  * TODO: Maximum sleep time.
  * TODO: Verbose output that lists which file changed when exiting.
  * TODO: Indicate when initial state is loaded and the user can be confident changes will be detected.
+ * TODO: Use inotify when possible. (How can you tell? I know tail has a mechanism for checking if it's viable...)
  */
 
 #include <stdlib.h>
