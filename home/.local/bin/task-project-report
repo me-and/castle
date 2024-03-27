@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+declare -ir EX_USAGE=64
+
 help () {
 	printf '%q [-aPph] [-l <lessoptions>]... [<filter>...]\n' "$0"
 	printf '\n'
@@ -43,15 +45,15 @@ shift "$((OPTIND - 1))"
 if [[ "$forbid_pagination" && "$force_pagination" ]]; then
 	printf 'Cannot specify both -p and -P\n\n'
 	help
-	exit 64  # EX_USAGE
+	exit "$EX_USAGE"
 elif [[ "$forbid_pagination" ]] && (( "${#less_opts[*]}" > 0 )); then
 	printf 'Cannot specify both -P and -l\n\n'
 	help
-	exit 64  # EX_USAGE
+	exit "$EX_USAGE"
 elif (( $# > 0 )) && [[ "$include_all" ]]; then
 	printf 'Cannot specify a filter while using -a\n\n'
 	help
-	exit 64  # EX_USAGE
+	exit "$EX_USAGE"
 fi >&2
 
 if [[ "$force_pagination" || ( -t 0 && ! "$forbid_pagination" ) ]]; then
