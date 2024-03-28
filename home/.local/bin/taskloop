@@ -33,8 +33,6 @@ cleanup () {
 trap cleanup EXIT
 
 export PS4='+$EPOCHREALTIME \t $BASH_SOURCE:${FUNCNAME:-}:$LINENO: '
-exec {BASH_XTRACEFD}>"$tmpdir"/outertrace
-set -x
 
 make_toil () {
 	echo 'Rebuilding toil...' >&2
@@ -57,8 +55,13 @@ have_reserved_lines=
 have_verbose=
 have_gc=
 have_limit=
+debug=
 for arg; do
 	case "$arg" in
+		-d)	exec {BASH_XTRACEFD}>"$tmpdir"/outertrace
+			set -x
+			debug=Yes
+			;;
 		rc.reserved.lines[:=]*)
 			have_reserved_lines=Yes
 			config+=("${arg#rc.}")
@@ -149,6 +152,7 @@ while :; do
 	bash_in_use_flag_file="$bash_in_use_flag_file" \
 		explicit_exit_flag_file="$explicit_exit_flag_file" \
 		sigterm_set_flag_file="$sigterm_set_flag_file" \
+		debug="$debug" \
 		tmpdir="$tmpdir" \
 		n="$n" \
 		bash --rcfile ~/.local/lib/taskloop/tasklooprc -i \
