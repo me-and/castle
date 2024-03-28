@@ -26,11 +26,14 @@ def fix_dst_and_round_up_end_of_day:
           else $fixed
           end;
 
+# The sub("  "; " ") avoids the double-space that using %e can leave.  Ideally
+# we'd use %-d or %-e, but Cygwin's strftime doesn't support that.
 def format_date:
         if .[3:6] == [0, 0, 0]
-        then strftime("%a %-d %b %Y")
-        else strftime("%a %-d %b %Y %R")
-        end;
+        then strftime("%a %e %b %Y")
+        else strftime("%a %e %b %Y %R")
+        end | sub("  "; " ");
+
 def format_urgency:
         ((.urgency * 10) | round) / 10
         | tostring
@@ -101,7 +104,7 @@ def format_deps(by_uuid):
         else ""
         end;
 def format_ident:
-        if .tags | contains(["project"])
+        if .tags // [] | contains(["project"])
         then .ident | lpad(10) | bwhite
         else .ident | lpad(10) | green
         end;
@@ -121,11 +124,19 @@ def format_description:
           else .description
           end;
 
-map(.ident = task_ident)
-| INDEX(.[]; .uuid) as $by_uuid
-| map(select(.status != "completed"
-             and .status != "deleted"
-             and .status != "recurring")
+
+(. / "\u0000")
+| (.[1]
+   | fromjson
+   | map(.ident = task_ident)
+   | if any(group_by(.ident)[]; length > 1)
+     then error("Duplicate task idents")
+     end
+   | INDEX(.[]; .uuid)
+   ) as $by_uuid
+| .[0] / "\n"
+| map(select(length > 0)
+      | $by_uuid[.]
       | {project: (.project // "No project"),
          project_task: (.tags // []) | contains(["project"]),
          ident_length: .ident | length,
@@ -139,11 +150,13 @@ map(.ident = task_ident)
                        format_deps($by_uuid)
                        ]
                       | map(select(length > 0))
-                      | join(" ")
+                      | join(" "),
+         sort: (if (.id // 0) != 0 then .id else .uuid end)
         }
       )
 | group_by(.project)
 | .[]
+| sort_by(.sort)
 | [(.[0].project | bwhite),
    (map(select(.project_task))
     | if length > 1
@@ -157,3 +170,5 @@ map(.ident = task_ident)
    + map(select(.project_task | not).description)
 | map(select(length > 0) | . + "\n")
 | join("")
+
+# vim: et

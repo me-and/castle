@@ -34,6 +34,11 @@ trap cleanup EXIT
 
 export PS4='+$EPOCHREALTIME \t $BASH_SOURCE:${FUNCNAME:-}:$LINENO: '
 
+# Add something for other scripts -- in particular bashrc scripts -- to make it
+# easy for them to detect running in a taskloop instance and therefore skip
+# steps that aren't wanted there.
+declare -x TASKLOOP=Yes
+
 make_toil () {
 	echo 'Rebuilding toil...' >&2
 	~/.local/src/toil/install.sh
@@ -89,7 +94,7 @@ done
 [[ "$have_reserved_lines" ]] || config+=(reserved.lines=0)
 [[ "$have_verbose" ]] || config+=(verbose=blank,header,footnote,label,affected,context)
 [[ "$have_gc" ]] || config+=(gc=0)
-[[ "$have_limit" ]] || filter+=(limit:page)
+[[ "$have_limit" ]] || filter=(limit:page "${filter[@]}")
 
 task_config_file="$tmpdir"/config
 task_filter_file="$tmpdir"/filter

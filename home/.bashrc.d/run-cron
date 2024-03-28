@@ -1,6 +1,6 @@
 [[ "$OSTYPE" = 'cygwin' ]] || return 0
 
-if [[ -f /usr/sbin/cron && -x /usr/sbin/cron ]]; then
+if [[ ! -v TASKLOOP && -f /usr/sbin/cron && -x /usr/sbin/cron ]]; then
 
 	# Report any cron output.
 	_report_cron () {
