@@ -7,7 +7,7 @@ help () {
 	printf 'Provide a report of open tasks in TaskWarrior, displayed by\n'
 	printf 'project.\n'
 	printf '\n'
-	printf -- '-P: Disable pagination using less.'
+	printf -- '-P: Disable pagination using less.\n'
 	printf '\n'
 	printf -- '-p: Force pagination using less regardless of whether\n'
 	printf '    stdout is attached to a terminal.\n'
