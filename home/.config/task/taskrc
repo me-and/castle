@@ -156,7 +156,7 @@ context.southport.rc.urgency.user.tag.southport.coefficient=20
 context.bike.read=( -home -southport -dadford -enfield -work -car -multivac -cornwall -phone ) or +inbox
 
 # Context: bed.
-context.bed.read=( -home -southport -dadford -enfield -daylight -work -pc -multivac -audio -business -alex -car -cornwall -phone ) or +inbox
+context.bed.read=( -home -southport -dadford -enfield -daylight -work -pc -multivac -audio -business -alex -car -cornwall -phone -surface ) or +inbox
 
 # Context: office.
 context.office.read=( -southport -dadford -multivac -nsfw -alex -home -car ) or +inbox
