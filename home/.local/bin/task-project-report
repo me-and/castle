@@ -12,7 +12,7 @@ help () {
 	printf -- '-a: List all tasks; normally the filter `-COMPLETED\n'
 	printf '    -DELETED -PARENT` is applied in addition to any command-\n'
 	printf '    line filter.\n'
-	printf -- '-P: Disable pagination using less.'
+	printf -- '-P: Disable pagination using less.\n'
 	printf '\n'
 	printf -- '-p: Force pagination using less regardless of whether\n'
 	printf '    stdout is attached to a terminal.\n'
