@@ -173,6 +173,9 @@ fi
 alias ls='ls --color=auto -hv'
 alias grep='grep --color=auto'
 
+# Set up jq to look for my library files.
+alias jq='jq -L ~/.local/lib/jq'
+
 # Editors.
 if command -v vim >/dev/null; then
 	export EDITOR=vim
