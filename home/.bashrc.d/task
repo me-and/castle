@@ -264,20 +264,18 @@ tlf () {
 }
 
 tlef () {
-	local ed="${EDITOR:-vim}"
 	if [[ "$1" ]]; then
-		"$ed" /tmp/taskloop."$1".*/filter
+		editor /tmp/taskloop."$1".*/filter
 	else
-		"$ed" /tmp/taskloop.*/filter
+		editor /tmp/taskloop.*/filter
 	fi
 }
 
 tlec () {
-	local ed="${EDITOR:-vim}"
 	if [[ "$1" ]]; then
-		"$ed" /tmp/taskloop."$1".*/config
+		editor /tmp/taskloop."$1".*/config
 	else
-		"$ed" /tmp/taskloop.*/config
+		editor /tmp/taskloop.*/config
 	fi
 }
 
