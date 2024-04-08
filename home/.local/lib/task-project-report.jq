@@ -1,3 +1,5 @@
+import "util" as util;
+
 def csi: "\u001b[";
 def sgr(attrs): csi + ([attrs] | join(";")) + "m";
 def colour(c): sgr(c) + . + sgr(0);
@@ -40,7 +42,7 @@ def format_urgency:
         | if contains(".") | not
           then . + ".0"
           end
-        | lpad(4);
+        | util::lpad(4);
 def format_tags:
         if has("tags")
         then .tags
@@ -105,8 +107,8 @@ def format_deps(by_uuid):
         end;
 def format_ident:
         if .tags // [] | contains(["project"])
-        then .ident | lpad(10) | bwhite
-        else .ident | lpad(10) | green
+        then .ident | util::lpad(10) | bwhite
+        else .ident | util::lpad(10) | green
         end;
 def format_description:
         if .priority == null

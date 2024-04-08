@@ -97,10 +97,10 @@ fi
 
 { task "${filter[@]}" _unique uuid; printf '\0'; task export; } |
 	if [[ "$paginate" ]]; then
-		jq -Rsrf ~/.local/lib/task-project-report.jq |
+		jq -L ~/.local/lib/jq -Rsrf ~/.local/lib/task-project-report.jq |
 			less "${less_opts[@]}"
 	else
-		jq -Rsrf ~/.local/lib/task-project-report.jq
+		jq -L ~/.local/lib/jq -Rsrf ~/.local/lib/task-project-report.jq
 	fi
 
 # vim: ft=bash noet ts=8
