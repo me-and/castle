@@ -10,6 +10,45 @@ if [[ ! -v TASKLOOP && -f /usr/sbin/cron && -x /usr/sbin/cron ]]; then
 			EOF
 	}
 
+	# Set up a function for flocking and viewing the cron output.
+	cronlogedit () (
+		# Use a subshell for easier flock handling.
+
+		exec {fd}<~/cron.log || return "$?"
+		if ! flock -nx "$fd"; then
+			wrap_message <<<'Waiting for exclusive flock on ~/cron.log' >&2 ||
+				return "$?"
+			flock -x "$fd" || return "$?"
+		fi
+
+		editor ~/cron.log || return "$?"
+
+		# Check if the the original flocked file still exists; if the editor
+		# does its edits by renaming a temporary file over the original file,
+		# then the flock will have disappeared, and we want it before we start
+		# deleting things.
+		if [[ ! /dev/fd/"$fd" -ef ~/cron.log ]]; then
+			exec {fd}<&- || return "$?"
+			exec {fd}<~/cron.log || return "$?"
+			if ! flock -nx "$fd"; then
+				wrap_message <<-'EOF' >&2
+					Could not get exclusive flock on ~/cron.log to remove the
+					possibly empty file
+					EOF
+				return "$EX_NOINPUT"
+			fi
+		fi
+
+		if [[ -f ~/cron.log && "$(<~/cron.log)" = '' ]]; then
+			# Editing was successful, the file still exists, and is now
+			# empty, so let's delete that.  Check the actual file contents,
+			# rather than using `-s` or similar, because some editors will
+			# leave the file containing a single EOL, which we also want to
+			# treat as an empty file.
+			rm ~/cron.log
+		fi
+	)
+
 	if (( BASH_VERSINFO[0] > 5 ||
 			( BASH_VERSINFO[0] == 5 && BASH_VERSINFO[1] >= 1 ) )); then
 		PROMPT_COMMAND+=(_report_cron)
