@@ -18,7 +18,8 @@ help () {
 	printf '    stdout is attached to a terminal.\n'
 	printf '\n'
 	printf -- '-l: Add the given option string to the arguments passed\n'
-	printf '    to less.  Can be specified multiple times.\n'
+	printf '    to less.  Can be specified multiple times.  Defaults to\n'
+	printf '    -FSR.\n'
 	printf '\n'
 	printf -- '-h: Print this help message.\n'
 }
