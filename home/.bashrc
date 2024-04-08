@@ -319,6 +319,42 @@ bashwrap () {
 	esac
 }
 
+# Wrapper to provide an editor function that will work even if the executable
+# doesn't exist.
+editor () {
+	local cmd
+
+	for cmd in "$VISUAL" "$EDITOR"; do
+		if [[ "$cmd" ]]; then
+			if [[ "$cmd" = editor ]]; then
+				# Handle `editor` specially, as otherwise we get infinite
+				# recursion into this function.
+				command editor "$@"
+			else
+				"$cmd" "$@"
+			fi
+			return "$?"
+		fi
+	done
+
+	if command -v editor >/dev/null; then
+		# There's an editor executable, so use that.
+		command editor "$@"
+		return "$?"
+	fi
+
+	for cmd in vim vi nano pico; do
+		if type -t "$cmd" >/dev/null; then
+			"$cmd" "$@"
+			return "$?"
+		fi
+	done
+
+	# If we get to this point, we haven't found any editor to run!
+	wrap_message <<<'No editor found!' >&2
+	return 127
+}
+
 # Import local .bashrc files if they exist.
 if [[ -d ~/.bashrc.d && -r ~/.bashrc.d && -x ~/.bashrc.d ]]; then
 	for file in ~/.bashrc.d/*; do
