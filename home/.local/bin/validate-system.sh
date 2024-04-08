@@ -161,7 +161,7 @@ if [[ "$OSTYPE" = cygwin ]]; then
 	# changed through the control panel, because there are a bunch of other
 	# clearly related changes that happen when this config is set and which
 	# aren't checked here.
-	check_cygwin-registry HKEY_CURRENT_USER/Software/Microsoft/Accessibility/CursorSize DWORD 2
+	check_cygwin_registry HKEY_CURRENT_USER/Software/Microsoft/Accessibility/CursorSize DWORD 2
 
 	# Ensure OneDrive is configured to skip files I want it to skip.
 	check_onedrive_excludes '*.crdownload' '*.aux' '*.fls' '*.fdb_latexmk'

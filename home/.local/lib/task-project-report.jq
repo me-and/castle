@@ -8,7 +8,7 @@ def blue: colour(34);
 def magenta: colour(35);
 def cyan: colour(36);
 def bwhite: colour(97);
-def bold: colour(1);
+def bold: sgr(1) + . + sgr(22);
 
 def task_ident:
         if (.id // 0) == 0
