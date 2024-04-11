@@ -164,7 +164,7 @@ if [[ "$OSTYPE" = cygwin ]]; then
 	check_cygwin_registry HKEY_CURRENT_USER/Software/Microsoft/Accessibility/CursorSize DWORD 2
 
 	# Ensure OneDrive is configured to skip files I want it to skip.
-	check_onedrive_excludes '*.crdownload' '*.aux' '*.fls' '*.fdb_latexmk'
+	check_onedrive_excludes '*.crdownload' '*.aux' '*.fls' '*.fdb_latexmk' '*.swp'
 fi
 
 [[ -z "$problems" ]]
