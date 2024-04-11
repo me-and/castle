@@ -266,5 +266,9 @@ recurrence.confirmation=no
 # renumbering a manual step that can happen overnight or similar.
 gc=0
 
+# Bump urgency for PD and Unite tasks for a while.
+urgency.user.project.pd.coefficient=2
+urgency.user.project.unite.coefficient=2
+
 # Stuff Taskwarrior has added itself
 news.version=2.6.0
