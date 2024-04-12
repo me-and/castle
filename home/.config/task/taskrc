@@ -50,7 +50,7 @@ uda.recurAfterModifications.label=Rec. after changes
 # "waitingfor" tasks that I'm still waiting for.
 report.next.columns=id,start.age,entry.age,depends,priority,project,tags,recur,scheduled.countdown,due.relative,until.remaining,description.count,urgency
 report.next.labels=ID,Act,Age,Deps,P,Project,Tag,R,S,Due,Unt,Description,Urg
-report.next.filter=( status:pending or ( -COMPLETED -DELETED +inbox ) ) ( -waitingfor or +OVERDUE or due.none: or +inbox ) ( -BLOCKED or +OVERDUE or +inbox )
+report.next.filter=-COMPLETED -DELETED -PARENT ( ( -WAITING -waitingfor -BLOCKED ) or +OVERDUE or +inbox )
 
 # "Until" behaviour on recurring tasks
 uda.recurTaskUntil.type=duration
@@ -265,6 +265,10 @@ recurrence.confirmation=no
 # Don't renumber tasks on every filter/list command, and instead make
 # renumbering a manual step that can happen overnight or similar.
 gc=0
+
+# Bump urgency for PD and Unite tasks for a while.
+urgency.user.project.pd.coefficient=2
+urgency.user.project.unite.coefficient=2
 
 # Stuff Taskwarrior has added itself
 news.version=2.6.0
