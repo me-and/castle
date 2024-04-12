@@ -5,7 +5,7 @@ from asmodeus.taskwarrior import TaskWarrior
 if __name__ == '__main__':
     tw = TaskWarrior()
     hooks: list[h.OnAddHook] = [h.blocks,
-                                h.fix_recurrance_dst,
+                                h.fix_recurrence_dst,
                                 h.due_end_of,
                                 h.child_until,
                                 h.waitingfor_adds_due,
