@@ -25,8 +25,12 @@ if [[ ! -v TASKLOOP && -f /usr/sbin/cron && -x /usr/sbin/cron ]]; then
 
 		# Check if the the original flocked file still exists; if the editor
 		# does its edits by renaming a temporary file over the original file,
-		# then the flock will have disappeared, and we want it before we start
-		# deleting things.
+		# then the existing flock will be on the previous file handle, and we
+		# want to have a flock on the current file before we start deleting
+		# things.
+		#
+		# TODO: should we have a lock somewhere else to avoid the window
+		# condition here?
 		if [[ ! /dev/fd/"$fd" -ef ~/cron.log ]]; then
 			exec {fd}<&- || return "$?"
 			exec {fd}<~/cron.log || return "$?"
@@ -45,6 +49,7 @@ if [[ ! -v TASKLOOP && -f /usr/sbin/cron && -x /usr/sbin/cron ]]; then
 			# rather than using `-s` or similar, because some editors will
 			# leave the file containing a single EOL, which we also want to
 			# treat as an empty file.
+			wrap_message <<<'Removing empty ~/cron.log' >&2
 			rm ~/cron.log
 		fi
 	)
