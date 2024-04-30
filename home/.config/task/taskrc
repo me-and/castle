@@ -50,7 +50,7 @@ uda.recurAfterModifications.label=Rec. after changes
 # "waitingfor" tasks that I'm still waiting for.
 report.next.columns=id,start.age,entry.age,depends,priority,project,tags,recur,scheduled.countdown,due.relative,until.remaining,description.count,urgency
 report.next.labels=ID,Act,Age,Deps,P,Project,Tag,R,S,Due,Unt,Description,Urg
-report.next.filter=-COMPLETED -DELETED -PARENT ( ( -WAITING -waitingfor -BLOCKED ) or +OVERDUE or +inbox )
+report.next.filter=-COMPLETED -DELETED -PARENT ( ( -WAITING -waitingfor -BLOCKED ) or ( +OVERDUE -overdueallowed ) or +inbox )
 
 # "Until" behaviour on recurring tasks
 uda.recurTaskUntil.type=duration
