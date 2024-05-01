@@ -144,7 +144,11 @@ bashwrap task '
 # "( project.is:x or project:x. )", i.e. excluding tasks with a project like
 # "xx" which a simple "project:x" would pick up, and a similar rule for
 # "project.nsub:".
-bashwrap task '
+if [[ -v tmpcmd ]]; then
+	wrap_message <<<'variable tmpcmd already set' >&2
+	return 1
+fi
+tmpcmd='
 	local -a newargs
 	local arg val
 	for arg; do
@@ -160,6 +164,9 @@ bashwrap task '
 	done
 	set -- "${newargs[@]}"
 	'
+bashwrap task "$tmpcmd"
+bashwrap taskloop "$tmpcmd"
+unset tmpcmd
 
 bashwrap task '
 	local arg command_is_projects= list_all_projects_set=
@@ -199,20 +206,47 @@ fo () {
 # Version of fo for use with the taskloop script...
 tlo () {
 	trap 'trap - RETURN ERR; return' RETURN ERR
-	local report f
-	local -a uuids files
-	if [[ "$1" = -r ]]; then
-		report="$2"
-		shift 2
-	elif [[ "$1" = -r* ]]; then
-		report="${1#-r}"
-		shift
+	local report f all=
+	local -a reports=() files uuids
+
+	while [[ "$1" = -* ]]; do
+		if [[ "$1" = -a ]]; then
+			all=YesPlease
+			shift
+		elif [[ "$1" = -r ]]; then
+			reports+=("$2")
+			shift 2
+		elif [[ "$1" = -r* ]]; then
+			reports+=("${1#-r}")
+			shift
+		elif [[ "$1" = -- ]]; then
+			shift
+			break
+		else
+			# Probably something like '-home', which just wants to
+			# be processed as a filter
+			break
+		fi
+	done
+
+	if [[ -z "$all" && "${#reports[*]}" -eq 0 ]]; then
+		# No report specified explicitly, so use the default: the
+		# current report within taskloop, or all current reports
+		# elsewhere.
+		if [[ -v TASKLOOP ]]; then
+			files=("$tmpdir"/filter)
+		else
+			files=(/tmp/taskloop.*/filter)
+		fi
+	elif [[ "$all" ]]; then
+		files=(/tmp/taskloop.*/filter)
 	else
-		report=
+		files=()
+		for report in "${reports[@]}"; do
+			files+=(/tmp/taskloop."$report".*/filter)
+		done
 	fi
-	if [[ "$1" = -- ]]; then
-		shift
-	fi
+
 	if (( $# == 0 )); then
 		echo 'No filter specified' >&2
 		return 1
@@ -222,11 +256,7 @@ tlo () {
 		echo 'No matched tasks' >&2
 		return 1
 	fi
-	if [[ "$report" ]]; then
-		files=(/tmp/taskloop."$report".*/filter)
-	else
-		files=(/tmp/taskloop.*/filter)
-	fi
+
 	for f in "${files[@]}"; do
 		printf 'uuid.not:%s\n' "${uuids[@]}" >>"$f"
 	done
@@ -235,29 +265,53 @@ tlo () {
 # Just add the specified filters to all current taskloop instances.
 tlf () {
 	trap 'trap - ERR RETURN; return' ERR RETURN
-	local report f
-	local -a files
-	if [[ "$1" = -r ]]; then
-		report="$2"
-		shift 2
-	elif [[ "$1" = -r* ]]; then
-		report="${1#-r}"
-		shift
+	local report f all=
+	local -a reports=() files
+	while [[ "$1" = -* ]]; do
+		if [[ "$1" = -a ]]; then
+			all=YesPlease
+			shift
+		elif [[ "$1" = -r ]]; then
+			reports+=("$2")
+			shift 2
+		elif [[ "$1" = -r* ]]; then
+			reports+=("${1#-r}")
+			shift
+		elif [[ "$1" = -- ]]; then
+			shift
+			break
+		else
+			# Probably something like '-home', which just wants to
+			# be processed as a filter
+			break
+		fi
+	done
+
+	if [[ -z "$all" && "${#reports[*]}" -eq 0 ]]; then
+		# No report specified explicitly, so use the default: the
+		# current report within taskloop, or all current reports
+		# elsewhere.
+		if [[ -v TASKLOOP ]]; then
+			files=("$tmpdir"/filter)
+		else
+			files=(/tmp/taskloop.*/filter)
+		fi
+	elif [[ "$all" ]]; then
+		files=(/tmp/taskloop.*/filter)
 	else
-		report=
+		files=()
+		for report in "${reports[@]}"; do
+			files+=(/tmp/taskloop."$report".*/filter)
+		done
 	fi
-	if [[ "$1" = -- ]]; then
-		shift
-	fi
+
+	shift "$((OPTIND - 1))"
+
 	if (( $# == 0 )); then
 		echo 'No filter specified' >&2
 		return 1
 	fi
-	if [[ "$report" ]]; then
-		files=(/tmp/taskloop."$report".*/filter)
-	else
-		files=(/tmp/taskloop.*/filter)
-	fi
+
 	for f in "${files[@]}"; do
 		printf '%s\n' "$@" >>"$f"
 	done
@@ -266,6 +320,8 @@ tlf () {
 tlef () {
 	if [[ "$1" ]]; then
 		editor /tmp/taskloop."$1".*/filter
+	elif [[ -v TASKLOOP ]]; then
+		editor "$tmpdir"/filter
 	else
 		editor /tmp/taskloop.*/filter
 	fi
@@ -274,6 +330,8 @@ tlef () {
 tlec () {
 	if [[ "$1" ]]; then
 		editor /tmp/taskloop."$1".*/config
+	elif [[ -v TASKLOOP ]]; then
+		editor "$tmpdir"/config
 	else
 		editor /tmp/taskloop.*/config
 	fi
