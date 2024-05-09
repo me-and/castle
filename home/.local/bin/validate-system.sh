@@ -187,6 +187,12 @@ if [[ "$OSTYPE" = cygwin ]]; then
 	check_cygwin_registry HKEY_CURRENT_USER/Keyboard\ Layout/Toggle/Layout\ Hotkey DWORD 3
 	check_cygwin_registry HKEY_CURRENT_USER/Keyboard\ Layout/Toggle/Hotkey DWORD 3
 
+	# Enable various "developer mode" settings.
+	check_cygwin_registry HKEY_CURRENT_USER/Software/Microsoft/Windows/CurrentVersion/Explorer/Advanced/Hidden DWORD 1
+	check_cygwin_registry HKEY_CURRENT_USER/Software/Microsoft/Windows/CurrentVersion/Explorer/Advanced/HideFileExt DWORD 0
+	check_cygwin_registry HKEY_CURRENT_USER/Software/Microsoft/Windows/CurrentVersion/Explorer/Advanced/HideDrivesWithNoMedia DWORD 0
+	check_cygwin_registry HKEY_CURRENT_USER/Software/Microsoft/Windows/CurrentVersion/Explorer/Advanced/TaskbarDeveloperSettings/TaskbarEndTask DWORD 1
+
 	# Ensure OneDrive is configured to skip files I want it to skip.
 	check_onedrive_excludes '*.crdownload' '*.aux' '*.fls' '*.fdb_latexmk' '*.swp'
 fi
