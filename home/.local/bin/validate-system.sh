@@ -168,6 +168,9 @@ if [[ "$OSTYPE" = cygwin ]]; then
 	# Only show windows, not tabs within windows, in Alt+Tab.
 	check_cygwin_registry HKEY_CURRENT_USER/Software/Microsoft/Windows/CurrentVersion/Explorer/Advanced/MultiTaskingAltTabFilter DWORD 3
 
+	# Enable clipborad history.
+	check_cygwin_registry HKEY_CURRENT_USER/Software/Microsoft/Clipboard/EnableClipboardHistory DWORD 1
+
 	# Make cursors a bit easier to see.  CAUTION: I *think* just changing
 	# this registry entry is insufficient, and the config needs to be
 	# changed through the control panel, because there are a bunch of other
