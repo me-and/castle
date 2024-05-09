@@ -153,7 +153,7 @@ if [[ "$OSTYPE" = cygwin ]]; then
 	check_cygwin_registry HKEY_CURRENT_USER/Software/Microsoft/Windows/CurrentVersion/Explorer/Advanced/ShowTaskViewButton DWORD 0
 
 	# Align the taskbar to the left.
-	check_cygwin_registry HKEY_CURRENT_USER/Software/Microsoft/Windows/CurrentVersion/Explorer/Advanced/ShowTaskViewButton DWORD 0
+	check_cygwin_registry HKEY_CURRENT_USER/Software/Microsoft/Windows/CurrentVersion/Explorer/Advanced/TaskbarAl DWORD 0
 
 	# Disable the taskbar widget button.
 	check_cygwin_registry HKEY_CURRENT_USER/Software/Microsoft/Windows/CurrentVersion/Explorer/Advanced/TaskbarDa DWORD 0
