@@ -50,6 +50,18 @@ check_executables_available () {
 	fi
 }
 
+check_cygwin_registry_missing () {
+	local path="$1"
+	local key
+	key="${path%/*}"
+	key="${key//\//\\}"
+	local cyg_reg_path=/proc/registry/"$path"
+	if [[ -e "$cyg_reg_path" ]]; then
+		printf 'Registry key %s present\n' "$key"
+		problems=Yes
+	fi
+}
+
 check_cygwin_registry () {
 	local path="$1"
 	local type="$2"
@@ -141,7 +153,7 @@ if [[ "$OSTYPE" = cygwin ]]; then
 	check_cygwin_registry HKEY_CURRENT_USER/Software/Microsoft/Windows/CurrentVersion/Explorer/Advanced/ShowTaskViewButton DWORD 0
 
 	# Align the taskbar to the left.
-	check_cygwin_registry HKEY_CURRENT_USER/Software/Microsoft/Windows/CurrentVersion/Explorer/Advanced/ShowTaskViewButton DWORD 0
+	check_cygwin_registry HKEY_CURRENT_USER/Software/Microsoft/Windows/CurrentVersion/Explorer/Advanced/TaskbarAl DWORD 0
 
 	# Disable the taskbar widget button.
 	check_cygwin_registry HKEY_CURRENT_USER/Software/Microsoft/Windows/CurrentVersion/Explorer/Advanced/TaskbarDa DWORD 0
@@ -156,12 +168,33 @@ if [[ "$OSTYPE" = cygwin ]]; then
 	# Only show windows, not tabs within windows, in Alt+Tab.
 	check_cygwin_registry HKEY_CURRENT_USER/Software/Microsoft/Windows/CurrentVersion/Explorer/Advanced/MultiTaskingAltTabFilter DWORD 3
 
+	# Enable clipborad history.
+	check_cygwin_registry HKEY_CURRENT_USER/Software/Microsoft/Clipboard/EnableClipboardHistory DWORD 1
+
 	# Make cursors a bit easier to see.  CAUTION: I *think* just changing
 	# this registry entry is insufficient, and the config needs to be
 	# changed through the control panel, because there are a bunch of other
 	# clearly related changes that happen when this config is set and which
 	# aren't checked here.
 	check_cygwin_registry HKEY_CURRENT_USER/Software/Microsoft/Accessibility/CursorSize DWORD 2
+
+	# Check that the Alt+Shift and Ctrl+Shift hotkeys for switching
+	# languages and keyboard layouts are disabled.  I hit them by accident
+	# too much, and Win+Space does the job of switching layouts just as
+	# well without the accidental invocations.  It looks like either
+	# removing the `Control Panel/Input Method/Hot Keys` values or adding
+	# the `Keyboard Layout/Toggle` values is sufficient, but doing both
+	# seems to be the norm.
+	check_cygwin_registry_missing HKEY_CURRENT_USER/Control\ Panel/Input\ Method/Hot\ Keys/00000104
+	check_cygwin_registry HKEY_CURRENT_USER/Keyboard\ Layout/Toggle/Language\ Hotkey DWORD 3
+	check_cygwin_registry HKEY_CURRENT_USER/Keyboard\ Layout/Toggle/Layout\ Hotkey DWORD 3
+	check_cygwin_registry HKEY_CURRENT_USER/Keyboard\ Layout/Toggle/Hotkey DWORD 3
+
+	# Enable various "developer mode" settings.
+	check_cygwin_registry HKEY_CURRENT_USER/Software/Microsoft/Windows/CurrentVersion/Explorer/Advanced/Hidden DWORD 1
+	check_cygwin_registry HKEY_CURRENT_USER/Software/Microsoft/Windows/CurrentVersion/Explorer/Advanced/HideFileExt DWORD 0
+	check_cygwin_registry HKEY_CURRENT_USER/Software/Microsoft/Windows/CurrentVersion/Explorer/Advanced/HideDrivesWithNoMedia DWORD 0
+	check_cygwin_registry HKEY_CURRENT_USER/Software/Microsoft/Windows/CurrentVersion/Explorer/Advanced/TaskbarDeveloperSettings/TaskbarEndTask DWORD 1
 
 	# Ensure OneDrive is configured to skip files I want it to skip.
 	check_onedrive_excludes '*.crdownload' '*.aux' '*.fls' '*.fdb_latexmk' '*.swp'

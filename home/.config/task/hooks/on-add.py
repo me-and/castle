@@ -13,7 +13,6 @@ if __name__ == '__main__':
                                 h.reviewed_to_entry,
                                 h.fix_weekday_due,
                                 h.inbox_if_hook_gen(h.missing_project),
-                                h.store_offset,
                                 ]
 
     # Work systems have a tickets report set up.
