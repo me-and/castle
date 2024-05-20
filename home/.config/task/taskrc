@@ -134,38 +134,38 @@ urgency.uda.priority.L.coefficient=-1.8
 reserved.lines=3
 
 # Context: evening and weekend
-context.evening-weekend.read=( -business -southport -dadford -work ) or +inbox
+context.evening-weekend.read=( -business -southport -dadford -work ) or +inbox or ( +OVERDUE -overdueallowed )
 
 # Context: allotment
-context.allotment.read=( -home -southport -dadford -enfield -work ) or +inbox
+context.allotment.read=( -home -southport -dadford -enfield -work ) or +inbox or ( +OVERDUE -overdueallowed )
 
 # Context: day off.  Prioritise things that can only be done in business hours.
-context.day-off.read=( -southport -dadford -work ) or +inbox
+context.day-off.read=( -southport -dadford -work ) or +inbox or ( +OVERDUE -overdueallowed )
 context.day-off.rc.urgency.user.tag.business.coefficient=6
 
 # Context: work.  Prioritise things that can only be done at work or in
 # business hours
-context.work.read=( -southport -dadford -multivac -allotment -nsfw -alex ) or +inbox
+context.work.read=( -southport -dadford -multivac -allotment -nsfw -alex ) or +inbox or ( +OVERDUE -overdueallowed )
 context.work.rc.urgency.user.tag.work.coefficient=6
 context.work.rc.urgency.user.tag.business.coefficient=4
 
 # Context: dadford.  Prioritise things that can only be done on site.
-context.dadford.read=( -home -southport -enfield -business ) or +inbox
+context.dadford.read=( -home -southport -enfield -business -work ) or +inbox or ( +OVERDUE -overdueallowed )
 context.dadford.write=+dadford
 context.dadford.rc.urgency.user.tag.dadford.coefficient=10
 
 # Context: southport.  Prioritise things that can only be done there.
-context.southport.read=( -allotment -enfield -dadford -home -work ) or +inbox
+context.southport.read=( -allotment -enfield -dadford -home -work ) or +inbox or ( +OVERDUE -overdueallowed )
 context.southport.rc.urgency.user.tag.southport.coefficient=20
 
 # Context: exercise bike
-context.bike.read=( -home -southport -dadford -enfield -work -car -multivac -cornwall -phone ) or +inbox
+context.bike.read=( -home -southport -dadford -enfield -work -car -multivac -cornwall -phone ) or +inbox or ( +OVERDUE -overdueallowed )
 
 # Context: bed.
-context.bed.read=( -home -southport -dadford -enfield -daylight -work -pc -multivac -audio -business -alex -car -cornwall -phone -surface ) or +inbox
+context.bed.read=( -home -southport -dadford -enfield -daylight -work -pc -multivac -audio -business -alex -car -cornwall -phone -surface ) or +inbox or ( +OVERDUE -overdueallowed )
 
 # Context: office.
-context.office.read=( -southport -dadford -multivac -nsfw -alex -home -car ) or +inbox
+context.office.read=( -southport -dadford -multivac -nsfw -alex -home -car ) or +inbox or ( +OVERDUE -overdueallowed )
 context.office.rc.urgency.user.tag.business.coefficient=2
 context.office.rc.urgency.user.tag.work.coefficient=6
 
