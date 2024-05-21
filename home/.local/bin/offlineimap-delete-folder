@@ -1,8 +1,23 @@
-offlineimap-delete-folder () (
-	set -euxo pipefail
+#!/usr/bin/env bash
+set -euo pipefail
 
-	account="$1"
-	folder="$2"
+if (( $# < 2 )); then
+	printf '%s <account> <folder>...\n' "$0"
+	exit 2
+elif [[ "$1" = -h || "$1" = --help ]]; then
+	printf '%s <account> <folder>...\n' "$0"
+	exit 0
+fi
+
+account="$1"
+shift
+
+if [[ "$account" = 'adam@dinwoodie.org' ]]; then
+	exec {lock_fd}<~/.cache/mail/adam@dinwoodie.org
+	flock -x "$lock_fd"
+fi
+
+for folder; do
 	folder_imap="${folder//&/&-}"
 	folder_local="${folder//\//.}"
 	folder_localish="${folder_local//&/&-}"
@@ -21,13 +36,15 @@ offlineimap-delete-folder () (
 		print(c[f"Account {sys.argv[1]}"]["remoterepository"])
 		print(os.path.expanduser(c[f"Repository {local_name}"]["localfolders"]))
 		EOF
-	)
+		)
 
 	offlineimap -a "$account" --delete-folder "$folder_imap"
-	rm -r "${local_repo_dir}/${folder_local}"
-	rm "${metadata_dir}/Account-${account}/LocalStatus-sqlite/${folder_local}"
-	rm "${metadata_dir}/Repository-${local_repo_name}/FolderValidity/${folder_local}"
-	rm "${metadata_dir}/Repository-${remote_repo_name}/FolderValidity/${folder_localish}"
-)
+
+	rm -vr "${local_repo_dir}/${folder_local}"
+
+	rm -v "${metadata_dir}/Account-${account}/LocalStatus-sqlite/${folder_local}" \
+		"${metadata_dir}/Repository-${local_repo_name}/FolderValidity/${folder_local}" \
+		"${metadata_dir}/Repository-${remote_repo_name}/FolderValidity/${folder_localish}"
+done
 
 # vim: ft=bash noet ts=8
