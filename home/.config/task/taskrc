@@ -46,6 +46,12 @@ uda.recurAfterWait.label=Rec. after wait
 uda.recurAfterModifications.type=string
 uda.recurAfterModifications.label=Rec. after changes
 
+# Random delays to wait and due dates to avoid things bunching up too badly.
+uda.waitRandomDelay.type=duration
+uda.dueRandomDelay.type=duration
+uda.recurAfterWaitRandomDelay.type=duration
+uda.recurAfterDueRandomDelay.type=duration
+
 # next filter: don't show full annotations, just a count of them, and hide
 # "waitingfor" tasks that I'm still waiting for.
 report.next.columns=id,start.age,entry.age,depends,priority,project,tags,recur,scheduled.countdown,due.relative,until.remaining,description.count,urgency
