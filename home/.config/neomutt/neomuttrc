@@ -1,0 +1,17 @@
+set folder = '~/.cache/mail'
+set spoolfile = '+adam@dinwoodie.org/INBOX'
+mailboxes '+adam@dinwoodie.org/INBOX' '+adam@dinwoodie.org/[Gmail].Spam'
+set ssl_verify_host = yes
+set use_envelope_from = yes
+set mbox_type = Maildir
+set postponed = '+adam@dinwoodie.org/[Gmail].Drafts'
+set record = '+adam@dinwoodie.org/[Gmail].Sent Mail'
+set from = 'Adam Dinwoodie <adam@dinwoodie.org>'
+set reverse_name = yes
+unset reverse_realname
+alternates '[@\.]dinwoodie\.org$' '^adam@profounddecisions.co.uk$' '^(adamdinwoodie|gamma3000|knightley.nightly|sorrowfulsnail)@(gmail|googlemail).com$' '^adam@tastycake.net$' '^adam.dinwoodie@worc.oxon.org$'
+set signature = /dev/null
+set sig_dashes = no
+set header_cache = '~/.cache/neomutt/headers'
+set header_cache_backend = 'tokyocabinet'
+set mailcap_path = ~/.mailcap
