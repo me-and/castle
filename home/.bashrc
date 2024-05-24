@@ -124,7 +124,9 @@ fi
 # (where support is sufficiently limited that I'd rather not have it).
 if [[ "$OSTYPE" != cygwin ]] && ! type -t fzf-file-widget >/dev/null 2>&1; then
 	_bashrc_source_first \
-			~/.fzf.bash /usr/share/doc/fzf/examples/key-bindings.bash ||
+			~/.fzf.bash \
+			/usr/share/doc/fzf/examples/key-bindings.bash \
+			"$(fzf-share 2>/dev/null)/key-bindings.bash" ||  # NixOS
 		wrap_message <<<'fzf unavailable' >&2
 fi
 
