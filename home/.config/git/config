@@ -46,7 +46,7 @@
 	rm-cur-br = "!bash -c 'br=$(git symbolic-ref --short HEAD); git detach; if [[ $1 == -D ]]; then git branch -D $br; else git branch -d $br; fi' --"
 	sth = status -- .
 	detach = checkout --detach
-	pullout = "!f() { git checkout -B \"$1\" \"$1\"@{u}; }; f"
+	pullout = "!f() { git switch -C \"$1\" \"$1\"@{u}; }; f"
 	qmerge = merge --no-edit
 	pwl = push --force-with-lease
 
