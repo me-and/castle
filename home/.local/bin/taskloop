@@ -18,6 +18,8 @@ bash_pid=
 tmpdir="$(mktemp -dt "taskloop.$report.$EPOCHSECONDS.$$.XXXXX")"
 
 cleanup () {
+	local exit_code="$?"
+	local rc=0
 	rm -rf "$tmpdir"
 	local -a kill=()
 	[[ "$toil_pid" ]] && kill+=("$toil_pid")
@@ -27,8 +29,14 @@ cleanup () {
 		# kill is allowed to return non-zero because it's fairly likely
 		# some commands will have exited already.
 		kill "${kill[@]}" 2>/dev/null || :
-		wait "${kill[@]}"
+		wait "${kill[@]}" || rc="$?"
 	fi
+	if (( rc == 0 || rc == 143 )); then
+		# Everything is fine, or at least the exit code from wait was
+		# an expected SIGTERM, so use the original exit code.
+		return "$exit_code"
+	fi
+	return "$rc"
 }
 trap cleanup EXIT
 
