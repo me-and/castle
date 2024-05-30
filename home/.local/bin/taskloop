@@ -279,7 +279,8 @@ while :; do
 	# be stable for a couple of seconds, to avoid rapid cycling.  Wait for
 	# everything else for a second just to be sure toil isn't about to exit
 	# and cause an extra unnecessary loop.
-	mtimewait 2 "${delay_update_files[@]}"
+	echo -n Updating...
+	mtimewait 3 "${delay_update_files[@]}"
 	mtimewait 1 "${immediate_update_files[@]}"
 done
 
