@@ -4,27 +4,20 @@ set -euo pipefail
 
 umask 0077
 
-if (( $# == 0 )); then
-	report=next
-else
-	report="$1"
-	shift
-fi
-
 toil_pid=
 sleep_pid=
 bash_pid=
-
-tmpdir="$(mktemp -dt "taskloop.$report.$EPOCHSECONDS.$$.XXXXX")"
+read_pid=
 
 cleanup () {
 	local exit_code="$?"
 	local rc=0
-	rm -rf "$tmpdir"
+	[[ -v tmpdir ]] && rm -rf "$tmpdir"
 	local -a kill=()
 	[[ "$toil_pid" ]] && kill+=("$toil_pid")
 	[[ "$sleep_pid" ]] && kill+=("$sleep_pid")
 	[[ "$bash_pid" ]] && kill+=("$bash_pid")
+	[[ "$read_pid" ]] && kill+=("$read_pid")
 	if (( "${#kill[*]}" > 0 )); then
 		# kill is allowed to return non-zero because it's fairly likely
 		# some commands will have exited already.
@@ -69,8 +62,12 @@ have_verbose=
 have_gc=
 have_limit=
 debug=
+no_prompt=
+report=
 for arg; do
 	case "$arg" in
+		-n)	no_prompt=Yes
+			;;
 		-d)	exec {BASH_XTRACEFD}>"$tmpdir"/outertrace
 			set -x
 			debug=Yes
@@ -95,10 +92,16 @@ for arg; do
 			filter+=("$arg")
 			;;
 		*)
-			filter+=("$arg")
+			if [[ "$report" ]]; then
+				filter+=("$arg")
+			else
+				report="$arg"
+			fi
 			;;
 	esac
 done
+[[ "$report" ]] || report=next
+tmpdir="$(mktemp -dt "taskloop.$report.$EPOCHSECONDS.$$.XXXXX")"
 [[ "$have_reserved_lines" ]] || config+=(reserved.lines=0)
 [[ "$have_verbose" ]] || config+=(verbose=blank,header,footnote,label,affected,context)
 [[ "$have_gc" ]] || config+=(gc=0)
@@ -159,24 +162,42 @@ while :; do
 	mapfile -t filter <"$task_filter_file"
 	task "${config[@]/#/rc.}" "${filter[@]}" "$report"
 
-	# Start an interactive Bash shell so the user can enter task commands.
-	rm -f "$sigterm_set_flag_file"
-	bash_in_use_flag_file="$tmpdir"/doingthings."$n"
-	bash_in_use_flag_file="$bash_in_use_flag_file" \
-		explicit_exit_flag_file="$explicit_exit_flag_file" \
-		sigterm_set_flag_file="$sigterm_set_flag_file" \
-		debug="$debug" \
-		tmpdir="$tmpdir" \
-		n="$n" \
-		bash --rcfile ~/.local/lib/taskloop/tasklooprc -i \
-		<&0 &
-	bash_pid="$!"
+	if [[ "$no_prompt" ]]; then
+		if [[ -z "$read_pid" ]]; then
+			read <&0 &
+			read_pid="$!"
+			bash_pid=
+			trap -- ':' SIGWINCH
+		fi
+		wait_pids=("$read_pid" "$toil_pid" "$sleep_pid")
+	else
+		# Start an interactive Bash shell so the user can enter task commands.
+		rm -f "$sigterm_set_flag_file"
+		bash_in_use_flag_file="$tmpdir"/doingthings."$n"
+		bash_in_use_flag_file="$bash_in_use_flag_file" \
+			explicit_exit_flag_file="$explicit_exit_flag_file" \
+			sigterm_set_flag_file="$sigterm_set_flag_file" \
+			debug="$debug" \
+			tmpdir="$tmpdir" \
+			n="$n" \
+			bash --rcfile ~/.local/lib/taskloop/tasklooprc -i \
+			<&0 &
+		bash_pid="$!"
+		read_pid=
+		wait_pids=("$bash_pid" "$toil_pid" "$sleep_pid")
+	fi
 	n="$((n+1))"
 
 	# Wait for one of the three background processes to exit.
-	if wait -np waited_pid "$toil_pid" "$sleep_pid" "$bash_pid"; then
+	if wait -np waited_pid "${wait_pids[@]}"; then
 		# One of the processes returned success.
 		case "$waited_pid" in
+			'')
+				printf '%s:%s unexpected null PID\n' \
+					"$0" "$LINENO" \
+					>&2
+				exit 70  # EX_SOFTWARE
+				;;
 			"$toil_pid")
 				# A file change was detected.
 				toil_pid=
@@ -198,6 +219,13 @@ while :; do
 					bash_pid=
 				fi
 				;;
+			"$read_pid")
+				# The read command has exited.  No way to get
+				# the output, so just assume the user pressed
+				# Return and redraw.  If the user wants to
+				# exit, that's what Ctrl+C is for...
+				read_pid=
+				;;
 			*)
 				printf '%s:%s unexpected PID %s\n' \
 					"$0" "$LINENO" \
@@ -216,6 +244,9 @@ while :; do
 			if [[ -e "$explicit_exit_flag_file" ]]; then
 				exit "$waitrc"
 			fi
+		elif [[ "$waitrc" = 156 ]]; then
+			# SIGWINCH, so just redraw
+			:
 		else
 			# Non-zero return code or unexpected signal, so exit
 			# with that return code.
