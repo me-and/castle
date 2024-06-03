@@ -56,7 +56,7 @@ uda.recurAfterDueRandomDelay.type=duration
 # "waitingfor" tasks that I'm still waiting for.
 report.next.columns=id,start.age,entry.age,depends,priority,project,tags,recur,scheduled.countdown,due.relative,until.remaining,description.count,urgency
 report.next.labels=ID,Act,Age,Deps,P,Project,Tag,R,S,Due,Unt,Description,Urg
-report.next.filter=-COMPLETED -DELETED -PARENT ( ( -WAITING -waitingfor -BLOCKED ) or ( +OVERDUE -overdueallowed ) or +inbox )
+report.next.filter=-COMPLETED -DELETED -PARENT ( ( -WAITING -waitingfor -BLOCKED ) or ( +OVERDUE hiddenTags.noword:overdueallowed ) or +inbox )
 
 # "Until" behaviour on recurring tasks
 uda.recurTaskUntil.type=duration
@@ -80,6 +80,10 @@ report._reviewed.columns=uuid
 report._reviewed.sort=problems,reviewed+,modified+
 report._reviewed.filter=( reviewed.none: or reviewed.before:now-6days or problems.any: ) -COMPLETED -DELETED
 report._reviewed.context=0
+
+# Like tags, but hidden
+uda.hiddenTags.type=string
+uda.hiddenTags.label=Hidden tags
 
 # Don't show logs in task info -- it's not worth the screen space
 journal.info=off
@@ -135,38 +139,38 @@ urgency.uda.priority.L.coefficient=-1.8
 reserved.lines=3
 
 # Context: evening and weekend
-context.evening-weekend.read=( -business -southport -dadford -work ) or +inbox or ( +OVERDUE -overdueallowed )
+context.evening-weekend.read=( -business -southport -dadford -work ) or +inbox or ( +OVERDUE hiddenTags.noword:overdueallowed )
 
 # Context: allotment
-context.allotment.read=( -home -southport -dadford -enfield -work ) or +inbox or ( +OVERDUE -overdueallowed )
+context.allotment.read=( -home -southport -dadford -enfield -work ) or +inbox or ( +OVERDUE hiddenTags.noword:overdueallowed )
 
 # Context: day off.  Prioritise things that can only be done in business hours.
-context.day-off.read=( -southport -dadford -work ) or +inbox or ( +OVERDUE -overdueallowed )
+context.day-off.read=( -southport -dadford -work ) or +inbox or ( +OVERDUE hiddenTags.noword:overdueallowed )
 context.day-off.rc.urgency.user.tag.business.coefficient=6
 
 # Context: work.  Prioritise things that can only be done at work or in
 # business hours
-context.work.read=( -southport -dadford -multivac -allotment -nsfw -alex ) or +inbox or ( +OVERDUE -overdueallowed )
+context.work.read=( -southport -dadford -multivac -allotment -nsfw -alex ) or +inbox or ( +OVERDUE hiddenTags.noword:overdueallowed )
 context.work.rc.urgency.user.tag.work.coefficient=6
 context.work.rc.urgency.user.tag.business.coefficient=4
 
 # Context: dadford.  Prioritise things that can only be done on site.
-context.dadford.read=( -home -southport -enfield -business -work ) or +inbox or ( +OVERDUE -overdueallowed )
+context.dadford.read=( -home -southport -enfield -business -work ) or +inbox or ( +OVERDUE hiddenTags.noword:overdueallowed )
 context.dadford.write=+dadford
 context.dadford.rc.urgency.user.tag.dadford.coefficient=10
 
 # Context: southport.  Prioritise things that can only be done there.
-context.southport.read=( -allotment -enfield -dadford -home -work ) or +inbox or ( +OVERDUE -overdueallowed )
+context.southport.read=( -allotment -enfield -dadford -home -work ) or +inbox or ( +OVERDUE hiddenTags.noword:overdueallowed )
 context.southport.rc.urgency.user.tag.southport.coefficient=20
 
 # Context: exercise bike
-context.bike.read=( -home -southport -dadford -enfield -work -car -multivac -cornwall -phone ) or +inbox or ( +OVERDUE -overdueallowed )
+context.bike.read=( -home -southport -dadford -enfield -work -car -multivac -cornwall -phone ) or +inbox or ( +OVERDUE hiddenTags.noword:overdueallowed )
 
 # Context: bed.
-context.bed.read=( -home -southport -dadford -enfield -daylight -work -pc -multivac -audio -business -alex -car -cornwall -phone -surface ) or +inbox or ( +OVERDUE -overdueallowed )
+context.bed.read=( -home -southport -dadford -enfield -daylight -work -pc -multivac -audio -business -alex -car -cornwall -phone -surface ) or +inbox or ( +OVERDUE hiddenTags.noword:overdueallowed )
 
 # Context: office.
-context.office.read=( -southport -dadford -multivac -nsfw -alex -home -car ) or +inbox or ( +OVERDUE -overdueallowed )
+context.office.read=( -southport -dadford -multivac -nsfw -alex -home -car ) or +inbox or ( +OVERDUE hiddenTags.noword:overdueallowed )
 context.office.rc.urgency.user.tag.business.coefficient=2
 context.office.rc.urgency.user.tag.work.coefficient=6
 
