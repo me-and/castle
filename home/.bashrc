@@ -3,6 +3,13 @@
 # should be ready to handle all scenarios.  There's more in common than there
 # is different!
 
+# If Home Manager session variables are configured, use them before doing
+# anything else.  In particular, it can set things like PYTHONPATH, so I want
+# to make sure my PYTHONPATH is set later.
+if [[ -f ~/.nix-profile/etc/profile.d/hm-session-vars.sh && -r ~/.nix-profile/etc/profile.d/hm-session-vars.sh ]]; then
+	. ~/.nix-profile/etc/profile.d/hm-session-vars.sh
+fi
+
 # Set up standard paths and language information that I want regardless of
 # whether this is an interactive session or not.
 add_to_path () {
