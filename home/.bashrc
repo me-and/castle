@@ -5,13 +5,25 @@
 
 # Set up standard paths and language information that I want regardless of
 # whether this is an interactive session or not.
-if [[ :"$PATH": != *:"$HOME/.local/bin":* ]]; then
-	PATH="$HOME/.local/bin${PATH:+:$PATH}"
-fi
+add_to_path () {
+	# This is a bit convoluted to ensure that paths are added to the front of
+	# PATH in the order they're given as arguments.
+	local -n path="$1"
+	shift
+	local p
+	local to_prepend
+	for p; do
+		if [[ :"$path": != *:"$p":* ]]; then
+			to_prepend="${to_prepend:+$to_prepend:}$p"
+		fi
+	done
+	if [[ "$to_prepend" ]]; then
+		path="$to_prepend${path:+:$path}"
+	fi
+}
+add_to_path PATH ~/.local/bin ~/.nix-profile/bin
 
-if [[ :"$PYTHONPATH": != *:"$HOME/.local/lib/python3/my-packages":* ]]; then
-	PYTHONPATH="$HOME/.local/lib/python3/my-packages${PYTHONPATH:+:$PYTHONPATH}"
-fi
+add_to_path PYTHONPATH ~/.local/lib/python3/my-packages
 
 : "${LANG:=en_GB.UTF-8}"
 : "${LANGUAGE:=en_GB:en}"
