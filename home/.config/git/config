@@ -98,6 +98,9 @@
 	ff = only
 [init]
 	defaultBranch = main
+[safe]
+	directory = /etc/nixos
+	directory = /etc/nixos/.git
 [include]
 	# Put this at the bottom, so local values will override general ones.
 	path = ~/.config/git/localconfig
