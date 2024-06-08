@@ -3,15 +3,34 @@
 # should be ready to handle all scenarios.  There's more in common than there
 # is different!
 
-# Set up standard paths and language information that I want regardless of
-# whether this is an interactive session or not.
-if [[ :"$PATH": != *:"$HOME/.local/bin":* ]]; then
-	PATH="$HOME/.local/bin${PATH:+:$PATH}"
+# If Home Manager session variables are configured, use them before doing
+# anything else.  In particular, it can set things like PYTHONPATH, so I want
+# to make sure my PYTHONPATH is set later.
+if [[ -f ~/.nix-profile/etc/profile.d/hm-session-vars.sh && -r ~/.nix-profile/etc/profile.d/hm-session-vars.sh ]]; then
+	. ~/.nix-profile/etc/profile.d/hm-session-vars.sh
 fi
 
-if [[ :"$PYTHONPATH": != *:"$HOME/.local/lib/python3/my-packages":* ]]; then
-	PYTHONPATH="$HOME/.local/lib/python3/my-packages${PYTHONPATH:+:$PYTHONPATH}"
-fi
+# Set up standard paths and language information that I want regardless of
+# whether this is an interactive session or not.
+add_to_path () {
+	# This is a bit convoluted to ensure that paths are added to the front of
+	# PATH in the order they're given as arguments.
+	local -n path="$1"
+	shift
+	local p
+	local to_prepend
+	for p; do
+		if [[ :"$path": != *:"$p":* ]]; then
+			to_prepend="${to_prepend:+$to_prepend:}$p"
+		fi
+	done
+	if [[ "$to_prepend" ]]; then
+		path="$to_prepend${path:+:$path}"
+	fi
+}
+add_to_path PATH ~/.local/bin ~/.nix-profile/bin
+
+add_to_path PYTHONPATH ~/.local/lib/python3/my-packages
 
 : "${LANG:=en_GB.UTF-8}"
 : "${LANGUAGE:=en_GB:en}"
