@@ -20,8 +20,7 @@ else
 	exit 1
 fi
 
-now="$(date '+%s')"
-diff="$((now - then))"
+diff="$((EPOCHSECONDS - then))"
 
 if [[ "$human" ]]; then
 	if (( diff < 60 )); then

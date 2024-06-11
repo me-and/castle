@@ -33,6 +33,12 @@ help () {
 	printf '    not specified.\n'
 }
 
+if (( $# == 0 )); then
+	printf 'Missing options\n\n' >&2
+	help >&2
+	exit 64  # EX_USAGE
+fi
+
 force=
 quick=
 verbose=
