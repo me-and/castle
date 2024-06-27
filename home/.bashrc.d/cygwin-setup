@@ -84,7 +84,7 @@ function cygwin_list_packages {
 
 function cygwin_list_leaves {
 	if ! command -v cygcheck-dep >/dev/null; then
-		wrap_message "cygcheck-dep not available" >&2
+		wrap_message <<<"cygcheck-dep not available" >&2
 		return 1
 	fi
 	cygcheck-dep -cl 2>/dev/null | grep -vF '[Base]' | sed 's/^ *//'
