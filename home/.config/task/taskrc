@@ -170,7 +170,7 @@ context.bike.read=( -home -southport -dadford -enfield -work -car -multivac -cor
 context.bed.read=( -home -southport -dadford -enfield -daylight -work -pc -multivac -audio -business -alex -car -cornwall -phone -surface ) or +inbox or ( +OVERDUE hiddenTags.noword:overdueallowed )
 
 # Context: office.
-context.office.read=( -southport -dadford -multivac -nsfw -alex -home -car ) or +inbox or ( +OVERDUE hiddenTags.noword:overdueallowed )
+context.office.read=( -southport -dadford -multivac -allotment -nsfw -alex -home -car ) or +inbox or ( +OVERDUE hiddenTags.noword:overdueallowed )
 context.office.rc.urgency.user.tag.business.coefficient=2
 context.office.rc.urgency.user.tag.work.coefficient=6
 
