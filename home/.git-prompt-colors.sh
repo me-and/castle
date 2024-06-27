@@ -30,12 +30,12 @@ override_git_prompt_colors() {
 			prompt='$'
 		fi
 
-		GIT_PROMPT_END_USER='\n'"$TIME_COLOUR"'\D{%a %e %b %R}'"$ResetColor $prompt "
+		GIT_PROMPT_END_USER='\n'"$TIME_COLOUR"'\D{%a %e %b %R}'"$ResetColor $SHLVL$prompt "
 		GIT_PROMPT_END_ROOT="$GIT_PROMPT_END_USER"
 	else
 		# '\$' means show '#' if we're root, and '$' otherwise.
-		GIT_PROMPT_END_USER='\n'"$TIME_COLOUR"'\D{%a %e %b %R}'"$ResetColor"' \$ '
-		GIT_PROMPT_END_ROOT='\n'"$TIME_COLOUR"'\D{%a %e %b %R}'" $Red"'\$'"$ResetColor "
+		GIT_PROMPT_END_USER='\n'"$TIME_COLOUR"'\D{%a %e %b %R}'"$ResetColor"' $SHLVL\$ '
+		GIT_PROMPT_END_ROOT='\n'"$TIME_COLOUR"'\D{%a %e %b %R}'" $Red$SHLVL"'\$'"$ResetColor "
 	fi
 
 	GIT_PROMPT_START_USER='\n_LAST_COMMAND_INDICATOR_ '"$HOST_COLOUR"'\u@\h '"$PWD_COLOUR"'\w'"$ResetColor"

@@ -17,5 +17,16 @@ def fmtutcdate: gsub("[-:]"; "")
                   end
                 | sub("  *"; " ")
                 ;
+def fmtlocaldate: gsub("[-:]"; "")
+                  | if test("T\\d{6}")
+                    then strptime("%Y%m%dT%H%M%SZ")
+                         | mktime
+                         | strflocaltime("%a %e %b %Y %H:%M:%S")
+                    else strptime("%Y%m%dT%H%MZ")
+                         | mktime
+                         | strflocaltime("%a %e %b %Y %H:%M")
+                    end
+                  | sub("  *"; " ")
+                  ;
 
 # vim: et ts=8 ft=jq

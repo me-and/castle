@@ -8,9 +8,9 @@ def _map_key($key; f): if has($key) then .[$key] |= f end;
 # Format the date fields in a Taskwarrior export
 def fmtdates: reduce ("due", "end", "entry", "modified", "reviewed",
                       "scheduled", "start", "until", "wait")
-              as $key (.; _map_key($key; datetime::fmtutcdate))
+              as $key (.; _map_key($key; datetime::fmtlocaldate))
               | _map_key("annotations";
-                         map(_map_key("entry"; datetime::fmtutcdate))
+                         map(_map_key("entry"; datetime::fmtlocaldate))
                          );
 
 # Compare two tasks and return an object with the fields that differ.
