@@ -46,6 +46,10 @@ fi
 : "${MAX_MESSAGE_WIDTH:=79}"
 if command -v fmt >/dev/null; then
 	wrap_message () {
+		if [[ -t 0 ]]; then
+			wrap_message <<<'wrap_message has a terminal on stdin, did you miss a redirect?'
+			return 1
+		fi
 		local -i target_width screen_width
 		screen_width="${COLUMNS:-79}"
 		target_width="$((screen_width>MAX_MESSAGE_WIDTH ? MAX_MESSAGE_WIDTH : screen_width))"
@@ -53,6 +57,10 @@ if command -v fmt >/dev/null; then
 	}
 else
 	wrap_message () {
+		if [[ -t 0 ]]; then
+			wrap_message <<<'wrap_message has a terminal on stdin, did you miss a redirect?'
+			return 1
+		fi
 		cat
 	}
 	wrap_message <<<'fmt unavailable' >&2
