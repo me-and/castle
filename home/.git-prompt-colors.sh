@@ -16,6 +16,7 @@ override_git_prompt_colors() {
 
 	esac
 
+	local user_prompt root_prompt
 	if [[ "$OSTYPE" = cygwin ]]; then
 		# The Git prompt is painfully slow, particularly for larger repos, so
 		# disable it.
@@ -25,18 +26,28 @@ override_git_prompt_colors() {
 		# checks don't work.  Check by testing the output of `id` instead.
 		local prompt='$'
 		if [[ " $(id -G) " = *' 544 '* ]]; then
-			prompt="${Red}#${ResetColor}"
+			user_prompt="${Red}#${ResetColor}"
 		else
-			prompt='$'
+			user_prompt='$'
 		fi
-
-		GIT_PROMPT_END_USER='\n'"$TIME_COLOUR"'\D{%a %e %b %R}'"$ResetColor $SHLVL$prompt "
-		GIT_PROMPT_END_ROOT="$GIT_PROMPT_END_USER"
+		root_prompt="$user_prompt"
 	else
 		# '\$' means show '#' if we're root, and '$' otherwise.
-		GIT_PROMPT_END_USER='\n'"$TIME_COLOUR"'\D{%a %e %b %R}'"$ResetColor"' $SHLVL\$ '
-		GIT_PROMPT_END_ROOT='\n'"$TIME_COLOUR"'\D{%a %e %b %R}'" $Red$SHLVL"'\$'"$ResetColor "
+		user_prompt='\$'
+		root_prompt="$Red"'\$'"$ResetColor"
 	fi
+
+	local lvl_mark
+	if (( SHLVL == 1 )); then
+		lvl_mark=1
+	else
+		lvl_mark="${Magenta}${SHLVL}${ResetColor}"
+	fi
+
+	local prompt_end_lead='\n'"$TIME_COLOUR"'\D{%a %e %b %R}'"$ResetColor"
+
+	GIT_PROMPT_END_USER="$prompt_end_lead ${lvl_mark}${user_prompt} "
+	GIT_PROMPT_END_ROOT="$prompt_end_lead ${lvl_mark}${root_prompt} "
 
 	GIT_PROMPT_START_USER='\n_LAST_COMMAND_INDICATOR_ '"$HOST_COLOUR"'\u@\h '"$PWD_COLOUR"'\w'"$ResetColor"
 	GIT_PROMPT_START_ROOT="$GIT_PROMPT_START_USER"
