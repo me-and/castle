@@ -24,6 +24,20 @@ help () {
 	printf -- '-h: Print this help message.\n'
 }
 
+process_filter_arg () {
+	local arg="$1"
+	local val
+	if [[ "$arg" = project.sub:* ]]; then
+		val="${arg#project.sub:}"
+		filter+=(\( project.is:"$val" or project:"$val". \))
+	elif [[ "$arg" = project.nsub:* ]]; then
+		val="${arg#project.nsub:}"
+		filter+=(\( project.isnt:"$val" project.not:"$val". \))
+	else
+		filter+=("$arg")
+	fi
+}
+
 # Parse arguments manually; we can't use getopts because Taskwarrior's filters
 # (e.g. `-PARENT`) make that decidedly non-trivial.
 less_opts=()
@@ -38,7 +52,7 @@ for arg in "$@"; do
 		less_opts+=("$arg")
 		next_is_less_opts=
 	elif [[ "$remainder_is_all_filter" ]]; then
-		filter+=("$arg")
+		process_filter_arg "$arg"
 	elif [[ "$arg" =~ ^-[aPph]+$ ]]; then
 		case "$arg" in
 			*a*)	include_all=Yes;;&
@@ -68,7 +82,7 @@ for arg in "$@"; do
 	elif [[ "$arg" = -- ]]; then
 		remainder_is_all_filter=Yes
 	else
-		filter+=("$arg")
+		process_filter_arg "$arg"
 	fi
 done
 
