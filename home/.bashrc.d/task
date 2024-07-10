@@ -79,6 +79,7 @@ fi
 # that approach doesn't allow using the normal Taskwarrior interface of having
 # filter arguments before the command and command arguments after it.
 _task_done_replace () {
+	local -i n
 	[[ -v inside_task_done_replace ]] && return 0
 	for (( n=1; n<=$#; n++ )); do
 		if [[ "${!n}" = done-replace || "${!n}" = del-replace ]]; then
@@ -86,7 +87,6 @@ _task_done_replace () {
 			local source_set=
 			local old_uuid blocks arg name
 			local -a filter_args description_args params column_names
-			local -i n
 
 			# Always want to reset the rtype on any new task.
 			params=(rtype:)
