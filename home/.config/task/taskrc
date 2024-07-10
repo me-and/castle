@@ -173,6 +173,7 @@ context.bed.read=( -home -southport -dadford -enfield -daylight -work -pc -multi
 context.office.read=( -southport -dadford -multivac -allotment -nsfw -alex -home -car ) or +inbox or ( +OVERDUE hiddenTags.noword:overdueallowed )
 context.office.rc.urgency.user.tag.business.coefficient=2
 context.office.rc.urgency.user.tag.work.coefficient=6
+context.office.rc.urgency.user.tag.office.coefficient=10
 
 # Default urgency coefficients for things that have context-specific urgencies,
 # otherwise the context-specific ones seem to not take effect.
@@ -180,6 +181,7 @@ urgency.user.tag.work.coefficient=0
 urgency.user.tag.business.coefficient=0
 urgency.user.tag.dadford.coefficient=0
 urgency.user.tag.southport.coefficient=0
+urgency.user.tag.office.coefficient=0
 
 # Tasks in the inbox should be right at the top to get sorted, unless there is
 # something even more burningly urgent.
