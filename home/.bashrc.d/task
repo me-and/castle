@@ -80,13 +80,17 @@ fi
 # filter arguments before the command and command arguments after it.
 _task_done_replace () {
 	[[ -v inside_task_done_replace ]] && return 0
-	local inside_task_done_replace=Yes
-	local old_uuid blocks arg name
-	local -a filter_args description_args params column_names
-	local -i n
-
 	for (( n=1; n<=$#; n++ )); do
 		if [[ "${!n}" = done-replace || "${!n}" = del-replace ]]; then
+			local inside_task_done_replace=Yes
+			local source_set=
+			local old_uuid blocks arg name
+			local -a filter_args description_args params column_names
+			local -i n
+
+			# Always want to reset the rtype on any new task.
+			params=(rtype:)
+
 			filter_args=("${@:1:n-1}")
 			old_uuid="$(_task_quick_quiet "${filter_args[@]}" _unique uuid)" || return "$?"
 			if [[ -z "$old_uuid" ]]; then
@@ -96,8 +100,12 @@ _task_done_replace () {
 				wrap_message <<<"More than one task matching filter ${filter_args[*]@Q}" >&2
 				return 1
 			fi
+
+			# New task needs to block the same tasks as the
+			# previous one.
 			blocks="$(_task_quick_quiet depends.has:"$old_uuid" -COMPLETED -DELETED _unique uuid)" || return "$?" # Newline separated
 			blocks="${blocks//$'\n'/,}"  # Now it's comma separated
+			params+=(blocks:"$blocks")
 
 			# Left to its own devices, Taskwarrior will treat
 			# arguments that aren't setting parameters as being
@@ -105,10 +113,13 @@ _task_done_replace () {
 			# the task description, similar to `task add`.  Work
 			# out which arguments are task parameters and which
 			# aren't.
-			column_names=($(_task_quick_quiet _columns)) || "$?"
+			column_names=($(_task_quick_quiet _columns)) || return "$?"
 			for arg in "${@:n+1}"; do
 				for name in "${column_names[@]}"; do
 					if [[ "$arg" = "$name":* || "$arg" = '-'* || "$arg" = '+'* ]]; then
+						if [[ "$arg" = source:* ]]; then
+							source_set=Yes
+						fi
 						params+=("$arg")
 						continue 2
 					fi
@@ -116,12 +127,23 @@ _task_done_replace () {
 				description_args+=("$arg")
 			done
 
-			if (( "${#description_args[*]}" == 0 )); then
-				# No new description, so just use the old one.
-				task "$old_uuid" duplicate blocks:"$blocks" rtype: "${params[@]}" || return "$?"
-			else
-				task "$old_uuid" duplicate blocks:"$blocks" rtype: "${params[@]}" description:"${description_args[*]}" || return "$?"
+			# If the new task doesn't have an explicit source, the
+			# old one is likely incorrect, so clear it.
+			if [[ ! "$source_set" ]]; then
+				params+=(source:)
 			fi
+
+			if (( "${#description_args[*]}" > 0 )); then
+				# Description has been specified, so record it.
+				# If there's no description, and it hasn't been
+				# included with an explicit `description:...`
+				# setting caught by the previous argument
+				# processing, Taskwarrior will just use the old
+				# description on the new task.
+				params+=(description:"${description_args[*]}")
+			fi
+
+			task "$old_uuid" duplicate "${params[@]}" || return "$?"
 
 			if [[ "${!n}" = done-replace ]]; then
 				task "$old_uuid" done || return "$?"
