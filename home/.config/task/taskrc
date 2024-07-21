@@ -3,6 +3,17 @@
 data.location=~/.local/share/task/
 hooks.location=~/.config/task/hooks/
 
+# Taskserver configuration.
+taskd.certificate=~/.config/task/adam.cert.pem
+taskd.key=~/.config/task/adam.key.pem
+taskd.server=taskwarrior.dinwoodie.org:50340
+taskd.credentials=adam/adam/5e378a6c-4552-46e0-a173-dec9d75894b0
+taskd.trust=strict
+
+# Don't create recurring tasks.  Set this to 1 in localtaskrc on a single
+# system.
+recurrence=0
+
 # Color theme (uncomment one to use)
 #include /usr/share/taskwarrior/light-16.theme
 #include /usr/share/taskwarrior/light-256.theme
