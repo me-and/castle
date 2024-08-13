@@ -1,0 +1,31 @@
+_prompt_temperature () {
+	local -i temp max_temp
+	local f
+
+	for f in /sys/class/thermal/*/temp; do
+		[[ -e "$f" ]] || continue
+		temp="$(<"$f")"
+		if (( temp > max_temp )); then
+			max_temp="$temp"
+		fi
+	done
+
+	if [[ -v max_temp ]]; then
+		local -i temp_int temp_frac
+		local temp_colour
+		temp_int="$((temp / 1000))"
+		temp_frac="$((temp % 1000))"
+		if (( temp_int >= 65 )); then
+			temp_colour="$Red"
+		else
+			temp_colour="$White"
+		fi
+		PS1="${PS1/_TEMP_PLACEHOLDER_/"${temp_colour}${temp_int}.${temp_frac}°C "}"
+	else
+		PS1="${PS1/_TEMP_PLACEHOLDER_}"
+	fi
+}
+
+PROMPT_COMMAND+=(_prompt_temperature)
+
+# vim: ft=bash ts=8 noet
