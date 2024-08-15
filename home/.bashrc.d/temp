@@ -17,6 +17,8 @@ _prompt_temperature () {
 		temp_frac="$((temp % 1000))"
 		if (( temp_int >= 65 )); then
 			temp_colour="$Red"
+		elif (( temp_int >= 55 )); then
+			temp_colour="$Yellow"
 		else
 			temp_colour="$White"
 		fi
