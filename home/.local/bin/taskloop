@@ -94,7 +94,7 @@ done
 [[ "$report" ]] || report=next
 tmpdir="$(mktemp -dt "taskloop.$report.$EPOCHSECONDS.$$.XXXXX")"
 [[ "$have_reserved_lines" ]] || config+=(reserved.lines=0)
-[[ "$have_verbose" ]] || config+=(verbose=blank,header,footnote,label,affected,context)
+[[ "$have_verbose" ]] || config+=('verbose=blank,header,footnote,label,affected,context')
 [[ "$have_gc" ]] || config+=(gc=0)
 [[ "$have_limit" ]] || filter=(limit:page "${filter[@]}")
 
@@ -155,7 +155,7 @@ while :; do
 
 	if [[ "$no_prompt" ]]; then
 		if [[ -z "$read_pid" ]]; then
-			read <&0 &
+			read -r <&0 &
 			read_pid="$!"
 			bash_pid=
 			trap -- ':' SIGWINCH
