@@ -408,7 +408,7 @@ taskpage () {
 	else
 		columnarg=()
 	fi
-	task "${columnarg[@]}" rc._forcecolor=1 "$@" | less -R
+	task "${columnarg[@]}" rc._forcecolor=1 "$@" |& less -R
 }
 
 # This based on the code in bash-git-prompt.
