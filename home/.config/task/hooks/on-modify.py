@@ -10,7 +10,6 @@ if __name__ == '__main__':
                                    h.child_until,
                                    h.waitingfor_adds_due,
                                    h.recur_after,
-                                   h.reviewed_to_entry,
                                    h.random_delays,
                                    h.problem_tag_hook_gen(h.missing_project_problem),
                                    ]
