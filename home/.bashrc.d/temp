@@ -15,7 +15,7 @@ _prompt_temperature () {
 		local temp_colour
 		# Add 500 before dividing by 1000, so integer division results
 		# in proper rounding.
-		temp_int="$(((temp+500) / 1000))"
+		temp_int="$(((max_temp+500) / 1000))"
 		if (( temp_int >= 65 )); then
 			temp_colour="$Red"
 		elif (( temp_int >= 55 )); then
