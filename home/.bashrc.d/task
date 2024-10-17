@@ -402,13 +402,23 @@ pwl () {
 taskpage () {
 	local -
 	set -o pipefail
-	local -a columnarg
+
+	local -a rc_args=('rc._forcecolor=1')
 	if [[ -v COLUMNS ]]; then
-		columnarg=(rc.defaultwidth="$COLUMNS")
-	else
-		columnarg=()
+		rc_args+=("rc.defaultwidth=$COLUMNS")
 	fi
-	task "${columnarg[@]}" rc._forcecolor=1 "$@" |& less -R
+
+	# For each configuration override set within this function, add a grep
+	# command to filter it from the output, since they're not useful
+	# warnings to the user.
+	local rc_arg
+	local -a grep_args=('--invert-match' '--line-regexp' '--color=never')
+	for rc_arg in "${rc_args[@]}"; do
+		grep_args+=($'--regexp=\e\\[38;5;3mConfiguration override '"${rc_arg//['\[.$^*']/\\&}"$'\e\\[0m')
+	done
+	grep_args+=('-')
+
+	task "${rc_args[@]}" "$@" |& grep "${grep_args[@]}" | less -R
 }
 
 # This based on the code in bash-git-prompt.
