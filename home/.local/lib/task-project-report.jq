@@ -131,9 +131,15 @@ def format_description:
 | (.[1]
    | fromjson
    | map(.ident = task_ident)
-   | if any(group_by(.ident)[]; length > 1)
-     then error("Duplicate task idents")
-     end
+   | ((group_by(.ident)
+       | map(select(length > 1) | .[0].ident)
+       | if length > 1
+         then error("\(length) duplicate task idents")
+         else empty
+         end
+       ),
+      .
+     )
    | INDEX(.[]; .uuid)
    ) as $by_uuid
 | .[0] / "\n"
