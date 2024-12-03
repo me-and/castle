@@ -217,6 +217,43 @@ bashwrap task '
 	fi
 	'
 
+# Wrapper to add `task <filter> add-before ...` and `task <filter> add-after
+# ...` commands that add tasks that are blocked by or blocking some other task.
+bashwrap task '
+	local -i n
+	for (( n=1; n<=$#; n++ )); do
+		if [[ "${!n}" = add-before || "${!n}" = add-after ]]; then
+			local orig_uuid orig_project
+			local -a filter_args=("${@:1:n-1}")
+			if (( ${#filter_args[*]} == 0 )); then
+				wrap_message <<<"No filter specified for ${!n}" >&2
+				return 1
+			fi
+
+			orig_uuid="$(_task_quick_quiet "${filter_args[@]}" _unique uuid)" || return "$?"
+			if [[ -z "$orig_uuid" ]]; then
+				wrap_message <<<"No task matching filter ${filter_args[*]@Q}" >&2
+				return 1
+			elif [[ "$orig_uuid" != ????????-????-????-????-???????????? ]]; then
+				wrap_message <<<"More than one task matching filter ${filter_args[*]@Q}" >&2
+				return 1
+			fi
+
+			# Copy the project from the previous task.  If the user
+			# command is overriding it, that'\''ll still work
+			# provided the user'\''s project argument comes after
+			# the one added here.
+			orig_project="$(_task_quick_quiet uuid:"$orig_uuid" _unique project)"
+
+			if [[ "${!n}" = add-before ]]; then
+				set -- add blocks:"$orig_uuid" project:"$orig_project" "${@:n+1}"
+			else
+				set -- add depends:"$orig_uuid" project:"$orig_project" "${@:n+1}"
+			fi
+			break
+		fi
+	done
+	'
 
 fo () {
 	if (( $# == 0 )); then
