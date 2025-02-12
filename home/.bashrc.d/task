@@ -187,186 +187,49 @@ bashwrap task '
 	done
 	'
 
-fo () {
-	if (( $# == 0 )); then
-		echo 'No filter specified' >&2
-		return 1
-	fi
-	local uuid
-	local -a uuids
-	uuids=($(_task_quick_quiet "$@" _unique uuid)) || return "$?"
-	if (( ${#uuids[*]} == 0 )); then
-		echo 'No matched tasks' >&2
-		return 1
-	fi
-	for uuid in "${uuids[@]}"; do
-		TPFILTER+=(uuid.not:"$uuid")
-	done
-}
+if [[ -v TMUX_TASKLOOP_TMPDIR ]]; then
+	tlf () {
+		trap 'trap - ERR RETURN; return' ERR RETURN
+		local f
+		local -a files
 
-# Version of fo for use with the taskloop script...
-tlo () {
-	trap 'trap - RETURN ERR; return' RETURN ERR
-	local report f all=
-	local -a reports=() files uuids
+		files=("$TMUX_TASKLOOP_TMPDIR"/*/filter)
 
-	while [[ "$1" = -* ]]; do
-		if [[ "$1" = -a ]]; then
-			all=YesPlease
-			shift
-		elif [[ "$1" = -r ]]; then
-			reports+=("$2")
-			shift 2
-		elif [[ "$1" = -r* ]]; then
-			reports+=("${1#-r}")
-			shift
-		elif [[ "$1" = -- ]]; then
-			shift
-			break
-		else
-			# Probably something like '-home', which just wants to
-			# be processed as a filter
-			break
+		if (( $# == 0 )); then
+			echo 'No filter specified' >&2
+			return 1
 		fi
-	done
 
-	if [[ -z "$all" && "${#reports[*]}" -eq 0 ]]; then
-		# No report specified explicitly, so use the default: the
-		# current report within taskloop, or all current reports
-		# elsewhere.
-		if [[ -v TASKLOOP ]]; then
-			files=("$tmpdir"/filter)
-		else
-			files=(/tmp/taskloop.*/filter)
-		fi
-	elif [[ "$all" ]]; then
-		files=(/tmp/taskloop.*/filter)
-	else
-		files=()
-		for report in "${reports[@]}"; do
-			files+=(/tmp/taskloop."$report".*/filter)
+		for f in "${files[@]}"; do
+			printf '%s\n' "$@" >>"$f"
 		done
-	fi
+	}
 
-	if (( $# == 0 )); then
-		echo 'No filter specified' >&2
-		return 1
-	fi
-	uuids=($(_task_quick_quiet "$@" _unique uuid))
-	if (( ${#uuids[*]} == 0 )); then
-		echo 'No matched tasks' >&2
-		return 1
-	fi
+	tlo () {
+		trap 'trap - RETURN ERR; return' RETURN ERR
+		local -a uuids
 
-	for f in "${files[@]}"; do
-		printf 'uuid.not:%s\n' "${uuids[@]}" >>"$f"
-	done
-}
-
-# Just add the specified filters to all current taskloop instances.
-tlf () {
-	trap 'trap - ERR RETURN; return' ERR RETURN
-	local report f all=
-	local -a reports=() files
-	while [[ "$1" = -* ]]; do
-		if [[ "$1" = -a ]]; then
-			all=YesPlease
-			shift
-		elif [[ "$1" = -r ]]; then
-			reports+=("$2")
-			shift 2
-		elif [[ "$1" = -r* ]]; then
-			reports+=("${1#-r}")
-			shift
-		elif [[ "$1" = -- ]]; then
-			shift
-			break
-		else
-			# Probably something like '-home', which just wants to
-			# be processed as a filter
-			break
+		if (( $# == 0 )); then
+			echo 'No filter specified' >&2
+			return 1
 		fi
-	done
-
-	if [[ -z "$all" && "${#reports[*]}" -eq 0 ]]; then
-		# No report specified explicitly, so use the default: the
-		# current report within taskloop, or all current reports
-		# elsewhere.
-		if [[ -v TASKLOOP ]]; then
-			files=("$tmpdir"/filter)
-		else
-			files=(/tmp/taskloop.*/filter)
+		uuids=($(_task_quick_quiet "$@" _unique uuid))
+		if (( ${#uuids[*]} == 0 )); then
+			echo 'No matched tasks' >&2
+			return 1
 		fi
-	elif [[ "$all" ]]; then
-		files=(/tmp/taskloop.*/filter)
-	else
-		files=()
-		for report in "${reports[@]}"; do
-			files+=(/tmp/taskloop."$report".*/filter)
-		done
-	fi
 
-	shift "$((OPTIND - 1))"
+		tlf "${uuids[@]/#/uuid.not:}"
+	}
 
-	if (( $# == 0 )); then
-		echo 'No filter specified' >&2
-		return 1
-	fi
+	tlef () {
+		editor "$TMUX_TASKLOOP_TMPDIR"/*/filter
+	}
 
-	for f in "${files[@]}"; do
-		printf '%s\n' "$@" >>"$f"
-	done
-}
-
-tlef () {
-	if [[ "$1" ]]; then
-		editor /tmp/taskloop."$1".*/filter
-	elif [[ -v TASKLOOP ]]; then
-		editor "$tmpdir"/filter
-	else
-		editor /tmp/taskloop.*/filter
-	fi
-}
-
-tlec () {
-	if [[ "$1" ]]; then
-		editor /tmp/taskloop."$1".*/config
-	elif [[ -v TASKLOOP ]]; then
-		editor "$tmpdir"/config
-	else
-		editor /tmp/taskloop.*/config
-	fi
-}
-
-declare TPREPORT
-declare -a TPFILTER
-prompt_display () {
-	if [[ "$TPREPORT" ]]; then
-		if (( "${#TPFILTER[*]}" > 0 )); then
-			local msg
-			printf -v msg '%q ' "${TPFILTER[@]}"
-			msg="filter: ${msg% }"
-			cut_message "$msg"
-		fi
-		task "${TPFILTER[@]}" "$TPREPORT"
-	fi
-}
-
-pnl () {
-	local limit="$1"
-	[[ "$limit" ]] || limit=page
-	shift
-	TPREPORT=next
-	TPFILTER=(limit:"$limit" "$@")
-}
-
-pwl () {
-	local limit="$1"
-	[[ "$limit" ]] || limit=page
-	shift
-	TPREPORT=waitingfor
-	TPFILTER=(limit:"$limit" "$@")
-}
+	tlec () {
+		editor "$TMUX_TASKLOOP_TMPDIR"/*/config
+	}
+fi
 
 taskpage () {
 	local -
@@ -389,12 +252,5 @@ taskpage () {
 
 	task "${rc_args[@]}" "$@" |& grep "${grep_args[@]}" | less -R
 }
-
-# This based on the code in bash-git-prompt.
-if (( BASH_VERSINFO[0] > 5 || BASH_VERSINFO[0] == 5 && BASH_VERSINFO[1] >= 1 )); then
-	PROMPT_COMMAND+=(prompt_display)
-else
-	PROMPT_COMMAND+=';prompt_display'
-fi
 
 # vim: ft=bash noet ts=8
