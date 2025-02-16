@@ -95,6 +95,7 @@
 	confirm = always
 	annotate = true
 	suppresscc = self
+	envelopeSender = auto
 [pull]
 	ff = only
 [init]
