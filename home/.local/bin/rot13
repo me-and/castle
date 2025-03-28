@@ -1,4 +1,0 @@
-#!/usr/bin/env bash
-exec tr '[A-Za-z]' '[N-ZA-Mn-za-m]'
-
-# vim: ft=bash

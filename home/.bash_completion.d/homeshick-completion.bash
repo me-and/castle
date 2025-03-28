@@ -1,1 +1,0 @@
-../../../homeshick/completions/homeshick-completion.bash
