@@ -11,7 +11,7 @@
 [mergetool]
 	prompt = false
 [push]
-	default = simple
+	default = tracking
 	autoSetupRemote = true
 [rebase]
 	autoSquash = true
